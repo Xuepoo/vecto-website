@@ -5,11 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}{{ config.title }}{% endblock %}</title>
     <meta name="description" content="{{ config.description }}">
+    <link rel="icon" href="{{ get_url(path="favicon.svg") | safe }}" type="image/svg+xml">
 
     <!-- Modern Typography -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;800&family=Playfair+Display:wght@700;800;900&display=swap" rel="stylesheet">
 
     <!-- Core styles -->
     <link rel="stylesheet" href="{{ get_url(path="css/styles.css") | safe }}">
@@ -18,12 +19,12 @@
 <body>
     <header class="navbar">
         <div class="container nav-container">
-            <a href="{{ config.base_url }}" class="nav-logo">
-                <span class="logo-accent">Vecto</span>UI
-            </a>
+            <button class="nav-menu" aria-label="Menu">
+                <span></span><span></span><span></span>
+            </button>
             <nav class="nav-links">
-                <a href="{{ get_url(path="docs/") | safe }}">文档</a>
-                <a href="{{ get_url(path="demos/") | safe }}">演示 Demos</a>
+                <a href="{{ get_url(path="docs/") | safe }}">Docs</a>
+                <a href="{{ get_url(path="demos/") | safe }}">Demos</a>
                 <a href="{{ config.extra.github }}" target="_blank" rel="noopener">GitHub</a>
             </nav>
         </div>
