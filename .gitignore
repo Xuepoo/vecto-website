@@ -1,0 +1,12 @@
+public/
+build/
+dist/
+node_modules/
+.DS_Store
+*.swp
+*.swo
+*~
+.env
+.env.*
+.wrangler/
+static/js/index.js

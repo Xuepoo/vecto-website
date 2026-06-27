@@ -1,0 +1,21 @@
+{
+  "name": "vecto-website",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "build:js": "bun build src/index.ts --minify --outfile=static/js/index.js",
+    "watch:js": "bun build src/index.ts --outfile=static/js/index.js --watch",
+    "build:zola": "zola build",
+    "serve:zola": "zola serve --port 1111",
+    "dev": "bun run build:js && concurrently \"bun run watch:js\" \"bun run serve:zola\"",
+    "build": "bun run build:js && bun run build:zola"
+  },
+  "dependencies": {
+    "@vecto-ui/core": "file:../vecto-ui/packages/core",
+    "@vecto-ui/ui": "file:../vecto-ui/packages/ui"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "typescript": "^5.4.5"
+  }
+}

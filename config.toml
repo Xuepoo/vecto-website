@@ -1,0 +1,12 @@
+# Zola configuration file for VectoUI Website
+title = "VectoUI"
+base_url = "https://vecto-ui.xuepoo.xyz"
+description = "A mathematical UI rendering framework driven by Vectomancy"
+default_language = "zh"
+
+compile_sass = false
+build_search_index = false
+
+[extra]
+author = "Xuepoo"
+github = "https://github.com/Xuepoo/vecto-ui"

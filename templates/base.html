@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="{{ lang }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{{ config.title }}{% endblock %}</title>
+    <meta name="description" content="{{ config.description }}">
+
+    <!-- Modern Typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+    <!-- Core styles -->
+    <link rel="stylesheet" href="{{ get_url(path="css/styles.css") | safe }}">
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+    <header class="navbar">
+        <div class="container nav-container">
+            <a href="{{ config.base_url }}" class="nav-logo">
+                <span class="logo-accent">Vecto</span>UI
+            </a>
+            <nav class="nav-links">
+                <a href="{{ get_url(path="docs/") | safe }}">文档</a>
+                <a href="{{ get_url(path="demos/") | safe }}">演示 Demos</a>
+                <a href="{{ config.extra.github }}" target="_blank" rel="noopener">GitHub</a>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="footer">
+        <div class="container footer-container">
+            <p>&copy; 2026 VectoUI. Built with Zola and VectoUI.</p>
+            <div class="footer-links">
+                <a href="{{ config.extra.github }}">GitHub</a>
+                <a href="https://cachyos.org">CachyOS</a>
+            </div>
+        </div>
+    </footer>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

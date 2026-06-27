@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="hero-section">
+    <!-- Interactive VectoUI canvas background -->
+    <canvas id="hero-canvas" class="hero-canvas"></canvas>
+
+    <div class="hero-content">
+        <div class="badge">Next-Gen Web UI Engine</div>
+        <h1 class="hero-title">数学驱动的零-DOM<br>高性能图形 UI 引擎</h1>
+        <p class="hero-subtitle">
+            基于 Canvas & WebGL/WebGPU 混合管线，在 GPU 中以 120 FPS 渲染物理阻尼动效与富文本。首创双轨 A11y 影子 DOM 映射，完美兼容屏幕阅读器与自动化测试。
+        </p>
+        <div class="hero-cta">
+            <a href="{{ get_url(path="docs/") | safe }}" class="btn btn-primary">快速开始</a>
+            <a href="{{ config.extra.github }}" class="btn btn-secondary" target="_blank">查看 GitHub</a>
+        </div>
+    </div>
+</section>
+
+<section class="features-section container">
+    <h2 class="section-title">为极致性能而生的核心特性</h2>
+    <div class="features-grid">
+        <div class="feature-card">
+            <div class="feature-icon">⚡</div>
+            <h3>60 / 120 FPS 极速绘制</h3>
+            <p>使用 Virtual Math Tree (VMT) 拓扑与渲染解耦架构。提供 Canvas2D 合并批处理与 WebGL/WebGPU 实例化管线，彻底打碎 Draw-Call 物理瓶颈。</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">🍃</div>
+            <h3>Zero-DOM 零重排损耗</h3>
+            <p>整个 UI 树运行在单个 Canvas 画布内，排版计算全在 JS/Worker 层执行，避开了浏览器漫长的 DOM 重排与重构（Reflow/Reflow Thrashing）。</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">👁️</div>
+            <h3>首创双轨 A11y 影子映射</h3>
+            <p>突破传统 Canvas 图表的无障碍盲区。通过动静隔离同步算法，在 Canvas 后台投影出透明的 A11y 影子 DOM，无缝支持屏幕阅读器和 Playwright 自动化测试。</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">🌀</div>
+            <h3>原生阻尼物理反馈</h3>
+            <p>UI 交互、ScrollView 惯性滚动以及界面弹窗动画全面集成二阶弹簧阻尼模型，展现丝滑自然的物理阻尼回弹，打造极具奢华感的手感体验。</p>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ get_url(path="js/index.js") | safe }}" defer></script>
+{% endblock %}

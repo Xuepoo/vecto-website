@@ -1,0 +1,17 @@
+default: true
+
+# Allow long lines in markdown
+MD013: false
+
+# Allow multiple top-level headings (for blog posts with frontmatter)
+MD025: false
+
+# Allow inline HTML
+MD033: false
+
+# Allow bare URLs
+MD034: false
+
+# Allow duplicate headings in different sections
+MD024:
+  siblings_only: true
