@@ -21,7 +21,19 @@ function initNexus(): void {
   const stage = $('stage');
   if (!canvas || !stage) return;
 
-  const scene = new Scene(canvas, { maxFPS: 60 });
+  // pointBackend 'webgl' renders the point cloud through a WebGL instanced
+  // draw (GPU) instead of per-particle fillText/fillCircle — fast for 10k+ points.
+  const scene = new Scene(canvas, { maxFPS: 60, pointBackend: 'webgl' });
+
+  // ENGINE BUG WORKAROUND (core@0.9.0): the WebGPU particle backend binds the
+  // read-write storage buffer to the VERTEX stage, which WebGPU forbids ("a
+  // read-write storage buffer can't be visible to vertex"). That invalidates the
+  // bind-group layout and both pipelines, so WebGPU computes/renders nothing —
+  // the field is blank even though a GPUDevice was acquired. Until the engine
+  // splits the layout (read-only storage for the vertex stage), force the CPU
+  // compute + WebGL render path, which works. Remove once the engine is fixed.
+  (scene as unknown as { webgpuDisabled: boolean }).webgpuDisabled = true;
+
   const meter = new FrameMeter();
   scene.add(meter);
 
@@ -90,7 +102,9 @@ function initNexus(): void {
   window.addEventListener('resize', () => requestAnimationFrame(fit));
 
   // ---- HUD ----
-  const backend = (): string => (particles?.gpuStorageBuffer ? 'WebGPU' : 'CPU');
+  // Compute backend: WebGPU once the engine bug above is fixed, CPU for now.
+  // (Rendering is always the WebGL point backend configured on the Scene.)
+  const backend = (): string => (particles?.gpuStorageBuffer ? 'WebGPU' : 'CPU · WebGL');
   const set = (id: string, v: string) => {
     const el = $(id);
     if (el) el.textContent = v;
@@ -183,6 +197,52 @@ function initNexus(): void {
     const w = window as unknown as { __nexus: () => ComputeParticleEntity | null; __scene: Scene };
     w.__nexus = () => particles;
     w.__scene = scene;
+    const hint = document.querySelector('.nexus-hint');
+    window.setInterval(() => {
+      const sc = scene as unknown as {
+        width: number;
+        height: number;
+        gpuCanvas: HTMLCanvasElement | null;
+        device: unknown;
+      };
+      const g = sc.gpuCanvas;
+      // Decisive test: copy the WebGPU canvas into a 2D canvas and count the
+      // pixels it actually drew. Tells us if the GPU render produced anything.
+      let litGpu = -1;
+      let litMain = -1;
+      const sample = (src: HTMLCanvasElement | null): number => {
+        if (!src || !src.width) return -1;
+        const off = document.createElement('canvas');
+        off.width = 300;
+        off.height = 160;
+        const o = off.getContext('2d');
+        if (!o) return -1;
+        try {
+          o.drawImage(src, 0, 0, off.width, off.height);
+        } catch {
+          return -2;
+        }
+        const d = o.getImageData(0, 0, off.width, off.height).data;
+        let lit = 0;
+        for (let i = 0; i < d.length; i += 4)
+          if (d[i] + d[i + 1] + d[i + 2] > 24 || d[i + 3] > 24) lit++;
+        return lit;
+      };
+      litGpu = sample(g);
+      litMain = sample(canvas);
+      const gr = g?.getBoundingClientRect();
+      const cr = canvas.getBoundingClientRect();
+      const txt =
+        `dpr ${window.devicePixelRatio} · scene ${sc.width}x${sc.height} · gpu=${!!sc.device}\n` +
+        `gpuCanvas ${g?.width}x${g?.height} @ ${
+          gr ? `${Math.round(gr.left)},${Math.round(gr.top)}` : 'NONE'
+        } · litPx ${litGpu}\n` +
+        `2dCanvas ${Math.round(cr.width)}x${Math.round(cr.height)} · litPx ${litMain}`;
+      if (hint) {
+        (hint as HTMLElement).style.whiteSpace = 'pre';
+        hint.textContent = txt;
+      }
+    }, 700);
   }
 }
 
