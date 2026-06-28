@@ -1,0 +1,120 @@
+---
+import Base from '../../layouts/Base.astro';
+import { demoBySlug } from '../../consts';
+const demo = demoBySlug('chat');
+---
+
+<Base title={demo.title} description={demo.description}>
+  <link slot="head" rel="stylesheet" href="/css/demo.css" />
+  <section class="demo-wrap container">
+    <header class="demo-head">
+      <a class="demo-back" href="/demos/">← All demos</a>
+      <h1>{demo.title}</h1>
+      <p class="demo-lede">{demo.description}</p>
+    </header>
+
+    <div class="chat-shell">
+      <aside class="chat-side">
+        <button id="chat-new" type="button" class="chat-new">＋ New chat</button>
+
+        <div class="chat-side-group">
+          <h4>Try a question</h4>
+          <button type="button" data-sample>What can I do with VectoUI?</button>
+          <button type="button" data-sample>What is the underlying principle of VectoUI?</button>
+          <button type="button" data-sample>What can VectoUI do that the DOM cannot?</button>
+        </div>
+
+        <div class="chat-side-group">
+          <h4>Playback</h4>
+          <label class="ctl"
+            >Speed <output id="out-tps">24 tok/s</output>
+            <input
+              id="chat-tps"
+              type="range"
+              min="4"
+              max="120"
+              step="2"
+              value="24"
+              autocomplete="off"
+            />
+          </label>
+        </div>
+
+        <details class="chat-settings">
+          <summary>Model (optional — local Ollama)</summary>
+          <label
+            >Base URL<input
+              id="cfg-baseurl"
+              type="text"
+              value="http://localhost:11434/v1"
+              autocomplete="off"
+            /></label
+          >
+          <label
+            >Model<input
+              id="cfg-model"
+              type="text"
+              placeholder="llama3.2"
+              autocomplete="off"
+            /></label
+          >
+          <label
+            >API key<input
+              id="cfg-key"
+              type="password"
+              placeholder="(usually empty for Ollama)"
+              autocomplete="off"
+            /></label
+          >
+          <label
+            >System prompt<textarea
+              id="cfg-system"
+              rows="2"
+              placeholder="You are VectoUI's helpful assistant."></textarea></label
+          >
+          <label class="row"
+            >Temperature <input
+              id="cfg-temp"
+              type="number"
+              min="0"
+              max="2"
+              step="0.1"
+              value="0.7"
+            /></label
+          >
+          <label class="row"
+            >Top-k <input
+              id="cfg-topk"
+              type="number"
+              min="0"
+              max="100"
+              step="1"
+              value="40"
+            /></label
+          >
+          <p class="chat-note">Leave empty to play prebaked answers.</p>
+        </details>
+      </aside>
+
+      <div class="chat-main">
+        <div class="chat-stage" id="chat-stage">
+          <canvas id="chat-canvas"></canvas>
+        </div>
+        <form class="chat-form" id="chat-form">
+          <input
+            id="chat-input"
+            type="text"
+            placeholder="Ask VectoUI anything…"
+            autocomplete="off"
+            aria-label="Message"
+          />
+          <button type="submit">Send</button>
+        </form>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<script>
+  import '../../demos/chat';
+</script>

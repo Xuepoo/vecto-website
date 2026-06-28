@@ -27,6 +27,13 @@ export const DEMOS: DemoMeta[] = [
       'Tens of thousands of particles simulated on a WebGPU compute pass — springing into the word “VectoUI”, flowing away from your cursor, with a transparent CPU fallback.',
     tag: 'WebGPU · Compute · particles',
   },
+  {
+    slug: 'chat',
+    title: 'AI Chat — streaming Markdown',
+    description:
+      'A chat client whose entire transcript is rendered on canvas: Markdown streams in token-by-token, with code, tables, images, and SVG-rendered math, Mermaid, and ABC notation. Plays prebaked answers with zero config, or point it at a local Ollama.',
+    tag: 'Streaming · Markdown · a11y',
+  },
 ];
 
 export const demoBySlug = (slug: string): DemoMeta => {
