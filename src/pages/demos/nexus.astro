@@ -21,8 +21,93 @@ const demo = demoBySlug('nexus');
         <span>Backend <b id="hud-backend">…</b></span>
         <span>DOM nodes <b id="hud-dom">0</b></span>
       </div>
-      <div class="nexus-hint">Move your cursor to repel · click to detonate</div>
+      <div class="nexus-hint">Move your cursor through the field · toggle the shape below</div>
     </div>
+
+    <div class="controls" id="controls">
+      <label class="ctl"
+        >Particles <output id="out-count">60,000</output>
+        <input
+          id="ctl-count"
+          type="range"
+          min="10000"
+          max="150000"
+          step="10000"
+          value="60000"
+          autocomplete="off"
+        />
+      </label>
+      <label class="ctl"
+        >Spring stiffness <output id="out-spring">0.50</output>
+        <input
+          id="ctl-spring"
+          type="range"
+          min="0.1"
+          max="1"
+          step="0.05"
+          value="0.5"
+          autocomplete="off"
+        />
+      </label>
+      <label class="ctl"
+        >Damping <output id="out-damping">0.85</output>
+        <input
+          id="ctl-damping"
+          type="range"
+          min="0.75"
+          max="0.95"
+          step="0.01"
+          value="0.85"
+          autocomplete="off"
+        />
+      </label>
+      <div class="ctl-actions">
+        <label class="ctl-check"
+          ><input id="ctl-shape" type="checkbox" checked /> Form “VectoUI”</label
+        >
+        <button id="ctl-reform" type="button">✦ Reform</button>
+        <button id="ctl-report" type="button" class="report-btn">Export report</button>
+      </div>
+    </div>
+
+    <div class="report-panel" id="report-panel" hidden>
+      <div class="report-head">
+        <span>Performance report — real browser, real GPU</span>
+        <div class="report-actions">
+          <button type="button" data-report-copy>Copy JSON</button>
+          <button type="button" data-report-download>Download</button>
+          <button type="button" data-report-close aria-label="Close">✕</button>
+        </div>
+      </div>
+      <pre id="report-pre"></pre>
+    </div>
+
+    <section class="demo-explain">
+      <h2>What you're looking at</h2>
+      <div class="explain-grid">
+        <div class="explain-card explain-win">
+          <h4>WebGPU compute</h4>
+          <p>
+            The whole field is simulated on a WebGPU compute pass — spring, repulsion and bounds in
+            a shader. The HUD shows <code>WebGPU</code> when your browser supports it.
+          </p>
+        </div>
+        <div class="explain-card">
+          <h4>CPU fallback</h4>
+          <p>
+            No WebGPU? The same simulation runs on the CPU and the HUD reads <code>CPU</code>. Same
+            demo, one code path swapped underneath.
+          </p>
+        </div>
+        <div class="explain-card">
+          <h4>Springs to shape</h4>
+          <p>
+            Each particle's origin is sampled from the pixels of the word “VectoUI”, and a spring
+            holds it there — push through with your cursor and it flows back into the letters.
+          </p>
+        </div>
+      </div>
+    </section>
   </section>
 </Base>
 

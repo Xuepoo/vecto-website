@@ -24,7 +24,7 @@ export const DEMOS: DemoMeta[] = [
     slug: 'nexus',
     title: 'Nexus — a WebGPU particle field',
     description:
-      'Tens of thousands of particles simulated on a WebGPU compute pass, springing to shape, scattering from your cursor, bursting on click — with a CPU fallback.',
+      'Tens of thousands of particles simulated on a WebGPU compute pass — springing into the word “VectoUI”, flowing away from your cursor, with a transparent CPU fallback.',
     tag: 'WebGPU · Compute · particles',
   },
 ];
