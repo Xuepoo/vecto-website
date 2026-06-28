@@ -21,7 +21,7 @@ const demo = demoBySlug('nexus');
         <span>Backend <b id="hud-backend">…</b></span>
         <span>DOM nodes <b id="hud-dom">0</b></span>
       </div>
-      <div class="nexus-hint">Move your cursor through the field · toggle the shape below</div>
+      <div class="nexus-hint">Scroll to zoom · drag to pan · double-click to reset</div>
     </div>
 
     <div class="controls" id="controls">
@@ -65,6 +65,14 @@ const demo = demoBySlug('nexus');
         <label class="ctl-check"
           ><input id="ctl-shape" type="checkbox" checked /> Form “VectoUI”</label
         >
+        <label class="ctl-inline"
+          >Frame cap
+          <select id="ctl-fpscap" autocomplete="off">
+            <option value="60" selected>60</option>
+            <option value="120">120</option>
+            <option value="1000">Max</option>
+          </select>
+        </label>
         <button id="ctl-reform" type="button">✦ Reform</button>
         <button id="ctl-report" type="button" class="report-btn">Export report</button>
       </div>

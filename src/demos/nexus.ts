@@ -93,12 +93,89 @@ function initNexus(): void {
     }
   };
 
-  // A click sends a gentle, contained pulse (kept well under maxVelocity so
-  // particles ripple and settle rather than flying to the bounds).
-  canvas.addEventListener('click', (e) => {
-    const r = canvas.getBoundingClientRect();
-    particles?.triggerExplosion(e.clientX - r.left, e.clientY - r.top, 45);
+  // ---- zoom + pan (CSS transform on the canvas; the stage clips the overflow) ----
+  let zoom = 1;
+  let panX = 0;
+  let panY = 0;
+  const applyView = (): void => {
+    canvas.style.transformOrigin = '0 0';
+    canvas.style.transform = `translate(${panX}px, ${panY}px) scale(${zoom})`;
+  };
+  const clampPan = (): void => {
+    const w = stage.clientWidth;
+    const h = stage.clientHeight;
+    panX = Math.min(0, Math.max(w - w * zoom, panX));
+    panY = Math.min(0, Math.max(h - h * zoom, panY));
+  };
+  // Cursor position in stage (untransformed) space, and the world (scene) point it maps to.
+  const stagePoint = (e: { clientX: number; clientY: number }) => {
+    const sr = stage.getBoundingClientRect();
+    return { sx: e.clientX - sr.left, sy: e.clientY - sr.top };
+  };
+  const toWorld = (sx: number, sy: number) => ({ wx: (sx - panX) / zoom, wy: (sy - panY) / zoom });
+
+  stage.addEventListener(
+    'wheel',
+    (e) => {
+      e.preventDefault();
+      const { sx, sy } = stagePoint(e);
+      const { wx, wy } = toWorld(sx, sy);
+      zoom = Math.min(8, Math.max(1, zoom * (e.deltaY < 0 ? 1.15 : 1 / 1.15)));
+      panX = sx - wx * zoom; // keep the point under the cursor fixed
+      panY = sy - wy * zoom;
+      if (zoom === 1) {
+        panX = 0;
+        panY = 0;
+      }
+      clampPan();
+      applyView();
+    },
+    { passive: false },
+  );
+
+  // Pointer drag pans; a click that didn't drag sends a gentle pulse at that world point.
+  let down = false;
+  let moved = false;
+  let lastX = 0;
+  let lastY = 0;
+  canvas.addEventListener('pointerdown', (e) => {
+    down = true;
+    moved = false;
+    lastX = e.clientX;
+    lastY = e.clientY;
+    canvas.setPointerCapture(e.pointerId);
   });
+  canvas.addEventListener('pointermove', (e) => {
+    if (!down) return;
+    const dx = e.clientX - lastX;
+    const dy = e.clientY - lastY;
+    if (Math.abs(dx) + Math.abs(dy) > 3) moved = true;
+    if (zoom > 1) {
+      panX += dx;
+      panY += dy;
+      clampPan();
+      applyView();
+    }
+    lastX = e.clientX;
+    lastY = e.clientY;
+    canvas.style.cursor = zoom > 1 ? 'grabbing' : 'default';
+  });
+  canvas.addEventListener('pointerup', (e) => {
+    down = false;
+    canvas.style.cursor = zoom > 1 ? 'grab' : 'default';
+    if (!moved) {
+      const { sx, sy } = stagePoint(e);
+      const { wx, wy } = toWorld(sx, sy);
+      particles?.triggerExplosion(wx, wy, 45);
+    }
+  });
+  canvas.addEventListener('dblclick', () => {
+    zoom = 1;
+    panX = 0;
+    panY = 0;
+    applyView();
+  });
+
   window.addEventListener('resize', () => requestAnimationFrame(fit));
 
   // ---- HUD ----
@@ -159,6 +236,10 @@ function initNexus(): void {
       particles.needsInit = true;
     }
   });
+  // Frame cap (default 60 so the GPU isn't pegged; "Max" reveals the real ceiling).
+  bind('ctl-fpscap', 'change', (el) => {
+    scene.maxFPS = Number(el.value);
+  });
   // Reform: snap the cloud back into the word (also handy after toggling Free).
   $('ctl-reform')?.addEventListener('click', () => {
     if (!$<HTMLInputElement>('ctl-shape')?.checked) {
@@ -185,6 +266,7 @@ function initNexus(): void {
         backend: backend(),
         shape,
         springK,
+        frameCap: scene.maxFPS >= 1000 ? 'max' : scene.maxFPS,
       }),
     });
   }
