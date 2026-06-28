@@ -9,4 +9,6 @@ node_modules/
 .env
 .env.*
 .wrangler/
-static/js/index.js
+static/js/
+# Demo media is fetched at build time (scripts/fetch-assets.ts), not tracked.
+static/demos/*.mp4

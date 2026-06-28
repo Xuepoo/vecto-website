@@ -3,12 +3,14 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "build:js": "bun build src/index.ts --minify --outfile=static/js/index.js",
-    "watch:js": "bun build src/index.ts --outfile=static/js/index.js --watch",
+    "build:js": "bun build src/index.ts src/demos/danmaku.ts --minify --outdir=static/js",
+    "watch:js": "bun build src/index.ts src/demos/danmaku.ts --outdir=static/js --watch",
+    "test": "bun test src",
     "build:zola": "zola build",
     "serve:zola": "zola serve --port 1111",
-    "dev": "bun run build:js && concurrently \"bun run watch:js\" \"bun run serve:zola\"",
-    "build": "bun run build:js && bun run build:zola"
+    "fetch:assets": "bun run scripts/fetch-assets.ts",
+    "dev": "bun run fetch:assets && bun run build:js && concurrently \"bun run watch:js\" \"bun run serve:zola\"",
+    "build": "bun run fetch:assets && bun run build:js && bun run build:zola"
   },
   "dependencies": {
     "@vecto-ui/core": "^0.9.0",

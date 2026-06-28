@@ -10,5 +10,7 @@
     "outDir": "./dist",
     "declaration": true
   },
-  "include": ["src/**/*"]
+  "include": ["src/**/*"],
+  "comment:exclude": "Test files use bun:test and are type-checked by `bun test`, not tsc.",
+  "exclude": ["src/**/*.test.ts"]
 }

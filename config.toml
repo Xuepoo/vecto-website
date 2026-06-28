@@ -2,7 +2,7 @@
 title = "VectoUI"
 base_url = "https://vecto-ui.xuepoo.xyz"
 description = "A mathematical UI rendering framework driven by Vectomancy"
-default_language = "zh"
+default_language = "en"
 
 compile_sass = false
 build_search_index = false

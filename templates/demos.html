@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Demos · {{ config.title }}{% endblock %}
+{% block extra_head %}
+<link rel="stylesheet" href="{{ get_url(path='css/demo.css') | safe }}">
+{% endblock %}
+{% block content %}
+<section class="demos-section container">
+    <h1 class="section-title">Demos</h1>
+    <p class="demos-lede">Each demo is a real VectoUI app and a live stress test — dogfooding the engine right in your browser.</p>
+    <div class="demos-grid">
+        {% for page in section.pages %}
+        <a class="demo-card" href="{{ page.permalink | safe }}">
+            {% if page.extra.tag %}<span class="demo-tag">{{ page.extra.tag }}</span>{% endif %}
+            <h3>{{ page.title }}</h3>
+            <p>{{ page.description }}</p>
+            <span class="demo-go">Open demo →</span>
+        </a>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}
