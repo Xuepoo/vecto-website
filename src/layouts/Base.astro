@@ -1,0 +1,60 @@
+---
+import { SITE } from '../consts';
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+const { title, description = SITE.description } = Astro.props;
+const fullTitle = title ? `${title} · ${SITE.title}` : SITE.title;
+const demos = `${import.meta.env.BASE_URL}demos/`.replace('//', '/');
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;800&family=Playfair+Display:wght@700;800;900&display=swap"
+      rel="stylesheet"
+    />
+
+    <link rel="stylesheet" href="/css/styles.css" />
+    <slot name="head" />
+  </head>
+  <body>
+    <header class="navbar">
+      <div class="container nav-container">
+        <button class="nav-menu" aria-label="Menu">
+          <span></span><span></span><span></span>
+        </button>
+        <nav class="nav-links">
+          <a href="/docs/">Docs</a>
+          <a href={demos}>Demos</a>
+          <a href={SITE.github} target="_blank" rel="noopener">GitHub</a>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <slot />
+    </main>
+
+    <footer class="footer">
+      <div class="container footer-container">
+        <p>&copy; 2026 VectoUI. Built with Astro and VectoUI.</p>
+        <div class="footer-links">
+          <a href={SITE.github}>GitHub</a>
+          <a href="https://astro.build">Astro</a>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

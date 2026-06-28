@@ -15,7 +15,7 @@ interface Asset {
 
 const ASSETS: Asset[] = [
   {
-    path: 'static/demos/sample.mp4',
+    path: 'public/demos/sample.mp4',
     url: 'https://download.blender.org/durian/trailer/sintel_trailer-720p.mp4',
     note: 'Sintel trailer © Blender Foundation, CC BY 3.0',
   },

@@ -1,0 +1,27 @@
+---
+import Base from '../../layouts/Base.astro';
+import { DEMOS } from '../../consts';
+---
+
+<Base title="Demos">
+  <link slot="head" rel="stylesheet" href="/css/demo.css" />
+  <section class="demos-section container">
+    <h1 class="section-title">Demos</h1>
+    <p class="demos-lede">
+      Each demo is a real VectoUI app and a live stress test — dogfooding the engine right in your
+      browser.
+    </p>
+    <div class="demos-grid">
+      {
+        DEMOS.map((demo) => (
+          <a class="demo-card" href={`/demos/${demo.slug}/`}>
+            <span class="demo-tag">{demo.tag}</span>
+            <h3>{demo.title}</h3>
+            <p>{demo.description}</p>
+            <span class="demo-go">Open demo →</span>
+          </a>
+        ))
+      }
+    </div>
+  </section>
+</Base>

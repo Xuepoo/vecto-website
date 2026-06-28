@@ -1,7 +1,7 @@
-public/
-build/
 dist/
+build/
 node_modules/
+.astro/
 .DS_Store
 *.swp
 *.swo
@@ -9,6 +9,5 @@ node_modules/
 .env
 .env.*
 .wrangler/
-static/js/
 # Demo media is fetched at build time (scripts/fetch-assets.ts), not tracked.
-static/demos/*.mp4
+public/demos/*.mp4

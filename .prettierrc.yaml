@@ -8,7 +8,12 @@ bracketSpacing: true
 endOfLine: lf
 proseWrap: preserve
 htmlWhitespaceSensitivity: css
+plugins:
+  - prettier-plugin-astro
 overrides:
   - files: '*.html'
     options:
       printWidth: 120
+  - files: '*.astro'
+    options:
+      parser: astro

@@ -113,7 +113,8 @@
   border-radius: 16px;
   overflow: hidden;
   border: 1px solid var(--border-color);
-  background: radial-gradient(1200px 500px at 50% -10%, rgba(37, 99, 235, 0.16), transparent 60%),
+  background:
+    radial-gradient(1200px 500px at 50% -10%, rgba(37, 99, 235, 0.16), transparent 60%),
     linear-gradient(180deg, #0a0e1a 0%, #070a13 100%);
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
 }
@@ -125,6 +126,26 @@
   height: 100%;
   object-fit: cover;
   background: #000;
+}
+
+/* A pure dark field for the particle demo. */
+.stage-nexus {
+  background:
+    radial-gradient(900px 600px at 50% 40%, rgba(37, 99, 235, 0.1), transparent 70%), #04060d;
+}
+
+.nexus-hint {
+  position: absolute;
+  left: 50%;
+  bottom: 16px;
+  transform: translateX(-50%);
+  padding: 6px 14px;
+  border-radius: 99px;
+  background: rgba(7, 10, 19, 0.55);
+  border: 1px solid rgba(91, 156, 255, 0.2);
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  pointer-events: none;
 }
 
 #danmaku-canvas {

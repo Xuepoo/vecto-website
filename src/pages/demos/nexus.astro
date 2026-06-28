@@ -1,0 +1,31 @@
+---
+import Base from '../../layouts/Base.astro';
+import { demoBySlug } from '../../consts';
+const demo = demoBySlug('nexus');
+---
+
+<Base title={demo.title} description={demo.description}>
+  <link slot="head" rel="stylesheet" href="/css/demo.css" />
+  <section class="demo-wrap container">
+    <header class="demo-head">
+      <a class="demo-back" href="/demos/">← All demos</a>
+      <h1>{demo.title}</h1>
+      <p class="demo-lede">{demo.description}</p>
+    </header>
+
+    <div class="stage stage-nexus" id="stage">
+      <canvas id="nexus-canvas"></canvas>
+      <div class="hud">
+        <span>Particles <b id="hud-particles">0</b></span>
+        <span>FPS <b id="hud-fps">60</b></span>
+        <span>Backend <b id="hud-backend">…</b></span>
+        <span>DOM nodes <b id="hud-dom">0</b></span>
+      </div>
+      <div class="nexus-hint">Move your cursor to repel · click to detonate</div>
+    </div>
+  </section>
+</Base>
+
+<script>
+  import '../../demos/nexus';
+</script>

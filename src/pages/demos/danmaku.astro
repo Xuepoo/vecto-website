@@ -1,0 +1,193 @@
+---
+import Base from '../../layouts/Base.astro';
+import { demoBySlug } from '../../consts';
+const demo = demoBySlug('danmaku');
+---
+
+<Base title={demo.title} description={demo.description}>
+  <link slot="head" rel="stylesheet" href="/css/demo.css" />
+  <section class="demo-wrap container">
+    <header class="demo-head">
+      <a class="demo-back" href="/demos/">← All demos</a>
+      <h1>{demo.title}</h1>
+      <p class="demo-lede">{demo.description}</p>
+    </header>
+
+    <div class="stage" id="stage">
+      <video id="stage-video" src="/demos/sample.mp4" loop muted playsinline preload="auto"></video>
+      <canvas id="danmaku-canvas"></canvas>
+      <div class="hud">
+        <span>On-screen <b id="hud-count">0</b></span>
+        <span>FPS <b id="hud-fps">60</b></span>
+        <span>DOM nodes <b id="hud-dom">0</b></span>
+        <span>Pool <b id="hud-pool">0</b></span>
+      </div>
+      <div class="toast" id="toast" role="status" aria-live="polite"></div>
+      <form class="sendbar" id="sendbar">
+        <input
+          id="send-input"
+          type="text"
+          placeholder="Send a danmaku…"
+          maxlength="60"
+          autocomplete="off"
+          aria-label="Your comment"
+        />
+        <input id="send-color" type="color" value="#ffffff" aria-label="Comment color" />
+        <button type="submit">Send</button>
+      </form>
+      <div class="vbar" id="vbar">
+        <button class="vbtn" id="v-play" type="button" aria-label="Play or pause">❚❚</button>
+        <input
+          class="vseek"
+          id="v-seek"
+          type="range"
+          min="0"
+          max="1000"
+          value="0"
+          step="1"
+          autocomplete="off"
+          aria-label="Seek video"
+        />
+        <span class="vtime" id="v-time">0:00</span>
+        <select class="vrate" id="v-rate" autocomplete="off" aria-label="Playback speed">
+          <option value="0.5">0.5×</option>
+          <option value="1" selected>1×</option>
+          <option value="1.5">1.5×</option>
+          <option value="2">2×</option>
+        </select>
+        <button class="vbtn" id="v-mute" type="button" aria-label="Toggle sound">🔇</button>
+        <label
+          class="vbtn vupload"
+          aria-label="Upload your own video"
+          title="Upload your own video"
+        >
+          📁 Upload<input type="file" id="v-file" accept="video/*" hidden />
+        </label>
+        <button class="vbtn" id="v-full" type="button" aria-label="Fullscreen">⛶</button>
+      </div>
+    </div>
+    <p class="demo-credit">
+      Sample clip: <em>Sintel</em> © Blender Foundation — <a
+        href="https://durian.blender.org"
+        target="_blank"
+        rel="noopener">durian.blender.org</a
+      > (CC BY 3.0). Click <strong>📁 Upload</strong> to play your own video; use 🔇 to toggle its sound.
+    </p>
+
+    <div class="controls" id="controls">
+      <label class="ctl"
+        ><span id="lbl-target">On-screen target</span>
+        <output id="out-target">200</output>
+        <input
+          id="ctl-target"
+          type="range"
+          min="100"
+          max="5000"
+          step="50"
+          value="200"
+          autocomplete="off"
+        />
+      </label>
+      <label class="ctl"
+        >Danmaku speed <output id="out-speed">1.0×</output>
+        <input
+          id="ctl-speed"
+          type="range"
+          min="0.3"
+          max="2.5"
+          step="0.1"
+          value="1"
+          autocomplete="off"
+        />
+      </label>
+      <label class="ctl"
+        >Opacity <output id="out-opacity">100%</output>
+        <input
+          id="ctl-opacity"
+          type="range"
+          min="0.2"
+          max="1"
+          step="0.05"
+          value="1"
+          autocomplete="off"
+        />
+      </label>
+      <div class="ctl-actions">
+        <label class="ctl-inline"
+          >Mode
+          <select id="ctl-mode" autocomplete="off">
+            <option value="stress">Stress</option>
+            <option value="realistic">Realistic</option>
+          </select>
+        </label>
+        <label class="ctl-inline"
+          >Area
+          <select id="ctl-area" autocomplete="off">
+            <option value="full">Full</option>
+            <option value="top">Top ¼</option>
+          </select>
+        </label>
+        <label class="ctl-inline"
+          >Frame cap
+          <select id="ctl-fpscap" autocomplete="off">
+            <option value="video">Match video</option>
+            <option value="24">24</option>
+            <option value="30">30</option>
+            <option value="60" selected>60</option>
+            <option value="120">120</option>
+            <option value="1000">Max</option>
+          </select>
+        </label>
+        <button id="ctl-hide" type="button">Hide</button>
+        <label class="ctl-check"><input id="ctl-a11y" type="checkbox" /> Accessible list</label>
+        <button id="ctl-report" type="button" class="report-btn">Export report</button>
+      </div>
+    </div>
+
+    <div class="report-panel" id="report-panel" hidden>
+      <div class="report-head">
+        <span>Performance report — real browser, real GPU</span>
+        <div class="report-actions">
+          <button type="button" data-report-copy>Copy JSON</button>
+          <button type="button" data-report-download>Download</button>
+          <button type="button" data-report-close aria-label="Close">✕</button>
+        </div>
+      </div>
+      <pre id="report-pre"></pre>
+    </div>
+
+    <aside class="a11y-list" id="a11y-list" role="log" aria-label="On-screen danmaku" hidden>
+    </aside>
+
+    <section class="demo-explain">
+      <h2>Why this is hard</h2>
+      <div class="explain-grid">
+        <div class="explain-card">
+          <h4>DOM danmaku <span>(Bilibili)</span></h4>
+          <p>
+            Every comment is a <code>&lt;div&gt;</code>: fully interactive and accessible, but the
+            browser chokes past ~200 on screen.
+          </p>
+        </div>
+        <div class="explain-card">
+          <h4>Canvas-2D danmaku</h4>
+          <p>
+            Thousands of comments as raw <code>fillText</code> pixels: smooth, but you can't hover, click,
+            or read a single one.
+          </p>
+        </div>
+        <div class="explain-card explain-win">
+          <h4>VectoUI</h4>
+          <p>
+            Thousands of real entities: smooth like canvas, yet each is hit-tested — and any one can
+            project a real ARIA node an agent can drive.
+          </p>
+        </div>
+      </div>
+    </section>
+  </section>
+</Base>
+
+<script>
+  import '../../demos/danmaku';
+</script>

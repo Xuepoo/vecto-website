@@ -3,22 +3,22 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "build:js": "bun build src/index.ts src/demos/danmaku.ts --minify --outdir=static/js",
-    "watch:js": "bun build src/index.ts src/demos/danmaku.ts --outdir=static/js --watch",
-    "test": "bun test src",
-    "build:zola": "zola build",
-    "serve:zola": "zola serve --port 1111",
     "fetch:assets": "bun run scripts/fetch-assets.ts",
-    "dev": "bun run fetch:assets && bun run build:js && concurrently \"bun run watch:js\" \"bun run serve:zola\"",
-    "build": "bun run fetch:assets && bun run build:js && bun run build:zola"
+    "dev": "bun run fetch:assets && astro dev",
+    "build": "bun run fetch:assets && astro build",
+    "preview": "astro preview",
+    "check": "astro check",
+    "test": "bun test src"
   },
   "dependencies": {
     "@vecto-ui/core": "^0.9.0",
+    "@vecto-ui/three": "^0.2.0",
     "@vecto-ui/ui": "^0.4.0",
-    "@vecto-ui/three": "^0.2.0"
+    "astro": "^7.0.3"
   },
   "devDependencies": {
-    "concurrently": "^8.2.2",
+    "@astrojs/check": "^0.9.9",
+    "prettier-plugin-astro": "^0.14.1",
     "typescript": "^5.4.5"
   }
 }
