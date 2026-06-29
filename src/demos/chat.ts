@@ -50,19 +50,14 @@ function initChat(): void {
   let contentWidth = 0;
   const computeWidth = () => Math.min(760, stage.clientWidth - 56);
 
-  const scrollToBottom = () => {
-    // Set the *real* bottom offset (0 when content fits). Poking targetY with a
-    // huge sentinel like -1e9 made the ScrollView's spring compute an enormous
-    // force before it clamped, sending content.y to ±hundreds of thousands.
-    const contentBottom = transcript.y + transcript.height;
-    const overflow = Math.max(0, contentBottom - stage.clientHeight);
-    (scroll as unknown as { targetY: number }).targetY = -overflow;
-  };
   const reflow = (block?: Stack) => {
     block?.layout();
     transcript.layout();
     scroll.updateContentSize();
-    scrollToBottom();
+    scroll.scrollToBottom(); // public API (0.9.2) — clamps internally, no spring blow-up
+    // Wake the render loop on every content change; when streaming stops and the
+    // transcript is idle, the engine's auto-throttle (0.9.2) lets it drop to ~2 FPS.
+    scene.markDirty();
   };
 
   const roleLabel = (role: 'You' | 'VectoUI'): Markdown =>

@@ -11,6 +11,7 @@ import { DanmakuEngine } from './danmaku/engine';
 import { Danmaku } from './danmaku/danmaku';
 import { rollComment } from './danmaku/corpus';
 import { setupReporter } from './report';
+import { keepSceneLive } from './keep-live';
 
 const $ = <T extends HTMLElement = HTMLElement>(id: string) =>
   document.getElementById(id) as T | null;
@@ -365,6 +366,9 @@ function initDanmaku(): void {
   // Seed a few immediately so the stage isn't empty on first paint.
   for (let i = 0; i < 12; i++) engine.spawn(rollComment());
   scene.start();
+  // Comments scroll every frame; keep the scene live so the 0.9.2 idle throttle
+  // doesn't drop it to ~2 FPS. While paused we let it throttle to save resources.
+  keepSceneLive(scene, () => !engine.paused);
 }
 
 function boot(): void {

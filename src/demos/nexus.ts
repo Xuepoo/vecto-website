@@ -8,6 +8,7 @@
  */
 import { Scene, ComputeParticleEntity } from '@vecto-ui/core';
 import { FrameMeter } from './frame-meter';
+import { keepSceneLive } from './keep-live';
 import { sampleTextPoints } from './nexus/text-shape';
 import { setupReporter } from './report';
 
@@ -21,21 +22,16 @@ function initNexus(): void {
   const stage = $('stage');
   if (!canvas || !stage) return;
 
-  // pointBackend 'webgl' renders the point cloud through a WebGL instanced
-  // draw (GPU) instead of per-particle fillText/fillCircle — fast for 10k+ points.
+  // WebGPU compute drives the particles when available (core@0.9.2 fixed the
+  // vertex storage-binding bug that used to blank the field); pointBackend 'webgl'
+  // gives the CPU fallback a fast GPU-instanced point draw rather than per-particle
+  // fillCircle. The HUD reports which compute backend actually ran.
   const scene = new Scene(canvas, { maxFPS: 60, pointBackend: 'webgl' });
-
-  // ENGINE BUG WORKAROUND (core@0.9.0): the WebGPU particle backend binds the
-  // read-write storage buffer to the VERTEX stage, which WebGPU forbids ("a
-  // read-write storage buffer can't be visible to vertex"). That invalidates the
-  // bind-group layout and both pipelines, so WebGPU computes/renders nothing —
-  // the field is blank even though a GPUDevice was acquired. Until the engine
-  // splits the layout (read-only storage for the vertex stage), force the CPU
-  // compute + WebGL render path, which works. Remove once the engine is fixed.
-  (scene as unknown as { webgpuDisabled: boolean }).webgpuDisabled = true;
 
   const meter = new FrameMeter();
   scene.add(meter);
+  // The field animates every frame, so keep it live (defeats the 0.9.2 idle throttle).
+  keepSceneLive(scene);
 
   let particles: ComputeParticleEntity | null = null;
   let count = 60000;

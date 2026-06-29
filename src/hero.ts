@@ -9,6 +9,7 @@
  */
 import { Scene, Entity, LayoutEngine, type GlyphMeasurer, type IRenderer } from '@vecto-ui/core';
 import { Button } from '@vecto-ui/ui';
+import { keepSceneLive } from './demos/keep-live';
 
 const GITHUB = 'https://github.com/Xuepoo/vecto-ui';
 const ACCENT = '#5b9cff';
@@ -496,6 +497,9 @@ function initHero(): void {
   bg.place();
   fit();
   scene.start();
+  // The starfield drifts every frame; keep the scene live so 0.9.2's idle
+  // auto-throttle doesn't drop it (and the on-canvas FPS readout) to ~2.
+  keepSceneLive(scene);
 }
 
 function boot(): void {

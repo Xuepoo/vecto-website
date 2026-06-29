@@ -25,6 +25,12 @@ staying accessible and automatable. A few things it's good at:
 - **Reflowing typography**: text re-wraps on resize and browser zoom — measure once,
   re-wrap for free.
 
+| Surface | DOM nodes | Notes |
+| --- | --- | --- |
+| 5000 danmaku | ~3 | one canvas |
+| 150k particles | 0 | WebGL / WebGPU points |
+| this chat | a handful | canvas transcript |
+
 > This whole reply is one canvas. The transcript holds a handful of DOM nodes, not
 > one per token.
 
