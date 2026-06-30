@@ -16,8 +16,8 @@ fi
 echo "Deploying to Cloudflare Pages..."
 log_file=$(mktemp)
 
-# Keep proxy environment variables since they are required for network connection
-CI=true CLOUDFLARE_TELEMETRY_DISABLED=1 NO_UPDATE_NOTIFIER=1 wrangler pages deploy "${PUBLIC_DIR}" --project-name "${PROJECT_NAME}" --branch "${BRANCH}" --commit-dirty=true > "$log_file" 2>&1 &
+# Use port 1080 explicitly — the shell-default https_proxy at 3080 has a TLS EOF bug
+CI=true CLOUDFLARE_TELEMETRY_DISABLED=1 NO_UPDATE_NOTIFIER=1 HTTPS_PROXY=http://127.0.0.1:1080 wrangler pages deploy "${PUBLIC_DIR}" --project-name "${PROJECT_NAME}" --branch "${BRANCH}" --commit-dirty=true > "$log_file" 2>&1 &
 wrangler_pid=$!
 
 success=false

@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VectoUI — Custom Entity</title>
+  <style>
+    * { margin: 0; box-sizing: border-box; }
+    body { background: #0a0e1a; overflow: hidden; }
+    #app { position: relative; width: 100vw; height: 100vh; }
+    canvas { display: block; width: 100%; height: 100%; }
+  </style>
+  <script type="importmap">
+  {
+    "imports": {
+      "@vecto-ui/core": "https://esm.sh/@vecto-ui/core@0.9.2",
+      "@vecto-ui/ui": "https://esm.sh/@vecto-ui/ui@0.4.2"
+    }
+  }
+  </script>
+</head>
+<body>
+  <div id="app"><canvas id="canvas"></canvas></div>
+  <script type="module">
+  import { Scene, Entity } from '@vecto-ui/core';
+  import { Button, Stack } from '@vecto-ui/ui';
+
+  const app = document.getElementById('app');
+  const canvas = document.getElementById('canvas');
+  function setSize() { canvas.width = app.offsetWidth; canvas.height = app.offsetHeight; }
+  setSize();
+
+  const scene = new Scene(canvas, { renderMode: 'onDemand', maxFPS: 60 });
+
+  class GaugeWidget extends Entity {
+    constructor(label, accent) {
+      super();
+      this.label = label;
+      this.accent = accent;
+      this._value = 0;
+      this._display = 0;
+      this.min = 0;
+      this.max = 100;
+      this.width = 180;
+      this.height = 180;
+      this.interactive = true;
+    }
+
+    setValue(v) {
+      this._value = Math.max(this.min, Math.min(this.max, v));
+      this.animate({ _display: this._value }, 700);
+    }
+
+    getA11yAttributes() {
+      return {
+        role: 'meter',
+        label: this.label,
+        value: String(Math.round(this._value)),
+        valuemin: String(this.min),
+        valuemax: String(this.max),
+      };
+    }
+
+    isPointInside(gx, gy) {
+      const p = this.getGlobalPosition();
+      return gx >= p.x && gx <= p.x + this.width && gy >= p.y && gy <= p.y + this.height;
+    }
+
+    getBounds() { return { x: 0, y: 0, width: this.width, height: this.height }; }
+
+    render(renderer) {
+      const cx = this.width / 2;
+      const cy = this.height / 2 + 8;
+      const r = 64;
+      const startAngle = Math.PI * 0.75;
+      const sweep = Math.PI * 1.5;
+      const progress = (this._display - this.min) / (this.max - this.min);
+
+      // Track
+      renderer.beginPath();
+      renderer.arc(cx, cy, r, startAngle, startAngle + sweep);
+      renderer.stroke('rgba(255,255,255,0.08)', 10);
+
+      // Fill
+      if (progress > 0.001) {
+        renderer.beginPath();
+        renderer.arc(cx, cy, r, startAngle, startAngle + sweep * progress);
+        renderer.stroke(this.accent, 10);
+      }
+
+      // Value
+      renderer.fillText(
+        Math.round(this._display).toString(),
+        cx - 18, cy - 10,
+        'bold 30px Inter, system-ui',
+        '#f8fafc',
+      );
+      renderer.fillText(
+        this.label,
+        cx - 22, cy + 18,
+        '13px Inter, system-ui',
+        '#64748b',
+      );
+    }
+  }
+
+  const gauges = [
+    new GaugeWidget('CPU', '#6366f1'),
+    new GaugeWidget('RAM', '#06b6d4'),
+    new GaugeWidget('GPU', '#10b981'),
+  ];
+
+  function layout() {
+    const gap = 12;
+    const gw = 180;
+    const total = gauges.length * gw + (gauges.length - 1) * gap;
+    const sx = (canvas.width - total) / 2;
+    const sy = (canvas.height - 200) / 2;
+    gauges.forEach((g, i) => { g.setPosition(sx + i * (gw + gap), sy); scene.add(g); });
+  }
+
+  function randomize() {
+    gauges.forEach(g => g.setValue(Math.random() * 100));
+    scene.markDirty();
+  }
+
+  layout();
+
+  const btn = new Button('Randomize', { width: 140, height: 38 });
+  btn.on('click', randomize);
+  scene.add(btn);
+
+  function placeBtn() {
+    btn.setPosition((canvas.width - 140) / 2, canvas.height - 70);
+  }
+  placeBtn();
+
+  window.addEventListener('resize', () => {
+    setSize();
+    scene.resize(canvas.width, canvas.height);
+    gauges.forEach(g => scene.remove(g));
+    gauges.forEach(g => { g.setPosition(0, 0); });
+    layout();
+    placeBtn();
+    scene.markDirty();
+  });
+
+  randomize();
+  scene.start();
+  </script>
+</body>
+</html>

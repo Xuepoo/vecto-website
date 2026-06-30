@@ -1,0 +1,325 @@
+---
+import Base from './Base.astro';
+import { LEARN_PAGES, REFERENCE_PAGES, VERSIONS, SITE } from '../consts';
+import type { MarkdownHeading } from 'astro';
+
+interface Props {
+  title: string;
+  description?: string;
+  collection: 'learn' | 'reference';
+  slug: string;
+  headings: MarkdownHeading[];
+  readingTime?: number;
+}
+
+const { title, description, collection, slug, headings, readingTime } = Astro.props;
+
+const tocHeadings = headings.filter((h) => h.depth >= 2 && h.depth <= 3);
+
+// Build a flat list of all pages for prev/next navigation.
+const allPages = [
+  ...LEARN_PAGES.map((p) => ({ ...p, collection: 'learn' as const })),
+  ...REFERENCE_PAGES.map((p) => ({ ...p, collection: 'reference' as const })),
+];
+const currentIdx = allPages.findIndex((p) => p.collection === collection && p.slug === slug);
+const prevPage = currentIdx > 0 ? allPages[currentIdx - 1] : null;
+const nextPage = currentIdx < allPages.length - 1 ? allPages[currentIdx + 1] : null;
+---
+
+<Base title={title} description={description}>
+  <!-- Mobile nav strip -->
+  <div class="docs-mobile-strip">
+    <button
+      class="docs-mobile-menu-btn"
+      id="docs-drawer-open"
+      aria-label="Open navigation menu"
+      aria-expanded="false"
+    >
+      <svg
+        viewBox="0 0 20 20"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.8"
+        aria-hidden="true"
+      >
+        <line x1="3" y1="5" x2="17" y2="5" stroke-linecap="round"></line>
+        <line x1="3" y1="10" x2="17" y2="10" stroke-linecap="round"></line>
+        <line x1="3" y1="15" x2="17" y2="15" stroke-linecap="round"></line>
+      </svg>
+      <span>Menu</span>
+    </button>
+    <span class="docs-mobile-current">{title}</span>
+  </div>
+
+  <!-- Drawer backdrop (mobile) -->
+  <div class="docs-drawer-backdrop" id="docs-drawer-backdrop" aria-hidden="true"></div>
+
+  <div class="docs-layout">
+    <!-- Left sidebar: full docs tree (also acts as mobile drawer) -->
+    <aside class="docs-sidebar" id="docs-sidebar" aria-label="Documentation navigation">
+      <nav class="sidebar-nav">
+        <div class="sidebar-group">
+          <span class="sidebar-group-label">Learn</span>
+          {
+            LEARN_PAGES.map((page) => (
+              <a
+                href={`/learn/${page.slug}/`}
+                class:list={[
+                  'sidebar-link',
+                  { active: collection === 'learn' && slug === page.slug },
+                ]}
+              >
+                {page.title}
+              </a>
+            ))
+          }
+        </div>
+        <div class="sidebar-group">
+          <span class="sidebar-group-label">Reference</span>
+          {
+            REFERENCE_PAGES.map((page) => (
+              <a
+                href={`/reference/${page.slug}/`}
+                class:list={[
+                  'sidebar-link',
+                  { active: collection === 'reference' && slug === page.slug },
+                ]}
+              >
+                {page.title}
+              </a>
+            ))
+          }
+        </div>
+        <div class="sidebar-versions">
+          <span class="sidebar-version-chip">core v{VERSIONS.core}</span>
+          <span class="sidebar-version-chip">ui v{VERSIONS.ui}</span>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- Main article content -->
+    <article class="docs-content prose">
+      {
+        readingTime && (
+          <p
+            class="reading-time"
+            aria-label={`Estimated reading time: ${readingTime} minute${
+              readingTime !== 1 ? 's' : ''
+            }`}
+          >
+            {readingTime} min read
+          </p>
+        )
+      }
+      <slot />
+
+      <!-- Feedback widget -->
+      <div class="feedback-widget">
+        <span class="feedback-label">Was this page helpful?</span>
+        <div class="feedback-btns">
+          <a
+            href={`${SITE.github}/issues/new?labels=documentation&title=${encodeURIComponent(
+              `Docs helpful: ${title}`,
+            )}&body=${encodeURIComponent(`Page: /${collection}/${slug}/`)}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="feedback-btn feedback-yes">Yes</a
+          >
+          <a
+            href={`${SITE.github}/issues/new?labels=documentation&title=${encodeURIComponent(
+              `Docs needs work: ${title}`,
+            )}&body=${encodeURIComponent(
+              `Page: /${collection}/${slug}/\n\nWhat was unclear or missing:\n`,
+            )}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="feedback-btn feedback-no">Needs work</a
+          >
+        </div>
+      </div>
+
+      <!-- Prev / Next navigation -->
+      <nav class="docs-pagination" aria-label="Page navigation">
+        {
+          prevPage && (
+            <a
+              href={`/${prevPage.collection}/${prevPage.slug}/`}
+              class="docs-pagination-link docs-pagination-prev"
+            >
+              <span class="pagination-label">← Previous</span>
+              <span class="pagination-title">{prevPage.title}</span>
+            </a>
+          )
+        }
+        {
+          nextPage && (
+            <a
+              href={`/${nextPage.collection}/${nextPage.slug}/`}
+              class="docs-pagination-link docs-pagination-next"
+            >
+              <span class="pagination-label">Next →</span>
+              <span class="pagination-title">{nextPage.title}</span>
+            </a>
+          )
+        }
+      </nav>
+    </article>
+
+    <!-- Right sticky TOC -->
+    <aside class="docs-toc" aria-label="Table of contents">
+      {
+        tocHeadings.length > 0 && (
+          <nav class="toc-nav">
+            <span class="toc-label">On this page</span>
+            {tocHeadings.map((h) => (
+              <a href={`#${h.slug}`} class:list={['toc-link', `toc-depth-${h.depth}`]}>
+                {h.text}
+              </a>
+            ))}
+          </nav>
+        )
+      }
+    </aside>
+  </div>
+
+  <!-- Reading progress bar -->
+  <div class="reading-progress-bar" id="reading-progress" aria-hidden="true"></div>
+
+  <!-- Back to top button -->
+  <button class="back-to-top" id="back-to-top" aria-label="Scroll back to top" hidden>
+    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+      <polyline points="4,13 10,7 16,13" stroke-linecap="round" stroke-linejoin="round"></polyline>
+    </svg>
+  </button>
+</Base>
+
+<script>
+  // ── Table horizontal scroll wrapper ───────────────────────────
+  document.querySelectorAll<HTMLTableElement>('.prose table').forEach((tbl) => {
+    const wrap = document.createElement('div');
+    wrap.className = 'table-scroll-wrapper';
+    tbl.parentNode!.insertBefore(wrap, tbl);
+    wrap.appendChild(tbl);
+  });
+
+  // ── Code copy buttons + language badges ────────────────────────
+  document.querySelectorAll<HTMLPreElement>('.prose pre.astro-code').forEach((pre) => {
+    const wrapper = document.createElement('div');
+    wrapper.className = 'code-block-wrapper';
+    pre.parentNode!.insertBefore(wrapper, pre);
+    wrapper.appendChild(pre);
+
+    // Language badge (from data-language attr Shiki sets)
+    const lang = pre.getAttribute('data-language');
+    if (lang) {
+      const badge = document.createElement('span');
+      badge.className = 'code-lang-badge';
+      badge.textContent = lang;
+      wrapper.appendChild(badge);
+    }
+
+    // Copy button
+    const btn = document.createElement('button');
+    btn.className = 'code-copy-btn';
+    btn.textContent = 'Copy';
+    btn.setAttribute('aria-label', 'Copy code to clipboard');
+    btn.addEventListener('click', async () => {
+      const code = pre.querySelector('code')?.innerText ?? pre.innerText;
+      await navigator.clipboard.writeText(code);
+      btn.textContent = '✓ Copied';
+      btn.classList.add('copied');
+      setTimeout(() => {
+        btn.textContent = 'Copy';
+        btn.classList.remove('copied');
+      }, 2000);
+    });
+    wrapper.appendChild(btn);
+  });
+
+  // ── Heading anchor links ───────────────────────────────────────
+  document.querySelectorAll<HTMLHeadingElement>('.prose h2, .prose h3').forEach((h) => {
+    if (!h.id) return;
+    const a = document.createElement('a');
+    a.href = `#${h.id}`;
+    a.className = 'heading-anchor';
+    a.setAttribute('aria-label', `Link to ${h.textContent}`);
+    a.textContent = '#';
+    h.appendChild(a);
+  });
+
+  // ── TOC active heading ─────────────────────────────────────────
+  // Highlight the TOC link for the heading currently in the viewport.
+  const tocLinks = document.querySelectorAll<HTMLAnchorElement>('.toc-link');
+  if (tocLinks.length > 0) {
+    const headingEls = Array.from(tocLinks)
+      .map((a) => {
+        const id = a.getAttribute('href')?.slice(1);
+        return id ? document.getElementById(id) : null;
+      })
+      .filter(Boolean) as HTMLElement[];
+
+    const obs = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            tocLinks.forEach((a) => a.classList.remove('toc-active'));
+            const active = document.querySelector<HTMLAnchorElement>(
+              `.toc-link[href="#${entry.target.id}"]`,
+            );
+            active?.classList.add('toc-active');
+            break;
+          }
+        }
+      },
+      { rootMargin: '-20% 0px -70% 0px' },
+    );
+
+    headingEls.forEach((el) => obs.observe(el));
+  }
+
+  // ── Mobile sidebar drawer ──────────────────────────────────────
+  const drawer = document.getElementById('docs-sidebar') as HTMLElement;
+  const backdrop = document.getElementById('docs-drawer-backdrop') as HTMLElement;
+  const openBtn = document.getElementById('docs-drawer-open') as HTMLButtonElement;
+
+  function openDrawer(): void {
+    drawer.classList.add('drawer-open');
+    backdrop.classList.add('drawer-open');
+    openBtn.setAttribute('aria-expanded', 'true');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeDrawer(): void {
+    drawer.classList.remove('drawer-open');
+    backdrop.classList.remove('drawer-open');
+    openBtn.setAttribute('aria-expanded', 'false');
+    document.body.style.overflow = '';
+  }
+
+  openBtn.addEventListener('click', openDrawer);
+  backdrop.addEventListener('click', closeDrawer);
+
+  // Close drawer when a nav link is clicked (navigating away)
+  drawer.querySelectorAll('a').forEach((a) => a.addEventListener('click', closeDrawer));
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeDrawer();
+  });
+
+  // ── Back to top + reading progress bar ────────────────────────
+  const backBtn = document.getElementById('back-to-top') as HTMLButtonElement;
+  const progressBar = document.getElementById('reading-progress') as HTMLElement;
+
+  window.addEventListener(
+    'scroll',
+    () => {
+      backBtn.hidden = window.scrollY < 400;
+
+      const total = document.documentElement.scrollHeight - window.innerHeight;
+      const pct = total > 0 ? window.scrollY / total : 0;
+      progressBar.style.transform = `scaleX(${pct})`;
+    },
+    { passive: true },
+  );
+  backBtn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+</script>

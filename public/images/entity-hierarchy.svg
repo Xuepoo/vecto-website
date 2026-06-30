@@ -1,0 +1,124 @@
+<svg viewBox="0 0 820 420" xmlns="http://www.w3.org/2000/svg" font-family="'Inter', system-ui, sans-serif">
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L7,3 z" fill="#6366f1"/>
+    </marker>
+  </defs>
+
+  <rect width="820" height="420" fill="#0a0e1a" rx="16"/>
+  <text x="410" y="32" fill="#8b949e" font-size="11" font-weight="600" text-anchor="middle" letter-spacing="1.5">CLASS HIERARCHY — @vecto-ui/core + @vecto-ui/ui</text>
+
+  <!-- Entity (abstract) -->
+  <rect x="310" y="48" width="200" height="40" rx="8" fill="#1a1f35" stroke="#6366f1" stroke-width="2"/>
+  <text x="410" y="65" fill="#a5b4fc" font-size="12" font-weight="700" text-anchor="middle">Entity</text>
+  <text x="410" y="80" fill="#6b7280" font-size="10" text-anchor="middle">abstract · @vecto-ui/core</text>
+
+  <!-- Vertical from Entity down -->
+  <line x1="410" y1="88" x2="410" y2="110" stroke="#6366f1" stroke-width="1.5"/>
+  <!-- Horizontal splitter at y=110 -->
+  <line x1="160" y1="110" x2="660" y2="110" stroke="#6366f1" stroke-width="1.5"/>
+
+  <!-- UIComponent branch (left-center) -->
+  <line x1="260" y1="110" x2="260" y2="128" stroke="#6366f1" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="160" y="130" width="200" height="38" rx="8" fill="#1a1f35" stroke="#38bdf8" stroke-width="1.5"/>
+  <text x="260" y="147" fill="#7dd3fc" font-size="12" font-weight="600" text-anchor="middle">UIComponent</text>
+  <text x="260" y="161" fill="#6b7280" font-size="10" text-anchor="middle">@vecto-ui/ui · isPointInside (AABB)</text>
+
+  <!-- ComputeParticleEntity branch (right) -->
+  <line x1="560" y1="110" x2="560" y2="128" stroke="#6366f1" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="470" y="130" width="180" height="38" rx="8" fill="#1a1f35" stroke="#10b981" stroke-width="1.5"/>
+  <text x="560" y="147" fill="#6ee7b7" font-size="12" font-weight="600" text-anchor="middle">ComputeParticle</text>
+  <text x="560" y="161" fill="#6b7280" font-size="10" text-anchor="middle">WebGPU / CPU particle sim</text>
+
+  <!-- DOMPortalEntity -->
+  <line x1="700" y1="110" x2="700" y2="128" stroke="#6366f1" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="660" y="130" width="150" height="38" rx="8" fill="#1a1f35" stroke="#f59e0b" stroke-width="1"/>
+  <text x="735" y="147" fill="#fcd34d" font-size="11" font-weight="600" text-anchor="middle">DOMPortalEntity</text>
+  <text x="735" y="161" fill="#6b7280" font-size="10" text-anchor="middle">embed native DOM</text>
+
+  <!-- UIComponent children — vertical line down -->
+  <line x1="260" y1="168" x2="260" y2="195" stroke="#38bdf8" stroke-width="1.5"/>
+  <!-- Horizontal spreader -->
+  <line x1="45" y1="195" x2="475" y2="195" stroke="#38bdf8" stroke-width="1"/>
+
+  <!-- Row 1: components -->
+  <!-- Text -->
+  <line x1="55" y1="195" x2="55" y2="212" stroke="#38bdf8" stroke-width="1" marker-end="url(#arr)"/>
+  <rect x="20" y="214" width="70" height="30" rx="6" fill="#111827" stroke="#38bdf8" stroke-width="1"/>
+  <text x="55" y="234" fill="#93c5fd" font-size="11" font-weight="500" text-anchor="middle">Text</text>
+
+  <!-- Button -->
+  <line x1="115" y1="195" x2="115" y2="212" stroke="#38bdf8" stroke-width="1" marker-end="url(#arr)"/>
+  <rect x="80" y="214" width="70" height="30" rx="6" fill="#111827" stroke="#38bdf8" stroke-width="1"/>
+  <text x="115" y="234" fill="#93c5fd" font-size="11" font-weight="500" text-anchor="middle">Button</text>
+
+  <!-- Link -->
+  <line x1="175" y1="195" x2="175" y2="212" stroke="#38bdf8" stroke-width="1" marker-end="url(#arr)"/>
+  <rect x="140" y="214" width="70" height="30" rx="6" fill="#111827" stroke="#38bdf8" stroke-width="1"/>
+  <text x="175" y="234" fill="#93c5fd" font-size="11" font-weight="500" text-anchor="middle">Link</text>
+
+  <!-- Card -->
+  <line x1="235" y1="195" x2="235" y2="212" stroke="#38bdf8" stroke-width="1" marker-end="url(#arr)"/>
+  <rect x="200" y="214" width="70" height="30" rx="6" fill="#111827" stroke="#38bdf8" stroke-width="1"/>
+  <text x="235" y="234" fill="#93c5fd" font-size="11" font-weight="500" text-anchor="middle">Card</text>
+
+  <!-- Input -->
+  <line x1="295" y1="195" x2="295" y2="212" stroke="#38bdf8" stroke-width="1" marker-end="url(#arr)"/>
+  <rect x="260" y="214" width="70" height="30" rx="6" fill="#111827" stroke="#38bdf8" stroke-width="1"/>
+  <text x="295" y="234" fill="#93c5fd" font-size="11" font-weight="500" text-anchor="middle">Input</text>
+
+  <!-- TextArea -->
+  <line x1="355" y1="195" x2="355" y2="212" stroke="#38bdf8" stroke-width="1" marker-end="url(#arr)"/>
+  <rect x="320" y="214" width="70" height="30" rx="6" fill="#111827" stroke="#38bdf8" stroke-width="1"/>
+  <text x="355" y="234" fill="#93c5fd" font-size="11" font-weight="500" text-anchor="middle">TextArea</text>
+
+  <!-- Toggle -->
+  <line x1="415" y1="195" x2="415" y2="212" stroke="#38bdf8" stroke-width="1" marker-end="url(#arr)"/>
+  <rect x="380" y="214" width="70" height="30" rx="6" fill="#111827" stroke="#38bdf8" stroke-width="1"/>
+  <text x="415" y="234" fill="#93c5fd" font-size="11" font-weight="500" text-anchor="middle">Toggle</text>
+
+  <!-- Checkbox -->
+  <line x1="465" y1="195" x2="465" y2="212" stroke="#38bdf8" stroke-width="1" marker-end="url(#arr)"/>
+  <rect x="450" y="214" width="80" height="30" rx="6" fill="#111827" stroke="#38bdf8" stroke-width="1"/>
+  <text x="490" y="234" fill="#93c5fd" font-size="11" font-weight="500" text-anchor="middle">Checkbox</text>
+
+  <!-- Row 2: more components -->
+  <line x1="55" y1="244" x2="55" y2="261" stroke="#38bdf8" stroke-width="1" marker-end="url(#arr)"/>
+  <rect x="20" y="262" width="70" height="30" rx="6" fill="#111827" stroke="#38bdf8" stroke-width="0.8"/>
+  <text x="55" y="282" fill="#93c5fd" font-size="11" font-weight="500" text-anchor="middle">Slider</text>
+
+  <line x1="115" y1="244" x2="115" y2="261" stroke="#38bdf8" stroke-width="1" marker-end="url(#arr)"/>
+  <rect x="80" y="262" width="70" height="30" rx="6" fill="#111827" stroke="#38bdf8" stroke-width="0.8"/>
+  <text x="115" y="282" fill="#93c5fd" font-size="11" font-weight="500" text-anchor="middle">Dropdown</text>
+
+  <line x1="175" y1="244" x2="175" y2="261" stroke="#38bdf8" stroke-width="1" marker-end="url(#arr)"/>
+  <rect x="140" y="262" width="70" height="30" rx="6" fill="#111827" stroke="#38bdf8" stroke-width="0.8"/>
+  <text x="175" y="282" fill="#93c5fd" font-size="11" font-weight="500" text-anchor="middle">Modal</text>
+
+  <line x1="235" y1="244" x2="235" y2="261" stroke="#38bdf8" stroke-width="1" marker-end="url(#arr)"/>
+  <rect x="200" y="262" width="70" height="30" rx="6" fill="#111827" stroke="#38bdf8" stroke-width="0.8"/>
+  <text x="235" y="282" fill="#93c5fd" font-size="11" font-weight="500" text-anchor="middle">ScrollView</text>
+
+  <line x1="295" y1="244" x2="295" y2="261" stroke="#38bdf8" stroke-width="1" marker-end="url(#arr)"/>
+  <rect x="260" y="262" width="70" height="30" rx="6" fill="#111827" stroke="#38bdf8" stroke-width="0.8"/>
+  <text x="295" y="282" fill="#93c5fd" font-size="11" font-weight="500" text-anchor="middle">Stack</text>
+
+  <line x1="355" y1="244" x2="355" y2="261" stroke="#38bdf8" stroke-width="1" marker-end="url(#arr)"/>
+  <rect x="320" y="262" width="70" height="30" rx="6" fill="#111827" stroke="#38bdf8" stroke-width="0.8"/>
+  <text x="355" y="282" fill="#93c5fd" font-size="11" font-weight="500" text-anchor="middle">Flow</text>
+
+  <line x1="415" y1="244" x2="415" y2="261" stroke="#38bdf8" stroke-width="1" marker-end="url(#arr)"/>
+  <rect x="380" y="262" width="70" height="30" rx="6" fill="#111827" stroke="#38bdf8" stroke-width="0.8"/>
+  <text x="415" y="282" fill="#93c5fd" font-size="11" font-weight="500" text-anchor="middle">RichText</text>
+
+  <line x1="475" y1="244" x2="475" y2="261" stroke="#38bdf8" stroke-width="1" marker-end="url(#arr)"/>
+  <rect x="450" y="262" width="80" height="30" rx="6" fill="#111827" stroke="#38bdf8" stroke-width="0.8"/>
+  <text x="490" y="282" fill="#93c5fd" font-size="11" font-weight="500" text-anchor="middle">Image/Table</text>
+
+  <!-- Legend -->
+  <rect x="20" y="330" width="780" height="72" rx="8" fill="#0d1525" stroke="#1e2d4a" stroke-width="1"/>
+  <text x="40" y="350" fill="#8b949e" font-size="10" font-weight="600">KEY ENTITY PROPERTIES (all classes inherit)</text>
+  <text x="40" y="368" fill="#4b5563" font-size="10">x, y — local position · scaleX, scaleY — local scale · rotation — radians · opacity — [0,1]</text>
+  <text x="40" y="382" fill="#4b5563" font-size="10">interactive — enables shadow DOM node · clipChildren — clip to box · a11yFullViewport — full-screen hit area</text>
+  <text x="40" y="396" fill="#4b5563" font-size="10">animate(props, ms) — queue tween · on/off/emit/dispatchEvent — event system · getGlobalPosition() — world-space coords</text>
+</svg>

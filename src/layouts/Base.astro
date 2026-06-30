@@ -8,6 +8,11 @@ interface Props {
 const { title, description = SITE.description } = Astro.props;
 const fullTitle = title ? `${title} · ${SITE.title}` : SITE.title;
 const demos = `${import.meta.env.BASE_URL}demos/`.replace('//', '/');
+
+const pathname = Astro.url.pathname;
+const isDemos = pathname.startsWith('/demos');
+const isLearn = pathname.startsWith('/learn');
+const isReference = pathname.startsWith('/reference');
 ---
 
 <!doctype html>
@@ -17,7 +22,22 @@ const demos = `${import.meta.env.BASE_URL}demos/`.replace('//', '/');
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{fullTitle}</title>
     <meta name="description" content={description} />
+    <!-- Open Graph -->
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="VectoUI" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content={fullTitle} />
+    <meta name="twitter:description" content={description} />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+
+    <!-- Cross-document view transitions (Chrome 126+) -->
+    <style>
+      @view-transition {
+        navigation: auto;
+      }
+    </style>
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -32,16 +52,153 @@ const demos = `${import.meta.env.BASE_URL}demos/`.replace('//', '/');
   <body>
     <header class="navbar">
       <div class="container nav-container">
-        <button class="nav-menu" aria-label="Menu">
-          <span></span><span></span><span></span>
+        <!-- Left: logo -->
+        <a href="/" class="nav-logo" aria-label="Vecto home">
+          <svg class="nav-logo-mark" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+            <polygon points="16,2 30,28 2,28" fill="url(#logo-grad)"></polygon>
+            <defs>
+              <linearGradient
+                id="logo-grad"
+                x1="2"
+                y1="28"
+                x2="30"
+                y2="2"
+                gradientUnits="userSpaceOnUse"
+              >
+                <stop offset="0%" stop-color="#6366f1"></stop>
+                <stop offset="100%" stop-color="#38bdf8"></stop>
+              </linearGradient>
+            </defs>
+          </svg>
+          <span class="nav-logo-text">Vecto</span>
+        </a>
+
+        <!-- Center: search trigger -->
+        <button
+          class="nav-search-trigger"
+          id="search-open"
+          type="button"
+          aria-label="Search documentation (Ctrl+K)"
+        >
+          <svg
+            class="nav-search-icon"
+            viewBox="0 0 20 20"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.8"
+            aria-hidden="true"
+          >
+            <circle cx="8.5" cy="8.5" r="5.5"></circle>
+            <line x1="13" y1="13" x2="18" y2="18" stroke-linecap="round"></line>
+          </svg>
+          <span class="nav-search-label">Search docs…</span>
+          <kbd class="nav-search-kbd">Ctrl K</kbd>
         </button>
-        <nav class="nav-links">
-          <a href="/docs/">Docs</a>
-          <a href={demos}>Demos</a>
-          <a href={SITE.github} target="_blank" rel="noopener">GitHub</a>
+
+        <!-- Right: nav links + GitHub -->
+        <nav class="nav-links" aria-label="Site navigation">
+          <a href={demos} class:list={[{ 'nav-link-active': isDemos }]}>Demos</a>
+          <a href="/learn/introduction/" class:list={[{ 'nav-link-active': isLearn }]}>Learn</a>
+          <a href="/reference/core-api/" class:list={[{ 'nav-link-active': isReference }]}
+            >Reference</a
+          >
+          <a
+            href={SITE.github}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="nav-github-link"
+            aria-label="View source on GitHub"
+          >
+            <svg class="nav-github-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path
+                d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0 1 12 6.844a9.59 9.59 0 0 1 2.504.337c1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.942.359.31.678.921.678 1.856 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.02 10.02 0 0 0 22 12.017C22 6.484 17.522 2 12 2Z"
+              ></path>
+            </svg>
+          </a>
         </nav>
       </div>
     </header>
+
+    <!-- Search modal overlay -->
+    <div
+      class="search-modal"
+      id="search-modal"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Search documentation"
+      hidden
+    >
+      <div class="search-backdrop" id="search-backdrop"></div>
+      <div class="search-panel">
+        <div class="search-field">
+          <svg
+            class="search-field-icon"
+            viewBox="0 0 20 20"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.8"
+            aria-hidden="true"
+          >
+            <circle cx="8.5" cy="8.5" r="5.5"></circle>
+            <line x1="13" y1="13" x2="18" y2="18" stroke-linecap="round"></line>
+          </svg>
+          <input
+            type="search"
+            class="search-field-input"
+            id="search-input"
+            placeholder="Search documentation…"
+            autocomplete="off"
+            spellcheck="false"
+          />
+          <kbd class="search-field-esc">Esc</kbd>
+        </div>
+        <div class="search-body" id="search-results" role="listbox" aria-label="Search results">
+          <p class="search-empty" id="search-hint">Start typing to search…</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Keyboard shortcut help panel -->
+    <div
+      class="shortcuts-modal"
+      id="shortcuts-modal"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Keyboard shortcuts"
+      hidden
+    >
+      <div class="shortcuts-backdrop" id="shortcuts-backdrop"></div>
+      <div class="shortcuts-panel">
+        <div class="shortcuts-header">
+          <span class="shortcuts-title">Keyboard shortcuts</span>
+          <button class="shortcuts-close" id="shortcuts-close" aria-label="Close shortcuts"
+            >✕</button
+          >
+        </div>
+        <dl class="shortcuts-list">
+          <div class="shortcut-row">
+            <dt><kbd>Ctrl</kbd> <kbd>K</kbd></dt>
+            <dd>Open search</dd>
+          </div>
+          <div class="shortcut-row">
+            <dt><kbd>↑</kbd> <kbd>↓</kbd></dt>
+            <dd>Navigate search results</dd>
+          </div>
+          <div class="shortcut-row">
+            <dt><kbd>Enter</kbd></dt>
+            <dd>Open selected result</dd>
+          </div>
+          <div class="shortcut-row">
+            <dt><kbd>Esc</kbd></dt>
+            <dd>Close modal / search</dd>
+          </div>
+          <div class="shortcut-row">
+            <dt><kbd>?</kbd></dt>
+            <dd>Show this help panel</dd>
+          </div>
+        </dl>
+      </div>
+    </div>
 
     <main>
       <slot />
@@ -56,5 +213,176 @@ const demos = `${import.meta.env.BASE_URL}demos/`.replace('//', '/');
         </div>
       </div>
     </footer>
+
+    <script>
+      interface SearchEntry {
+        title: string;
+        snippet?: string;
+        href: string;
+        section: string;
+        depth: number;
+      }
+
+      const modal = document.getElementById('search-modal') as HTMLElement;
+      const input = document.getElementById('search-input') as HTMLInputElement;
+      const openBtn = document.getElementById('search-open') as HTMLButtonElement;
+      const backdrop = document.getElementById('search-backdrop') as HTMLElement;
+      const resultsBox = document.getElementById('search-results') as HTMLElement;
+      const hint = document.getElementById('search-hint') as HTMLElement;
+
+      let INDEX: SearchEntry[] = [];
+      let indexLoaded = false;
+
+      async function ensureIndex(): Promise<void> {
+        if (indexLoaded) return;
+        try {
+          const res = await fetch('/search-index.json');
+          INDEX = await res.json();
+          indexLoaded = true;
+        } catch {
+          INDEX = [];
+          indexLoaded = true;
+        }
+      }
+
+      let activeIdx = -1;
+      let resultLinks: HTMLAnchorElement[] = [];
+
+      function highlight(text: string, q: string): string {
+        if (!q) return text;
+        const idx = text.toLowerCase().indexOf(q.toLowerCase());
+        if (idx === -1) return text;
+        return (
+          text.slice(0, idx) +
+          `<mark>${text.slice(idx, idx + q.length)}</mark>` +
+          text.slice(idx + q.length)
+        );
+      }
+
+      function renderResults(query: string): void {
+        const q = query.trim().toLowerCase();
+        if (!q) {
+          resultsBox.innerHTML = '';
+          resultsBox.appendChild(hint);
+          hint.textContent = 'Start typing to search…';
+          activeIdx = -1;
+          resultLinks = [];
+          return;
+        }
+
+        const matches = INDEX.filter(
+          (e) =>
+            e.title.toLowerCase().includes(q) ||
+            e.href.toLowerCase().includes(q) ||
+            (e.snippet?.toLowerCase().includes(q) ?? false),
+        ).slice(0, 20);
+
+        if (matches.length === 0) {
+          resultsBox.innerHTML = '';
+          hint.textContent = `No results for "${query}"`;
+          resultsBox.appendChild(hint);
+          resultLinks = [];
+          return;
+        }
+
+        const frag = document.createDocumentFragment();
+        resultLinks = matches.map((entry) => {
+          const a = document.createElement('a');
+          a.href = entry.href;
+          a.className = `search-result-item${entry.depth > 0 ? ' search-result-heading' : ''}`;
+          a.setAttribute('role', 'option');
+          const prefix = entry.depth > 0 ? `<span class="search-result-hash">#</span>` : '';
+          const snippetHtml = entry.snippet
+            ? `<span class="search-result-snippet">${highlight(entry.snippet, query.trim())}</span>`
+            : '';
+          a.innerHTML = `<span class="search-result-section">${
+            entry.section
+          }</span><span class="search-result-title">${prefix}${highlight(
+            entry.title,
+            query.trim(),
+          )}</span>${snippetHtml}`;
+          a.addEventListener('click', closeSearch);
+          frag.appendChild(a);
+          return a;
+        });
+
+        resultsBox.innerHTML = '';
+        resultsBox.appendChild(frag);
+        activeIdx = -1;
+      }
+
+      function setActive(idx: number): void {
+        resultLinks.forEach((a) => a.classList.remove('search-result-active'));
+        activeIdx = Math.max(-1, Math.min(idx, resultLinks.length - 1));
+        if (activeIdx >= 0) resultLinks[activeIdx].classList.add('search-result-active');
+      }
+
+      async function openSearch(): Promise<void> {
+        modal.hidden = false;
+        input.focus();
+        document.body.style.overflow = 'hidden';
+        await ensureIndex();
+        renderResults(input.value);
+      }
+
+      function closeSearch(): void {
+        modal.hidden = true;
+        input.value = '';
+        document.body.style.overflow = '';
+        renderResults('');
+      }
+
+      openBtn.addEventListener('click', openSearch);
+      backdrop.addEventListener('click', closeSearch);
+      input.addEventListener('input', () => renderResults(input.value));
+
+      input.addEventListener('keydown', (e: KeyboardEvent) => {
+        if (e.key === 'ArrowDown') {
+          e.preventDefault();
+          setActive(activeIdx + 1);
+          resultLinks[activeIdx]?.scrollIntoView({ block: 'nearest' });
+        } else if (e.key === 'ArrowUp') {
+          e.preventDefault();
+          setActive(activeIdx - 1);
+          resultLinks[activeIdx]?.scrollIntoView({ block: 'nearest' });
+        } else if (e.key === 'Enter' && activeIdx >= 0) {
+          e.preventDefault();
+          resultLinks[activeIdx].click();
+        }
+      });
+
+      // Shortcuts panel
+      const shortcutsModal = document.getElementById('shortcuts-modal') as HTMLElement;
+      const shortcutsBackdrop = document.getElementById('shortcuts-backdrop') as HTMLElement;
+      const shortcutsClose = document.getElementById('shortcuts-close') as HTMLButtonElement;
+
+      function openShortcuts(): void {
+        shortcutsModal.hidden = false;
+        document.body.style.overflow = 'hidden';
+      }
+      function closeShortcuts(): void {
+        shortcutsModal.hidden = true;
+        document.body.style.overflow = '';
+      }
+      shortcutsBackdrop?.addEventListener('click', closeShortcuts);
+      shortcutsClose?.addEventListener('click', closeShortcuts);
+
+      document.addEventListener('keydown', (e: KeyboardEvent) => {
+        const inInput = (document.activeElement as HTMLElement)?.tagName === 'INPUT';
+        if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+          e.preventDefault();
+          if (modal.hidden) openSearch();
+          else closeSearch();
+        }
+        if (e.key === 'Escape') {
+          if (!modal.hidden) closeSearch();
+          if (!shortcutsModal.hidden) closeShortcuts();
+        }
+        if (e.key === '?' && !inInput && modal.hidden && shortcutsModal.hidden) {
+          e.preventDefault();
+          openShortcuts();
+        }
+      });
+    </script>
   </body>
 </html>

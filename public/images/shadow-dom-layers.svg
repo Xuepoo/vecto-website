@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 580 340" width="580" height="340" font-family="Inter, system-ui, sans-serif">
+  <!-- Background -->
+  <rect width="580" height="340" rx="12" fill="#0f172a"/>
+
+  <!-- ── Layer 1: Canvas (bottom) ── -->
+  <rect x="30" y="220" width="380" height="88" rx="8" fill="#0f172a" stroke="#334155" stroke-width="1.5"/>
+  <text x="50" y="244" fill="#64748b" font-size="12" font-weight="600">&lt;canvas&gt;</text>
+  <text x="50" y="260" fill="#475569" font-size="11">z-index: 0</text>
+  <!-- Rendered component -->
+  <rect x="80" y="266" width="100" height="32" rx="6" fill="#1e40af"/>
+  <text x="130" y="287" text-anchor="middle" fill="#fff" font-size="12" font-weight="500">Button</text>
+  <rect x="200" y="266" width="80" height="32" rx="6" fill="#1e293b" stroke="#334155" stroke-width="1"/>
+  <text x="240" y="287" text-anchor="middle" fill="#94a3b8" font-size="12">Input</text>
+  <text x="50" y="302" fill="#334155" font-size="10" font-style="italic">canvas-rendered (GPU)</text>
+
+  <!-- ── Layer 2: DOM portal ── -->
+  <rect x="30" y="126" width="380" height="78" rx="8" fill="#0f172a" stroke="#334155" stroke-width="1.5" opacity="0.8"/>
+  <text x="50" y="150" fill="#64748b" font-size="12" font-weight="600">&lt;div&gt; DOM portal layer</text>
+  <text x="50" y="166" fill="#475569" font-size="11">z-index: 9</text>
+  <text x="50" y="194" fill="#334155" font-size="10" font-style="italic">real DOM elements: video, iframe, rich embeds</text>
+
+  <!-- ── Layer 3: A11y shadow layer (top) ── -->
+  <rect x="30" y="28" width="380" height="86" rx="8" fill="#0d1b2a" stroke="#6366f1" stroke-width="2"/>
+  <text x="50" y="52" fill="#a5b4fc" font-size="12" font-weight="600">&lt;div&gt; A11y shadow layer</text>
+  <text x="50" y="68" fill="#6366f1" font-size="11">z-index: 10 · pointer-events: auto · opacity: 0</text>
+  <!-- Shadow button -->
+  <rect x="80" y="76" width="100" height="28" rx="5" fill="none" stroke="#6366f1" stroke-width="1.5" stroke-dasharray="4 3"/>
+  <text x="130" y="95" text-anchor="middle" fill="#818cf8" font-size="11">&lt;button&gt;</text>
+  <!-- Shadow input -->
+  <rect x="200" y="76" width="80" height="28" rx="5" fill="none" stroke="#6366f1" stroke-width="1.5" stroke-dasharray="4 3"/>
+  <text x="240" y="95" text-anchor="middle" fill="#818cf8" font-size="11">&lt;input&gt;</text>
+
+  <!-- ── Cursor / pointer ── -->
+  <polygon points="460,44 460,90 472,80 478,98 484,95 478,76 494,76" fill="#f8fafc" stroke="#0f172a" stroke-width="1.5"/>
+  <!-- Pointer label -->
+  <text x="460" y="112" fill="#94a3b8" font-size="11">user pointer</text>
+  <!-- Arrow from pointer down to a11y layer -->
+  <line x1="468" y1="96" x2="412" y2="90" stroke="#00f0ff" stroke-width="1.5" stroke-dasharray="4 3"/>
+  <polygon points="410,90 420,86 420,94" fill="#00f0ff"/>
+  <text x="430" y="84" fill="#00f0ff" font-size="10">hits here first</text>
+
+  <!-- ── Right side labels / bracket ── -->
+  <line x1="418" y1="32" x2="430" y2="32" stroke="#475569" stroke-width="1"/>
+  <line x1="430" y1="32" x2="430" y2="302" stroke="#475569" stroke-width="1"/>
+  <line x1="418" y1="302" x2="430" y2="302" stroke="#475569" stroke-width="1"/>
+  <text x="448" y="140" fill="#475569" font-size="11" transform="rotate(-90 448 168)">canvas parent · position: relative</text>
+
+  <!-- ── Legend ── -->
+  <rect x="30" y="318" width="12" height="12" rx="2" fill="none" stroke="#6366f1" stroke-dasharray="3 2" stroke-width="1.5"/>
+  <text x="48" y="329" fill="#64748b" font-size="11">transparent shadow node (opacity: 0)</text>
+</svg>

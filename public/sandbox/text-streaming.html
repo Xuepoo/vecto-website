@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VectoUI — Text Streaming</title>
+  <style>
+    * { margin: 0; box-sizing: border-box; }
+    body { background: #0a0e1a; overflow: hidden; font-family: Inter, system-ui, sans-serif; }
+    #app { position: relative; width: 100vw; height: 100vh; }
+    canvas { display: block; width: 100%; height: 100%; }
+  </style>
+  <script type="importmap">
+  {
+    "imports": {
+      "@vecto-ui/core": "https://esm.sh/@vecto-ui/core@0.9.2",
+      "@vecto-ui/ui": "https://esm.sh/@vecto-ui/ui@0.4.2"
+    }
+  }
+  </script>
+</head>
+<body>
+  <div id="app"><canvas id="canvas"></canvas></div>
+  <script type="module">
+  import { Scene } from '@vecto-ui/core';
+  import { Text, Button } from '@vecto-ui/ui';
+
+  const app = document.getElementById('app');
+  const canvas = document.getElementById('canvas');
+
+  function setSize() {
+    canvas.width = app.offsetWidth;
+    canvas.height = app.offsetHeight;
+  }
+  setSize();
+
+  const scene = new Scene(canvas, { renderMode: 'onDemand', maxFPS: 60 });
+
+  // The "LLM response" we'll stream token by token
+  const RESPONSE =
+    'VectoUI is a zero-DOM canvas framework.\n\n' +
+    'It renders UI entirely on canvas using a Virtual Math Tree — ' +
+    'no layout engine, no reflow, no repaint cascade.\n\n' +
+    'Text streaming uses append() which memoizes unchanged paragraphs. ' +
+    'Cost is O(new tokens), not O(document). ' +
+    'This makes it ideal for AI chat interfaces where responses arrive token by token.';
+
+  const PAD = 28;
+  const label = new Text('', {
+    font: '15px Inter, system-ui',
+    color: '#e2e8f0',
+    maxWidth: canvas.width - PAD * 2,
+  });
+  label.setPosition(PAD, PAD);
+  scene.add(label);
+
+  const hint = new Text('← Click Replay to restart', {
+    font: '12px Inter, system-ui',
+    color: '#475569',
+  });
+  scene.add(hint);
+
+  const replayBtn = new Button('Replay', { width: 100, height: 36 });
+  scene.add(replayBtn);
+
+  let timer = null;
+
+  function startStream() {
+    if (timer) clearInterval(timer);
+    label.setText('');
+    scene.markDirty();
+
+    let i = 0;
+    timer = setInterval(() => {
+      if (i >= RESPONSE.length) {
+        clearInterval(timer);
+        timer = null;
+        return;
+      }
+      const chunk = RESPONSE.slice(i, i + 3);
+      label.append(chunk);
+      i += 3;
+      scene.markDirty();
+    }, 30);
+  }
+
+  replayBtn.on('click', startStream);
+
+  function layout() {
+    label.setMaxWidth(canvas.width - PAD * 2);
+    label.setPosition(PAD, PAD);
+    hint.setPosition(PAD + 110, canvas.height - 54);
+    replayBtn.setPosition(PAD, canvas.height - 60);
+    scene.markDirty();
+  }
+  layout();
+
+  window.addEventListener('resize', () => {
+    setSize();
+    scene.resize(canvas.width, canvas.height);
+    layout();
+  });
+
+  scene.start();
+  startStream();
+  </script>
+</body>
+</html>

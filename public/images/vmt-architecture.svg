@@ -1,0 +1,128 @@
+<svg viewBox="0 0 860 480" xmlns="http://www.w3.org/2000/svg" font-family="'Inter', system-ui, sans-serif">
+  <defs>
+    <marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L8,3 z" fill="#6366f1"/>
+    </marker>
+    <marker id="arrow-sky" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L8,3 z" fill="#38bdf8"/>
+    </marker>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="2" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="860" height="480" fill="#0a0e1a" rx="16"/>
+
+  <!-- Left panel: VMT -->
+  <rect x="20" y="20" width="380" height="440" rx="12" fill="#0d1525" stroke="#1e2d4a" stroke-width="1"/>
+  <text x="210" y="50" fill="#8b949e" font-size="11" font-weight="600" text-anchor="middle" letter-spacing="1.5">VIRTUAL MATH TREE</text>
+
+  <!-- Scene node -->
+  <rect x="115" y="62" width="190" height="38" rx="8" fill="#1a1f35" stroke="#6366f1" stroke-width="1.5"/>
+  <text x="210" y="86" fill="#a5b4fc" font-size="13" font-weight="600" text-anchor="middle">Scene</text>
+
+  <!-- Scene to Root arrow -->
+  <line x1="210" y1="100" x2="210" y2="122" stroke="#6366f1" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- Root Entity node -->
+  <rect x="115" y="124" width="190" height="38" rx="8" fill="#1a1f35" stroke="#6366f1" stroke-width="1"/>
+  <text x="210" y="148" fill="#c7d2fe" font-size="12" font-weight="500" text-anchor="middle">Root Entity</text>
+
+  <!-- Root to children branches -->
+  <line x1="155" y1="162" x2="155" y2="185" stroke="#6366f1" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <line x1="265" y1="162" x2="265" y2="185" stroke="#6366f1" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <!-- Horizontal connector -->
+  <line x1="155" y1="172" x2="265" y2="172" stroke="#6366f1" stroke-width="1" stroke-dasharray="3,3"/>
+
+  <!-- Card node -->
+  <rect x="60" y="187" width="190" height="36" rx="8" fill="#1a1f35" stroke="#38bdf8" stroke-width="1"/>
+  <text x="155" y="210" fill="#7dd3fc" font-size="12" font-weight="500" text-anchor="middle">Card</text>
+
+  <!-- ParticleEntity node -->
+  <rect x="265" y="187" width="115" height="36" rx="8" fill="#1a1f35" stroke="#10b981" stroke-width="1"/>
+  <text x="322" y="210" fill="#6ee7b7" font-size="11" font-weight="500" text-anchor="middle">ComputeParticle</text>
+
+  <!-- Card to children -->
+  <line x1="120" y1="223" x2="120" y2="246" stroke="#38bdf8" stroke-width="1.5" marker-end="url(#arrow-sky)"/>
+  <line x1="190" y1="223" x2="190" y2="246" stroke="#38bdf8" stroke-width="1.5" marker-end="url(#arrow-sky)"/>
+  <line x1="120" y1="233" x2="190" y2="233" stroke="#38bdf8" stroke-width="1" stroke-dasharray="3,3"/>
+
+  <!-- Text node -->
+  <rect x="50" y="248" width="140" height="34" rx="8" fill="#111827" stroke="#38bdf8" stroke-width="1" opacity="0.8"/>
+  <text x="120" y="270" fill="#93c5fd" font-size="12" font-weight="500" text-anchor="middle">Text</text>
+
+  <!-- Button node -->
+  <rect x="200" y="248" width="140" height="34" rx="8" fill="#111827" stroke="#38bdf8" stroke-width="1" opacity="0.8"/>
+  <text x="270" y="270" fill="#93c5fd" font-size="12" font-weight="500" text-anchor="middle">Button</text>
+
+  <!-- More nodes indicator -->
+  <text x="210" y="320" fill="#4b5563" font-size="11" text-anchor="middle">...</text>
+
+  <!-- Legend: interactive -->
+  <rect x="40" y="360" width="10" height="10" rx="2" fill="none" stroke="#38bdf8" stroke-width="1.5"/>
+  <text x="57" y="370" fill="#8b949e" font-size="10">UIComponent extends Entity</text>
+  <rect x="40" y="378" width="10" height="10" rx="2" fill="none" stroke="#10b981" stroke-width="1.5"/>
+  <text x="57" y="388" fill="#8b949e" font-size="10">GPU / particle Entity</text>
+  <rect x="40" y="396" width="10" height="10" rx="2" fill="none" stroke="#6366f1" stroke-width="1.5"/>
+  <text x="57" y="406" fill="#8b949e" font-size="10">Core scene-graph nodes</text>
+
+  <!-- Properties list -->
+  <text x="40" y="435" fill="#374151" font-size="10" font-style="italic">Entity: x, y, scaleX, scaleY, rotation, opacity, interactive</text>
+
+  <!-- Right panel: Browser Runtime -->
+  <rect x="420" y="20" width="420" height="440" rx="12" fill="#0d1525" stroke="#1e2d4a" stroke-width="1"/>
+  <text x="630" y="50" fill="#8b949e" font-size="11" font-weight="600" text-anchor="middle" letter-spacing="1.5">BROWSER RUNTIME</text>
+
+  <!-- Canvas Element -->
+  <rect x="450" y="62" width="360" height="140" rx="10" fill="#111827" stroke="#374151" stroke-width="1"/>
+  <text x="560" y="85" fill="#6b7280" font-size="10" font-weight="600">&#60;canvas&#62; element</text>
+
+  <!-- Canvas 2D backend badge -->
+  <rect x="462" y="96" width="100" height="24" rx="6" fill="#1e293b" stroke="#6366f1" stroke-width="1"/>
+  <text x="512" y="112" fill="#a5b4fc" font-size="10" font-weight="600" text-anchor="middle">Canvas2D</text>
+
+  <!-- WebGL backend badge -->
+  <rect x="572" y="96" width="80" height="24" rx="6" fill="#1e293b" stroke="#f59e0b" stroke-width="1"/>
+  <text x="612" y="112" fill="#fcd34d" font-size="10" font-weight="600" text-anchor="middle">WebGL2</text>
+
+  <!-- WebGPU backend badge -->
+  <rect x="662" y="96" width="86" height="24" rx="6" fill="#1e293b" stroke="#10b981" stroke-width="1"/>
+  <text x="705" y="112" fill="#6ee7b7" font-size="10" font-weight="600" text-anchor="middle">WebGPU</text>
+
+  <text x="462" y="148" fill="#4b5563" font-size="10">IRenderer.fillCircle / fillRect / stroke / fillText…</text>
+  <text x="462" y="165" fill="#4b5563" font-size="10">maxFPS throttle · viewport culling · dirty-flag</text>
+  <text x="462" y="182" fill="#4b5563" font-size="10">getBatchCircle() → single draw call per color run</text>
+
+  <!-- A11y Shadow DOM -->
+  <rect x="450" y="225" width="360" height="120" rx="10" fill="#111827" stroke="#374151" stroke-width="1"/>
+  <rect x="462" y="240" width="336" height="90" rx="6" fill="none" stroke="#6366f1" stroke-width="1" stroke-dasharray="4,4" opacity="0.6"/>
+  <text x="560" y="258" fill="#6b7280" font-size="10" font-weight="600">A11y Shadow DOM (z-index:10, opacity:0)</text>
+
+  <rect x="470" y="265" width="80" height="22" rx="4" fill="#1e293b" stroke="#38bdf8" stroke-width="0.8"/>
+  <text x="510" y="280" fill="#7dd3fc" font-size="9" text-anchor="middle">&#60;button&#62;</text>
+
+  <rect x="560" y="265" width="60" height="22" rx="4" fill="#1e293b" stroke="#38bdf8" stroke-width="0.8"/>
+  <text x="590" y="280" fill="#7dd3fc" font-size="9" text-anchor="middle">&#60;a&#62;</text>
+
+  <rect x="630" y="265" width="70" height="22" rx="4" fill="#1e293b" stroke="#38bdf8" stroke-width="0.8"/>
+  <text x="665" y="280" fill="#7dd3fc" font-size="9" text-anchor="middle">&#60;input&#62;</text>
+
+  <text x="470" y="322" fill="#4b5563" font-size="10">Mirrors entity layout each frame · routes click/input events back</text>
+
+  <!-- Render Loop box -->
+  <rect x="450" y="365" width="360" height="80" rx="10" fill="#111827" stroke="#374151" stroke-width="1"/>
+  <text x="560" y="385" fill="#6b7280" font-size="10" font-weight="600">Render Loop</text>
+  <text x="462" y="402" fill="#4b5563" font-size="10">rAF → entity.update(dt ms) → renderNode() → composite</text>
+  <text x="462" y="418" fill="#4b5563" font-size="10">onDemand mode: only redraws when markDirty() called</text>
+  <text x="462" y="434" fill="#4b5563" font-size="10">hasPendingAnimations() keeps loop alive during tweens</text>
+
+  <!-- Connecting arrows: VMT → Canvas -->
+  <path d="M 400 90 C 440 90 440 130 450 130" stroke="#6366f1" stroke-width="1.5" fill="none" stroke-dasharray="5,3" marker-end="url(#arrow)"/>
+  <text x="415" y="115" fill="#6366f1" font-size="9">render()</text>
+
+  <!-- Connecting arrows: VMT → A11y -->
+  <path d="M 400 210 C 440 210 440 255 450 265" stroke="#38bdf8" stroke-width="1.5" fill="none" stroke-dasharray="5,3" marker-end="url(#arrow-sky)"/>
+  <text x="407" y="242" fill="#38bdf8" font-size="9">syncA11y()</text>
+</svg>

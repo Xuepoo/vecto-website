@@ -1,0 +1,117 @@
+---
+import Base from '../layouts/Base.astro';
+---
+
+<Base title="Page Not Found">
+  <div class="not-found">
+    <div class="not-found-inner">
+      <svg
+        class="not-found-glyph"
+        viewBox="0 0 120 80"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        aria-hidden="true"
+      >
+        <text
+          x="0"
+          y="70"
+          font-family="'Outfit', sans-serif"
+          font-size="80"
+          font-weight="800"
+          fill="url(#g404)">404</text
+        >
+        <defs>
+          <linearGradient id="g404" x1="0" y1="0" x2="120" y2="80" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stop-color="#6366f1"></stop>
+            <stop offset="100%" stop-color="#38bdf8"></stop>
+          </linearGradient>
+        </defs>
+      </svg>
+      <h1 class="not-found-title">Page not found</h1>
+      <p class="not-found-desc">
+        The page you're looking for doesn't exist or has moved. Try the documentation or go back
+        home.
+      </p>
+      <div class="not-found-actions">
+        <a href="/" class="btn-primary">← Home</a>
+        <a href="/learn/introduction/" class="btn-ghost">Read the docs</a>
+      </div>
+    </div>
+  </div>
+</Base>
+
+<style>
+  .not-found {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: calc(100vh - 56px);
+    padding: 4rem 1.5rem;
+  }
+
+  .not-found-inner {
+    text-align: center;
+    max-width: 480px;
+  }
+
+  .not-found-glyph {
+    width: 200px;
+    height: auto;
+    margin: 0 auto 1.5rem;
+    display: block;
+    overflow: visible;
+  }
+
+  .not-found-title {
+    font-family: var(--font-title);
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text-color);
+    margin-bottom: 1rem;
+  }
+
+  .not-found-desc {
+    font-size: 1.05rem;
+    color: var(--text-muted);
+    line-height: 1.7;
+    margin-bottom: 2.5rem;
+  }
+
+  .not-found-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .btn-primary {
+    display: inline-block;
+    padding: 0.65rem 1.5rem;
+    background: var(--primary);
+    color: #fff;
+    border-radius: 8px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: opacity 0.2s;
+  }
+  .btn-primary:hover {
+    opacity: 0.85;
+  }
+
+  .btn-ghost {
+    display: inline-block;
+    padding: 0.65rem 1.5rem;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    color: var(--text-muted);
+    font-weight: 500;
+    text-decoration: none;
+    transition:
+      border-color 0.2s,
+      color 0.2s;
+  }
+  .btn-ghost:hover {
+    border-color: var(--primary);
+    color: var(--text-color);
+  }
+</style>

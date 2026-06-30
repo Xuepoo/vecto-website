@@ -25,42 +25,164 @@ import { SITE } from '../consts';
 
   <section class="features-section container">
     <h2 class="section-title">More than a canvas</h2>
-    <div class="features-grid">
+    <div class="features-grid wide">
       <div class="feature-card">
-        <div class="feature-icon">👁️</div>
-        <h3>Agent-native &amp; accessible</h3>
+        <div class="feature-icon">◈</div>
+        <h3>ECS architecture</h3>
         <p>
-          Every interactive component projects a real, transparent DOM shadow node. A pure-canvas
-          page is still read by screen readers and driven by Playwright / AI agents with <code
-            >getByRole().click()</code
-          > — something other canvas frameworks can't do.
+          Every object is an <code>Entity</code> in the Virtual Math Tree. Extend built-in components
+          via inheritance or build entirely custom ones — if JavaScript can express it, VectoUI can render
+          it. No opaque component registries.
         </p>
       </div>
+
       <div class="feature-card">
         <div class="feature-icon">🍃</div>
         <h3>Zero-DOM, zero reflow</h3>
         <p>
-          The whole UI tree lives in one <code>&lt;canvas&gt;</code>. Layout, hit-testing and
-          animation are pure math in JS/Workers — no browser reflow or style recalc. DOM-node count
-          stays flat while animating.
+          The entire UI tree lives in one <code>&lt;canvas&gt;</code>. Layout, hit-testing, and
+          animation are pure math in JS and Workers — no browser reflow, no style recalc. DOM-node
+          count stays flat while animating tens of thousands of elements.
         </p>
       </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">👁️</div>
+        <h3>Agent-native &amp; accessible</h3>
+        <p>
+          Every interactive entity projects a real, transparent DOM node. A pure-canvas page is
+          still driven by screen readers, Playwright, and AI agents with
+          <code>getByRole().click()</code>. No adapters required.
+        </p>
+      </div>
+
       <div class="feature-card">
         <div class="feature-icon">🔤</div>
-        <h3>Typography that reflows</h3>
+        <h3>Hot/cold typography &amp; BiDi</h3>
         <p>
-          A cold/hot <code>LayoutEngine</code>: measure once, re-wrap on resize or browser zoom
-          without re-measuring. Inline rich text, links, exclusion flow and streaming/typewriter
-          incremental layout included.
+          <code>prepare()</code> measures glyphs once; <code>layoutPrepared()</code> re-wraps on every
+          resize for free. Inline rich text, exclusion flow, Arabic/BiDi shaping, MSDF fonts, and streaming
+          token-append built in.
         </p>
       </div>
+
       <div class="feature-card">
         <div class="feature-icon">⚡</div>
-        <h3>Honest performance</h3>
+        <h3>WebGL &amp; WebGPU acceleration</h3>
         <p>
-          Real, reproducible benchmarks — measured in your own browser. The danmaku demo holds ~5000
-          live comments at 60+fps where DOM-based danmaku chokes past ~200; every demo ships an
-          Export-report button that reads real-GPU numbers.
+          Batch layer coalesces same-color shapes into one draw call. WebGPU compute simulates
+          100k–1M spring particles on the GPU. Idle auto-throttle drops to ~2 fps when nothing is
+          animating, conserving CPU and battery.
+        </p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">◎</div>
+        <h3>Streaming-first Markdown</h3>
+        <p>
+          <code>appendMarkdown(delta)</code> appends in O(changed paragraph), not O(document). Tables,
+          code fences, images, math (MathJax), Mermaid, and ABC notation are all rendered natively —
+          built for LLM chat and live feeds.
+        </p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">◉</div>
+        <h3>Three.js &amp; 2.5D depth</h3>
+        <p>
+          <code>ThreeAdapter</code> renders a full VectoUI scene as a
+          <code>THREE.CanvasTexture</code> with UV raycasting for pointer events. A built-in depth sort
+          handles pseudo-3D layering without a raw WebGL depth buffer.
+        </p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">◇</div>
+        <h3>Zero-GC &amp; O(1) culling</h3>
+        <p>
+          Particle data lives in contiguous <code>Float32Array</code> buffers — no per-frame heap allocations.
+          A constant-time spatial index skips every offscreen entity. Modular subpath imports keep bundles
+          small.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="usecases-section container">
+    <h2 class="section-title">Built for</h2>
+    <p class="section-subtitle">Anywhere a DOM is too slow, too rigid, or too visible.</p>
+    <div class="usecases-grid">
+      <div class="usecase-tile">
+        <div class="usecase-label">Data</div>
+        <h3>Visualization &amp; trading terminals</h3>
+        <p>
+          Real-time charts, deep order book terminals, and K8s topology viewers. Thousands of
+          animated nodes with flat memory usage — no DOM reflow per data tick.
+        </p>
+      </div>
+
+      <div class="usecase-tile">
+        <div class="usecase-label">Canvas</div>
+        <h3>Infinite canvases &amp; knowledge graphs</h3>
+        <p>
+          Collaborative whiteboards, Figma/Miro-scale design tools, and node-edge graphs. O(1)
+          spatial culling keeps pan and zoom smooth at any depth.
+        </p>
+      </div>
+
+      <div class="usecase-tile">
+        <div class="usecase-label">Streaming</div>
+        <h3>LLM clients &amp; live feeds</h3>
+        <p>
+          Token-by-token Markdown streaming, danmaku at 5,000+ concurrent comments, and real-time
+          observability feeds — all with sub-millisecond append cost.
+        </p>
+      </div>
+
+      <div class="usecase-tile">
+        <div class="usecase-label">Games &amp; Media</div>
+        <h3>Web games &amp; educational video</h3>
+        <p>
+          OSU!-style rhythm games, physics sandboxes, and interactive animations. A web-native
+          alternative to Remotion and Manim — no video pipeline needed.
+        </p>
+      </div>
+
+      <div class="usecase-tile">
+        <div class="usecase-label">Editors</div>
+        <h3>Text editors &amp; dev tools</h3>
+        <p>
+          Canvas-based editors like <code>vscode.dev</code> use canvas because the DOM text engine can't
+          be controlled at the character level. VectoUI provides the missing layout engine, IME input,
+          and accessibility layer.
+        </p>
+      </div>
+
+      <div class="usecase-tile">
+        <div class="usecase-label">Privacy</div>
+        <h3>Scraping-resistant interfaces</h3>
+        <p>
+          No DOM means no structured HTML for bots to parse. Natural fit for premium content
+          protection, anti-bot surfaces, and CAPTCHA-alternative applications.
+        </p>
+      </div>
+
+      <div class="usecase-tile">
+        <div class="usecase-label">XR &amp; 3D</div>
+        <h3>WebXR &amp; Three.js integration</h3>
+        <p>
+          Render VectoUI panels as <code>THREE.CanvasTexture</code> on any 3D mesh. Spatial dashboards,
+          in-world terminals, and head-up displays with full UV-raycasted pointer events.
+        </p>
+      </div>
+
+      <div class="usecase-tile">
+        <div class="usecase-label">Creative</div>
+        <h3>Advanced interactive websites</h3>
+        <p>
+          Physics-driven layouts, cursor-reactive particle fields, magnetic typography, and
+          generative art — effects impossible with CSS alone, embedded inside an otherwise normal
+          webpage.
         </p>
       </div>
     </div>

@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 300" width="600" height="300" font-family="Inter, system-ui, sans-serif">
+  <!-- Background -->
+  <rect width="600" height="300" rx="12" fill="#0f172a"/>
+
+  <!-- ── LEFT PANEL: World canvas ── -->
+  <rect x="16" y="16" width="244" height="268" rx="10" fill="#0f172a" stroke="#334155" stroke-width="1.5"/>
+  <text x="138" y="40" text-anchor="middle" fill="#64748b" font-size="12" font-weight="600" letter-spacing="1">WORLD SPACE</text>
+
+  <!-- World origin axes -->
+  <line x1="36" y1="250" x2="36" y2="58" stroke="#334155" stroke-width="1" stroke-dasharray="3 3"/>
+  <line x1="36" y1="250" x2="224" y2="250" stroke="#334155" stroke-width="1" stroke-dasharray="3 3"/>
+  <text x="30" y="56" fill="#475569" font-size="10">(0,0)</text>
+
+  <!-- Entity in world space, positioned at (80, 90) relative to panel -->
+  <rect x="96" y="108" width="100" height="60" rx="6" fill="#1e293b" stroke="#6366f1" stroke-width="2"/>
+  <!-- Entity origin dot -->
+  <circle cx="96" cy="108" r="4" fill="#6366f1"/>
+  <!-- World coords label -->
+  <text x="96" y="100" fill="#a5b4fc" font-size="11" font-weight="500">entity.x = 80</text>
+  <text x="96" y="186" fill="#a5b4fc" font-size="11" font-weight="500">entity.y = 90</text>
+  <!-- Dashed lines from world origin to entity -->
+  <line x1="36" y1="108" x2="92" y2="108" stroke="#6366f1" stroke-width="1" stroke-dasharray="3 3" opacity="0.5"/>
+  <line x1="96" y1="250" x2="96" y2="112" stroke="#6366f1" stroke-width="1" stroke-dasharray="3 3" opacity="0.5"/>
+  <!-- Axis labels -->
+  <text x="60" y="105" fill="#6366f1" font-size="10" opacity="0.8">y=90</text>
+  <text x="100" y="244" fill="#6366f1" font-size="10" opacity="0.8">x=80</text>
+
+  <!-- ── CENTER ARROW ── -->
+  <text x="300" y="138" text-anchor="middle" fill="#64748b" font-size="11">Scene applies</text>
+  <text x="300" y="153" text-anchor="middle" fill="#64748b" font-size="11" font-weight="600">T · S · R</text>
+  <text x="300" y="168" text-anchor="middle" fill="#64748b" font-size="11">transform</text>
+  <line x1="264" y1="150" x2="290" y2="150" stroke="#334155" stroke-width="1.5"/>
+  <polygon points="292,150 284,146 284,154" fill="#334155"/>
+  <line x1="312" y1="150" x2="338" y2="150" stroke="#334155" stroke-width="1.5"/>
+  <polygon points="340,150 332,146 332,154" fill="#334155"/>
+
+  <!-- ── RIGHT PANEL: Local space ── -->
+  <rect x="340" y="16" width="244" height="268" rx="10" fill="#0f172a" stroke="#334155" stroke-width="1.5"/>
+  <text x="462" y="40" text-anchor="middle" fill="#64748b" font-size="12" font-weight="600" letter-spacing="1">LOCAL SPACE</text>
+
+  <!-- Local origin axes -->
+  <line x1="360" y1="196" x2="360" y2="64" stroke="#00f0ff" stroke-width="1.5" opacity="0.6"/>
+  <line x1="360" y1="196" x2="556" y2="196" stroke="#00f0ff" stroke-width="1.5" opacity="0.6"/>
+  <polygon points="360,62 356,72 364,72" fill="#00f0ff" opacity="0.6"/>
+  <polygon points="558,196 548,192 548,200" fill="#00f0ff" opacity="0.6"/>
+  <!-- (0,0) label -->
+  <circle cx="360" cy="196" r="4" fill="#00f0ff"/>
+  <text x="348" y="212" fill="#00f0ff" font-size="11" font-weight="600">(0,0)</text>
+  <text x="553" y="210" fill="#00f0ff" font-size="10">x</text>
+  <text x="354" y="60" fill="#00f0ff" font-size="10">y</text>
+
+  <!-- Entity drawn at (0,0) in local space -->
+  <rect x="360" y="132" width="100" height="60" rx="6" fill="#1e293b" stroke="#00f0ff" stroke-width="2"/>
+  <!-- render() draws here label -->
+  <text x="410" y="158" text-anchor="middle" fill="#00f0ff" font-size="12" font-weight="600">render()</text>
+  <text x="410" y="174" text-anchor="middle" fill="#64748b" font-size="11">draws here</text>
+
+  <!-- Code hint -->
+  <rect x="352" y="72" width="224" height="48" rx="6" fill="#0d1b2a" stroke="#1e3a5f" stroke-width="1"/>
+  <text x="364" y="92" fill="#64748b" font-size="11">// inside render():</text>
+  <text x="364" y="110" fill="#a5f3fc" font-size="11">renderer.roundRect(0, 0, w, h, 8)</text>
+</svg>

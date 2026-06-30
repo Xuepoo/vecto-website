@@ -14,10 +14,10 @@ test:
     @if command -v pre-commit &>/dev/null; then pre-commit run --all-files; else echo "pre-commit not found"; fi
 
 deploy: test
-    @echo "=== Building JS and Zola site ==="
+    @echo "=== Building Astro site ==="
     @bun run build
     @echo "=== Deploying to Cloudflare Pages ==="
-    @./scripts/deploy-pages.sh public vecto-ui main
+    @./scripts/deploy-pages.sh dist vecto-ui main
 
 commit message="":
     @if [ -z "{{message}}" ]; then \

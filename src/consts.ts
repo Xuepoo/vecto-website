@@ -1,4 +1,9 @@
-/** Site-wide constants and the demo registry (single source for the gallery + pages). */
+/** Site-wide constants, demo registry, and docs navigation (single source of truth). */
+export const VERSIONS = {
+  core: '0.9.2',
+  ui: '0.4.2',
+} as const;
+
 export const SITE = {
   title: 'VectoUI',
   description: 'A mathematical UI rendering framework driven by Vectomancy',
@@ -41,3 +46,31 @@ export const demoBySlug = (slug: string): DemoMeta => {
   if (!d) throw new Error(`unknown demo: ${slug}`);
   return d;
 };
+
+export interface DocPage {
+  slug: string;
+  title: string;
+}
+
+export const LEARN_PAGES: DocPage[] = [
+  { slug: 'introduction', title: 'Introduction' },
+  { slug: 'math-foundations', title: 'Mathematical Foundations' },
+  { slug: 'getting-started', title: 'Getting Started' },
+  { slug: 'core-scene', title: 'Core Scene' },
+  { slug: 'custom-entity', title: 'Custom Entities' },
+  { slug: 'events', title: 'Events & Hit-Testing' },
+  { slug: 'physics-engine', title: 'Physics & Animation' },
+  { slug: 'particles', title: 'Particle Systems' },
+  { slug: 'performance', title: 'Performance' },
+  { slug: 'text-typography', title: 'Text & Typography' },
+  { slug: 'accessibility', title: 'Accessibility' },
+  { slug: 'ui-components', title: 'UI Components' },
+  { slug: 'cookbook', title: 'Cookbook' },
+];
+
+export const REFERENCE_PAGES: DocPage[] = [
+  { slug: 'core-api', title: '@vecto-ui/core' },
+  { slug: 'ui-components', title: '@vecto-ui/ui' },
+  { slug: 'three', title: '@vecto-ui/three' },
+  { slug: 'faq', title: 'FAQ' },
+];
