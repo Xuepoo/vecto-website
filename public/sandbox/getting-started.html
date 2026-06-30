@@ -6,8 +6,8 @@
   <title>VectoUI — Getting Started</title>
   <style>
     * { margin: 0; box-sizing: border-box; }
-    body { background: #0a0e1a; overflow: hidden; font-family: Inter, system-ui, sans-serif; }
-    #app { position: relative; width: 100vw; height: 100vh; }
+    html, body { width: 100%; height: 100%; overflow: hidden; background: #0a0e1a; font-family: Inter, system-ui, sans-serif; }
+    #app { position: relative; width: 100%; height: 100%; }
     canvas { display: block; width: 100%; height: 100%; }
     #err { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center;
            padding: 1.5rem; color: #f87171; font-size: 13px; white-space: pre-wrap; display: none; }
@@ -65,14 +65,15 @@
   scene.add(stack);
 
   function layout() {
+    // Use logical (CSS) px — canvas.width is the DPR-scaled backing buffer after
+    // scene.resize(), which would push content off-center and vary with zoom.
+    const w = app.offsetWidth, h = app.offsetHeight;
     stack.setPosition(
-      Math.max(20, (canvas.width - 220) / 2),
-      Math.max(20, (canvas.height - 200) / 2),
+      Math.max(20, (w - 220) / 2),
+      Math.max(20, (h - 200) / 2),
     );
     scene.markDirty();
   }
-  layout();
-
   window.addEventListener('resize', () => {
     setSize();
     scene.resize(canvas.width, canvas.height);
@@ -80,6 +81,12 @@
   });
 
   scene.start();
+
+  requestAnimationFrame(() => {
+    setSize();
+    scene.resize(canvas.width, canvas.height);
+    layout();
+  });
   </script>
 </body>
 </html>

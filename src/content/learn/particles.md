@@ -13,7 +13,7 @@ order: 6
 <figure class="sandbox">
   <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · vecto-ui@0.9</span></div>
   <iframe src="/sandbox/particles.html" class="sandbox-frame" loading="lazy" title="Particle System interactive example" sandbox="allow-scripts allow-same-origin"></iframe>
-  <figcaption>8,000 spring particles with mouse repulsion. Move your cursor across the canvas — particles scatter 120 px away. Click to trigger an explosion impulse.</figcaption>
+  <figcaption>2,000 spring particles with mouse repulsion. Move your cursor across the canvas — particles scatter 120 px away. Click to trigger an explosion impulse.</figcaption>
 </figure>
 
 ## Particles vs `getBatchCircle`

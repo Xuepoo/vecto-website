@@ -49,7 +49,7 @@ const isReference = pathname.startsWith('/reference');
     <link rel="stylesheet" href="/css/styles.css" />
     <slot name="head" />
   </head>
-  <body>
+  <body class:list={[{ 'page-docs': isLearn || isReference }]}>
     <header class="navbar">
       <div class="container nav-container">
         <!-- Left: logo -->
@@ -116,7 +116,31 @@ const isReference = pathname.startsWith('/reference');
             </svg>
           </a>
         </nav>
+
+        <!-- Mobile: hamburger toggle (shown ≤768px) -->
+        <button
+          class="nav-menu-toggle"
+          id="nav-menu-toggle"
+          type="button"
+          aria-label="Open menu"
+          aria-expanded="false"
+          aria-controls="nav-mobile-menu"
+        >
+          <span class="nav-menu-bar"></span>
+          <span class="nav-menu-bar"></span>
+          <span class="nav-menu-bar"></span>
+        </button>
       </div>
+
+      <!-- Mobile: slide-down menu (shown ≤768px when open) -->
+      <nav class="nav-mobile-menu" id="nav-mobile-menu" aria-label="Mobile navigation">
+        <a href={demos} class:list={[{ 'nav-link-active': isDemos }]}>Demos</a>
+        <a href="/learn/introduction/" class:list={[{ 'nav-link-active': isLearn }]}>Learn</a>
+        <a href="/reference/core-api/" class:list={[{ 'nav-link-active': isReference }]}
+          >Reference</a
+        >
+        <a href={SITE.github} target="_blank" rel="noopener noreferrer">GitHub ↗</a>
+      </nav>
     </header>
 
     <!-- Search modal overlay -->
@@ -383,6 +407,25 @@ const isReference = pathname.startsWith('/reference');
           openShortcuts();
         }
       });
+
+      // Mobile hamburger menu
+      const navToggle = document.getElementById('nav-menu-toggle') as HTMLButtonElement | null;
+      const navMenu = document.getElementById('nav-mobile-menu') as HTMLElement | null;
+      if (navToggle && navMenu) {
+        const setMenu = (open: boolean) => {
+          navMenu.classList.toggle('is-open', open);
+          navToggle.classList.toggle('is-open', open);
+          navToggle.setAttribute('aria-expanded', String(open));
+          navToggle.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+        };
+        navToggle.addEventListener('click', () => setMenu(!navMenu.classList.contains('is-open')));
+        navMenu.addEventListener('click', (e) => {
+          if ((e.target as HTMLElement).closest('a')) setMenu(false);
+        });
+        document.addEventListener('keydown', (e: KeyboardEvent) => {
+          if (e.key === 'Escape') setMenu(false);
+        });
+      }
     </script>
   </body>
 </html>

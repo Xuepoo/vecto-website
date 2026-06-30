@@ -1,0 +1,25 @@
+---
+interface Props {
+  class?: string;
+}
+const { class: className } = Astro.props;
+---
+
+<svg
+  class={className}
+  viewBox="0 0 32 32"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2.8"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+>
+  <!-- Main Vector Directional Arrow -->
+  <path d="M6 26 L26 6"></path>
+  <path d="M18 6 L26 6 L26 14"></path>
+
+  <!-- Cross Bars representing the glyph structure of "矢" -->
+  <path d="M6 13 L19 13" stroke-width="2.4"></path>
+  <path d="M12 18 L7 23" stroke-width="2.4"></path>
+  <path d="M18 12 L23 7" stroke-width="2.4"></path>
+</svg>

@@ -6,8 +6,8 @@
   <title>VectoUI — Particle System</title>
   <style>
     * { margin: 0; box-sizing: border-box; }
-    body { background: #050810; overflow: hidden; }
-    #app { position: relative; width: 100vw; height: 100vh; }
+    html, body { width: 100%; height: 100%; overflow: hidden; background: #050810; }
+    #app { position: relative; width: 100%; height: 100%; }
     canvas { display: block; width: 100%; height: 100%; }
   </style>
   <script type="importmap">
@@ -33,14 +33,21 @@
   }
   setSize();
 
+  // Scale the simulation to the device. Phones (coarse pointer) and low-core
+  // machines run far fewer particles at a lower cap so the CPU sim stays smooth.
+  const coarse = window.matchMedia('(pointer: coarse)').matches;
+  const lowPower = coarse || (navigator.hardwareConcurrency || 4) <= 4;
+  const MAX_PARTICLES = lowPower ? 500 : 1500;
+
   const scene = new Scene(canvas, {
-    particleBackend: 'auto',
+    renderMode: 'always',
     pointBackend: 'webgl',
-    maxFPS: 60,
+    maxFPS: lowPower ? 45 : 60,
   });
 
   const particles = new ComputeParticleEntity({
-    maxParticles: 8000,
+    maxParticles: MAX_PARTICLES,
+    particleBackend: 'cpu',
     springK: 0.04,
     damping: 0.94,
     bounceDamping: 0.4,
@@ -51,16 +58,45 @@
   });
 
   scene.add(particles);
-  scene.start();
 
-  scene.resize(canvas.width, canvas.height);
-  particles.initRandomParticles(canvas.width, canvas.height);
+  function fit() {
+    // Logical (CSS) px — canvas.width is the DPR-scaled backing buffer after
+    // scene.resize(); spawning particles in those coords scatters half of them
+    // off-screen and makes the field drift with browser zoom.
+    const W = app.offsetWidth, H = app.offsetHeight;
+    scene.resize(W, H);
+    particles.initRandomParticles(W, H);
+  }
 
-  window.addEventListener('resize', () => {
-    setSize();
-    scene.resize(canvas.width, canvas.height);
-    particles.initRandomParticles(canvas.width, canvas.height);
-  });
+  window.addEventListener('resize', fit);
+  // Defer to next rAF so the iframe's layout has settled before reading dimensions.
+  requestAnimationFrame(fit);
+
+  // Pause the continuous sim when it isn't on screen — a particle loop running on
+  // the main thread while you scroll the docs is the main cause of janky scrolling.
+  let running = false;
+  const setRunning = (on) => {
+    if (on === running) return;
+    running = on;
+    if (on) scene.start();
+    else scene.stop();
+  };
+  setRunning(true);
+
+  // Same-origin iframe: observe our own <iframe> against the PARENT viewport, so
+  // the sim stops the moment it scrolls out of the docs page (not just on tab-hide).
+  try {
+    const frame = window.frameElement;
+    if (frame && window.parent && window.parent.IntersectionObserver) {
+      new window.parent.IntersectionObserver(
+        (entries) => setRunning(entries[entries.length - 1].isIntersecting),
+        { threshold: 0.01 },
+      ).observe(frame);
+    }
+  } catch {
+    /* cross-origin parent — the visibility listener below still applies */
+  }
+  document.addEventListener('visibilitychange', () => setRunning(!document.hidden));
 
   canvas.addEventListener('click', (e) => {
     particles.triggerExplosion(e.offsetX, e.offsetY, 300);

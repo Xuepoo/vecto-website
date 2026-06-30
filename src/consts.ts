@@ -39,6 +39,13 @@ export const DEMOS: DemoMeta[] = [
       'A chat client whose entire transcript is rendered on canvas: Markdown streams in token-by-token, with code, tables, images, and SVG-rendered math, Mermaid, and ABC notation. Plays prebaked answers with zero config, or point it at a local Ollama.',
     tag: 'Streaming · Markdown · a11y',
   },
+  {
+    slug: 'pool',
+    title: 'Pool CAPTCHA',
+    description:
+      'A pool-table CAPTCHA: aim and shoot the cue ball into the highlighted pocket. The entire table is canvas 2D — the only DOM element is the cue stick div itself.',
+    tag: 'Interaction · Physics · CAPTCHA',
+  },
 ];
 
 export const demoBySlug = (slug: string): DemoMeta => {

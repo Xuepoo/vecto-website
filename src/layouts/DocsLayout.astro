@@ -27,6 +27,28 @@ const nextPage = currentIdx < allPages.length - 1 ? allPages[currentIdx + 1] : n
 ---
 
 <Base title={title} description={description}>
+  <Fragment slot="head">
+    <!-- KaTeX: render $...$ and $$...$$ math in docs pages -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"
+      integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+"
+      crossorigin="anonymous"
+    />
+    <script
+      defer
+      src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"
+      integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm/Yr2r3Dy4lfFg"
+      crossorigin="anonymous"></script>
+    <script
+      defer
+      src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"
+      integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk"
+      crossorigin="anonymous"
+      onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],ignoredTags:['script','noscript','style','textarea','pre','code'],throwOnError:false})"
+    ></script>
+  </Fragment>
+
   <!-- Mobile nav strip -->
   <div class="docs-mobile-strip">
     <button
@@ -54,9 +76,17 @@ const nextPage = currentIdx < allPages.length - 1 ? allPages[currentIdx + 1] : n
   <!-- Drawer backdrop (mobile) -->
   <div class="docs-drawer-backdrop" id="docs-drawer-backdrop" aria-hidden="true"></div>
 
-  <div class="docs-layout">
+  <div class="docs-layout" id="docs-layout">
     <!-- Left sidebar: full docs tree (also acts as mobile drawer) -->
     <aside class="docs-sidebar" id="docs-sidebar" aria-label="Documentation navigation">
+      <!-- Desktop collapse toggle (not shown on mobile) -->
+      <button
+        class="sidebar-collapse-btn"
+        id="sidebar-collapse-btn"
+        type="button"
+        aria-label="Collapse navigation sidebar"
+        title="Collapse sidebar">&#x276E;</button
+      >
       <nav class="sidebar-nav">
         <div class="sidebar-group">
           <span class="sidebar-group-label">Learn</span>
@@ -182,6 +212,15 @@ const nextPage = currentIdx < allPages.length - 1 ? allPages[currentIdx + 1] : n
     </aside>
   </div>
 
+  <!-- Sidebar expand button (visible only when sidebar is collapsed) -->
+  <button
+    class="sidebar-expand-btn"
+    id="sidebar-expand-btn"
+    type="button"
+    aria-label="Expand navigation sidebar"
+    title="Expand sidebar">&#x276F;</button
+  >
+
   <!-- Reading progress bar -->
   <div class="reading-progress-bar" id="reading-progress" aria-hidden="true"></div>
 
@@ -204,6 +243,9 @@ const nextPage = currentIdx < allPages.length - 1 ? allPages[currentIdx + 1] : n
 
   // ── Code copy buttons + language badges ────────────────────────
   document.querySelectorAll<HTMLPreElement>('.prose pre.astro-code').forEach((pre) => {
+    // Mermaid blocks are converted to diagrams, not code chrome
+    if (pre.getAttribute('data-language') === 'mermaid') return;
+
     const wrapper = document.createElement('div');
     wrapper.className = 'code-block-wrapper';
     pre.parentNode!.insertBefore(wrapper, pre);
@@ -322,4 +364,72 @@ const nextPage = currentIdx < allPages.length - 1 ? allPages[currentIdx + 1] : n
     { passive: true },
   );
   backBtn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+
+  // ── Sidebar collapse (desktop only) ───────────────────────────
+  const docsLayout = document.getElementById('docs-layout') as HTMLElement;
+  const collapseBtn = document.getElementById('sidebar-collapse-btn') as HTMLButtonElement;
+  const expandBtn = document.getElementById('sidebar-expand-btn') as HTMLButtonElement;
+
+  function setSidebarCollapsed(collapsed: boolean): void {
+    docsLayout.classList.toggle('sidebar-collapsed', collapsed);
+    try {
+      localStorage.setItem('sidebar-collapsed', collapsed ? '1' : '0');
+    } catch {}
+  }
+
+  // Restore persisted preference
+  try {
+    if (localStorage.getItem('sidebar-collapsed') === '1') {
+      docsLayout.classList.add('sidebar-collapsed');
+    }
+  } catch {}
+
+  collapseBtn?.addEventListener('click', () => setSidebarCollapsed(true));
+  expandBtn?.addEventListener('click', () => setSidebarCollapsed(false));
+</script>
+
+<script type="module" is:inline>
+  // Convert ```mermaid code blocks (Shiki-highlighted) into renderable divs, then run Mermaid CDN
+  const mermaidPres = Array.from(
+    document.querySelectorAll('pre.astro-code[data-language="mermaid"]'),
+  );
+  const converted = mermaidPres.map((pre) => {
+    const raw = pre.querySelector('code')?.innerText ?? pre.innerText;
+    const div = document.createElement('div');
+    div.className = 'mermaid';
+    div.textContent = raw;
+    pre.replaceWith(div);
+    return div;
+  });
+
+  // Also pick up any raw <div class="mermaid"> blocks that survived markdown processing
+  const rawDivs = Array.from(document.querySelectorAll('.mermaid')).filter(
+    (d) => !converted.includes(d),
+  );
+  const allMermaid = [...converted, ...rawDivs];
+
+  if (allMermaid.length > 0) {
+    const { default: mermaid } = await import(
+      'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs'
+    );
+    mermaid.initialize({
+      startOnLoad: false,
+      theme: 'dark',
+      themeVariables: {
+        darkMode: true,
+        background: '#0d1117',
+        primaryColor: '#1e2a44',
+        primaryTextColor: '#e2e8f0',
+        primaryBorderColor: '#3b82f6',
+        lineColor: '#475569',
+        secondaryColor: '#111827',
+        tertiaryColor: '#0f1e3a',
+        edgeLabelBackground: '#0d1117',
+        clusterBkg: '#111827',
+        clusterBorder: '#334155',
+      },
+      flowchart: { curve: 'basis', htmlLabels: true },
+    });
+    mermaid.run({ nodes: allMermaid });
+  }
 </script>

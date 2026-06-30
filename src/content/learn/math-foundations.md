@@ -98,15 +98,7 @@ In a scene containing $N$ entities, testing which elements are hovered or visibl
 
 VectoUI maps the 2D infinite coordinate plane to a **Spatial Hash Grid** to bound complexity.
 
-```text
-┌───────┬───────┬───────┐
-│ (0,2) │ (1,2) │ (2,2) │   Plane divided into cells of size S.
-├───────┼───────┼───────┤   Entities mapped to cell keys:
-│ (0,1) │ (1,1) │ (2,1) │   key = floor(x / S) + "," + floor(y / S)
-├───────┼───────┼───────┤
-│ (0,0) │ (1,0) │ (2,0) │   Hover / Culling checks query only the
-└───────┴───────┴───────┘   active overlapping cells.
-```
+<img src="/images/spatial-hash-grid.svg" alt="3×3 spatial hash grid showing coordinate cells (0,0) through (2,2), with the active cursor cell (1,1) highlighted in blue, and annotations explaining the cell-key formula and O(1) lookup" class="diagram" />
 
 ### The Hash Function
 
@@ -140,11 +132,7 @@ For a given line at vertical coordinate $Y$ and height $H$, the total wrap width
 
 If $K$ obstacle shapes (`ExclusionRect`) overlap with the Y-range $[Y, Y+H]$, each obstacle represents a subtraction interval $E_k = [x_{s,k}, x_{e,k}]$:
 
-```text
-Total Line Interval: [0 ────────────────────────────────────────── maxWidth]
-Obstacle 1:                  [xs,1 ────── xe,1]
-Set Difference:      [0 ───]                    [xe,1 ──────────── maxWidth]
-```
+<img src="/images/set-difference-intervals.svg" alt="Diagram showing three horizontal interval bars: the total line interval spanning 0 to maxWidth, an obstacle interval xs1 to xe1 in the middle, and the resulting set difference as two separate segments avoiding the obstacle" class="diagram" />
 
 The available segments $I_{\text{allowed}}$ for placing text glyphs are solved by computing the set difference:
 
@@ -204,3 +192,5 @@ Because the solver calculates forces dynamically based on the current value $x_t
 | **Culling**    | Render tree comparison     | 2D Hash Mapping              | Spatial Hash Indexing          |
 | **Text wrap**  | Reflow trial-and-error     | Segment Interval Subtraction | Set Difference Algebra         |
 | **Animation**  | Cubic Bezier timelines     | Mass-Spring-Damper Solver    | Second-Order ODE Integration   |
+
+> **Next:** [Getting Started](/learn/getting-started/) — install the packages and write your first scene.

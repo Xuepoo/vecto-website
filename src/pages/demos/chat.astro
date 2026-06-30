@@ -92,7 +92,16 @@ const demo = demoBySlug('chat');
               value="40"
             /></label
           >
-          <p class="chat-note">Leave empty to play prebaked answers.</p>
+          <p class="chat-note">
+            Leave <strong>Model</strong> empty to play prebaked answers. Enter a model name (e.g. <code
+              >llama3.2</code
+            >) to stream live from the Base URL above.
+          </p>
+          <p class="chat-note">
+            Browsers block cross-origin calls, so a local Ollama must allow this site: start it with <code
+              >OLLAMA_ORIGINS='*' ollama serve</code
+            >.
+          </p>
         </details>
       </aside>
 

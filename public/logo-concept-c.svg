@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none" stroke="#000000" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round">
+  <!-- Main Vector Directional Arrow (representing 2D coordinate translation) -->
+  <path d="M6 26 L26 6" />
+  <path d="M18 6 L26 6 L26 14" />
+
+  <!-- Cross Bars representing the glyph structure of "矢" -->
+  <path d="M6 13 L19 13" stroke-width="2.4" />
+  <path d="M12 18 L7 23" stroke-width="2.4" />
+  <path d="M18 12 L23 7" stroke-width="2.4" />
+</svg>

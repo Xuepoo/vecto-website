@@ -68,20 +68,20 @@
   <line x1="30" y1="155" x2="810" y2="155" stroke="#1e2d4a" stroke-width="1"/>
 
   <!-- Detail boxes: Update Pass expansion -->
-  <text x="364" y="180" fill="#6b7280" font-size="10" font-weight="600" text-anchor="middle">UPDATE PASS DETAIL</text>
-  <rect x="200" y="192" width="330" height="80" rx="8" fill="#0d1525" stroke="#1e2d4a" stroke-width="1"/>
-  <text x="220" y="212" fill="#4b5563" font-size="10">• Entity.update(dt, time) — advances queued animate() tweens</text>
-  <text x="220" y="228" fill="#4b5563" font-size="10">• SpringPhysics.update(dt/1000) — spring simulation step</text>
-  <text x="220" y="244" fill="#4b5563" font-size="10">• ScrollView.update() — scroll spring integration</text>
-  <text x="220" y="260" fill="#4b5563" font-size="10">• dt unit: milliseconds for Entity.update; seconds for physics</text>
+  <text x="355" y="180" fill="#6b7280" font-size="10" font-weight="600" text-anchor="middle">UPDATE PASS DETAIL</text>
+  <rect x="200" y="192" width="310" height="80" rx="8" fill="#0d1525" stroke="#1e2d4a" stroke-width="1"/>
+  <text x="218" y="212" fill="#4b5563" font-size="10">• Entity.update(dt, t) — advances animate() tweens</text>
+  <text x="218" y="228" fill="#4b5563" font-size="10">• SpringPhysics.update(dt/1000) — spring step</text>
+  <text x="218" y="244" fill="#4b5563" font-size="10">• ScrollView.update() — scroll spring</text>
+  <text x="218" y="260" fill="#4b5563" font-size="10">• dt: ms for Entity.update, seconds for physics</text>
 
   <!-- Detail boxes: Render Pass expansion -->
-  <text x="511" y="180" fill="#6b7280" font-size="10" font-weight="600" text-anchor="middle">RENDER PASS DETAIL</text>
-  <rect x="430" y="192" width="350" height="80" rx="8" fill="#0d1525" stroke="#1e2d4a" stroke-width="1"/>
-  <text x="450" y="212" fill="#4b5563" font-size="10">• ctx.save() → translate → scale → rotate per entity</text>
-  <text x="450" y="228" fill="#4b5563" font-size="10">• getBounds() → skip if outside viewport (culling)</text>
-  <text x="450" y="244" fill="#4b5563" font-size="10">• getBatchCircle() / getBatchRect() → fast-path batch</text>
-  <text x="450" y="260" fill="#4b5563" font-size="10">• entity.render(IRenderer) → custom draw calls</text>
+  <text x="676" y="180" fill="#6b7280" font-size="10" font-weight="600" text-anchor="middle">RENDER PASS DETAIL</text>
+  <rect x="522" y="192" width="308" height="80" rx="8" fill="#0d1525" stroke="#1e2d4a" stroke-width="1"/>
+  <text x="540" y="212" fill="#4b5563" font-size="10">• ctx.save() → translate → scale → rotate</text>
+  <text x="540" y="228" fill="#4b5563" font-size="10">• getBounds() → skip if outside viewport</text>
+  <text x="540" y="244" fill="#4b5563" font-size="10">• getBatchCircle() / getBatchRect() → batch</text>
+  <text x="540" y="260" fill="#4b5563" font-size="10">• entity.render(IRenderer) → custom draws</text>
 
   <!-- onDemand note -->
   <rect x="30" y="192" width="155" height="80" rx="8" fill="#0d1525" stroke="#1e2d4a" stroke-width="1"/>

@@ -6,8 +6,8 @@
   <title>VectoUI — Text Streaming</title>
   <style>
     * { margin: 0; box-sizing: border-box; }
-    body { background: #0a0e1a; overflow: hidden; font-family: Inter, system-ui, sans-serif; }
-    #app { position: relative; width: 100vw; height: 100vh; }
+    html, body { width: 100%; height: 100%; overflow: hidden; background: #0a0e1a; font-family: Inter, system-ui, sans-serif; }
+    #app { position: relative; width: 100%; height: 100%; }
     canvas { display: block; width: 100%; height: 100%; }
   </style>
   <script type="importmap">
@@ -87,14 +87,14 @@
   replayBtn.on('click', startStream);
 
   function layout() {
-    label.setMaxWidth(canvas.width - PAD * 2);
+    // Logical (CSS) px — not the DPR-scaled canvas.width that scene.resize() sets.
+    const W = app.offsetWidth, H = app.offsetHeight;
+    label.setMaxWidth(W - PAD * 2);
     label.setPosition(PAD, PAD);
-    hint.setPosition(PAD + 110, canvas.height - 54);
-    replayBtn.setPosition(PAD, canvas.height - 60);
+    hint.setPosition(PAD + 110, H - 54);
+    replayBtn.setPosition(PAD, H - 60);
     scene.markDirty();
   }
-  layout();
-
   window.addEventListener('resize', () => {
     setSize();
     scene.resize(canvas.width, canvas.height);
@@ -102,7 +102,13 @@
   });
 
   scene.start();
-  startStream();
+
+  requestAnimationFrame(() => {
+    setSize();
+    scene.resize(canvas.width, canvas.height);
+    layout();
+    startStream();
+  });
   </script>
 </body>
 </html>

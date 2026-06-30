@@ -6,8 +6,8 @@
   <title>VectoUI — Custom Entity</title>
   <style>
     * { margin: 0; box-sizing: border-box; }
-    body { background: #0a0e1a; overflow: hidden; }
-    #app { position: relative; width: 100vw; height: 100vh; }
+    html, body { width: 100%; height: 100%; overflow: hidden; background: #0a0e1a; }
+    #app { position: relative; width: 100%; height: 100%; }
     canvas { display: block; width: 100%; height: 100%; }
   </style>
   <script type="importmap">
@@ -41,6 +41,7 @@
       this._display = 0;
       this.min = 0;
       this.max = 100;
+      this.size = 180;
       this.width = 180;
       this.height = 180;
       this.interactive = true;
@@ -69,36 +70,37 @@
     getBounds() { return { x: 0, y: 0, width: this.width, height: this.height }; }
 
     render(renderer) {
-      const cx = this.width / 2;
-      const cy = this.height / 2 + 8;
-      const r = 64;
+      const s = this.size;
+      const cx = s / 2;
+      const cy = s / 2 + s * 0.044;
+      const r = s * 0.355;
+      const trackW = Math.max(6, s * 0.055);
       const startAngle = Math.PI * 0.75;
       const sweep = Math.PI * 1.5;
       const progress = (this._display - this.min) / (this.max - this.min);
+      const valSize = Math.round(s * 0.166);
+      const lblSize = Math.max(10, Math.round(s * 0.072));
 
-      // Track
       renderer.beginPath();
       renderer.arc(cx, cy, r, startAngle, startAngle + sweep);
-      renderer.stroke('rgba(255,255,255,0.08)', 10);
+      renderer.stroke('rgba(255,255,255,0.08)', trackW);
 
-      // Fill
       if (progress > 0.001) {
         renderer.beginPath();
         renderer.arc(cx, cy, r, startAngle, startAngle + sweep * progress);
-        renderer.stroke(this.accent, 10);
+        renderer.stroke(this.accent, trackW);
       }
 
-      // Value
       renderer.fillText(
         Math.round(this._display).toString(),
-        cx - 18, cy - 10,
-        'bold 30px Inter, system-ui',
+        cx - valSize * 0.6, cy - s * 0.055,
+        `bold ${valSize}px Inter, system-ui`,
         '#f8fafc',
       );
       renderer.fillText(
         this.label,
-        cx - 22, cy + 18,
-        '13px Inter, system-ui',
+        cx - lblSize * 1.7, cy + s * 0.1,
+        `${lblSize}px Inter, system-ui`,
         '#64748b',
       );
     }
@@ -111,12 +113,22 @@
   ];
 
   function layout() {
+    gauges.forEach(g => scene.remove(g));
+    // Logical (CSS) px — not the DPR-scaled canvas.width that scene.resize() sets.
+    const W = app.offsetWidth, H = app.offsetHeight;
     const gap = 12;
-    const gw = 180;
+    const available = Math.max(120, W - 24);
+    const gw = Math.min(180, Math.max(100, Math.floor((available - gap * (gauges.length - 1)) / gauges.length)));
     const total = gauges.length * gw + (gauges.length - 1) * gap;
-    const sx = (canvas.width - total) / 2;
-    const sy = (canvas.height - 200) / 2;
-    gauges.forEach((g, i) => { g.setPosition(sx + i * (gw + gap), sy); scene.add(g); });
+    const sx = Math.max(0, (W - total) / 2);
+    const sy = Math.max(8, (H - gw - 20) / 2);
+    gauges.forEach((g, i) => {
+      g.size = gw;
+      g.width = gw;
+      g.height = gw;
+      g.setPosition(sx + i * (gw + gap), sy);
+      scene.add(g);
+    });
   }
 
   function randomize() {
@@ -131,22 +143,27 @@
   scene.add(btn);
 
   function placeBtn() {
-    btn.setPosition((canvas.width - 140) / 2, canvas.height - 70);
+    btn.setPosition((app.offsetWidth - 140) / 2, app.offsetHeight - 70);
   }
   placeBtn();
 
   window.addEventListener('resize', () => {
     setSize();
     scene.resize(canvas.width, canvas.height);
-    gauges.forEach(g => scene.remove(g));
-    gauges.forEach(g => { g.setPosition(0, 0); });
     layout();
     placeBtn();
     scene.markDirty();
   });
 
-  randomize();
   scene.start();
+
+  requestAnimationFrame(() => {
+    setSize();
+    scene.resize(canvas.width, canvas.height);
+    layout();
+    placeBtn();
+    randomize();
+  });
   </script>
 </body>
 </html>

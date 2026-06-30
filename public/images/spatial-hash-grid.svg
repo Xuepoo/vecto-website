@@ -1,0 +1,45 @@
+<svg viewBox="0 0 640 210" xmlns="http://www.w3.org/2000/svg" font-family="'Inter', system-ui, sans-serif">
+  <!-- Grid cells -->
+  <g fill="none" stroke="#334155" stroke-width="1.5">
+    <rect x="40" y="30" width="70" height="46"/>
+    <rect x="110" y="30" width="70" height="46"/>
+    <rect x="180" y="30" width="70" height="46"/>
+    <rect x="40" y="76" width="70" height="46"/>
+    <rect x="110" y="76" width="70" height="46"/>
+    <rect x="180" y="76" width="70" height="46"/>
+    <rect x="40" y="122" width="70" height="46"/>
+    <rect x="110" y="122" width="70" height="46"/>
+    <rect x="180" y="122" width="70" height="46"/>
+  </g>
+  <!-- Cell labels -->
+  <g font-size="12" fill="#94a3b8" text-anchor="middle" font-family="'Roboto Mono', 'Fira Code', monospace">
+    <text x="75" y="58">(0,2)</text>
+    <text x="145" y="58">(1,2)</text>
+    <text x="215" y="58">(2,2)</text>
+    <text x="75" y="104">(0,1)</text>
+    <text x="145" y="104">(1,1)</text>
+    <text x="215" y="104">(2,1)</text>
+    <text x="75" y="150">(0,0)</text>
+    <text x="145" y="150">(1,0)</text>
+    <text x="215" y="150">(2,0)</text>
+  </g>
+  <!-- Active cell highlight (1,1) -->
+  <rect x="110" y="76" width="70" height="46" fill="rgba(37,99,235,0.18)" stroke="#3b82f6" stroke-width="1.5"/>
+  <!-- Cursor dot -->
+  <circle cx="145" cy="99" r="4" fill="#3b82f6"/>
+  <!-- Annotation lines -->
+  <line x1="270" y1="53" x2="305" y2="53" stroke="#475569" stroke-width="1" stroke-dasharray="4,3"/>
+  <line x1="270" y1="99" x2="305" y2="99" stroke="#475569" stroke-width="1" stroke-dasharray="4,3"/>
+  <line x1="270" y1="145" x2="305" y2="145" stroke="#475569" stroke-width="1" stroke-dasharray="4,3"/>
+  <!-- Annotation text -->
+  <g font-size="12.5" fill="#94a3b8">
+    <text x="312" y="30">Plane divided into cells of size <tspan fill="#e2e8f0">S</tspan>.</text>
+    <text x="312" y="50">Entities mapped to cell keys:</text>
+    <text x="312" y="72" font-family="'Roboto Mono', 'Fira Code', monospace" fill="#7dd3fc" font-size="11.5">key = floor(x/S) + "," + floor(y/S)</text>
+    <text x="312" y="99">Hover / culling only checks cells</text>
+    <text x="312" y="117">overlapping the query region.</text>
+    <text x="312" y="145">Highlighted cell = <tspan fill="#3b82f6">active cursor cell</tspan>.</text>
+  </g>
+  <!-- Label for grid -->
+  <text x="145" y="185" text-anchor="middle" font-size="11" fill="#475569">Spatial hash grid (3×3 excerpt)</text>
+</svg>

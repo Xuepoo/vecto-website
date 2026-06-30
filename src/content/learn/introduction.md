@@ -36,32 +36,7 @@ Most canvas libraries give you a drawing API and leave layout, hit-testing, and 
 
 ## Architecture overview
 
-```text
-Your application code
-        │
-        ▼
-┌─────────────────────────────────────────────────┐
-│               @vecto-ui/core                    │
-│                                                 │
-│  Scene ──► Entity tree (Virtual Math Tree)      │
-│     │            │                              │
-│     │       update(dt)   render(renderer)       │
-│     │            │            │                 │
-│     ▼            ▼            ▼                 │
-│  rAF loop    Physics      IRenderer             │
-│              Springs      CanvasRenderer        │
-│              SpatialHash  WebGL point layer     │
-│                           WebGPU compute        │
-└─────────────────────────────────────────────────┘
-        │                       │
-        ▼                       ▼
-┌────────────────┐   ┌──────────────────────────┐
-│  A11y shadow   │   │   @vecto-ui/ui            │
-│  DOM layer     │   │   Button, Input, Toggle   │
-│  (real DOM,    │   │   Markdown, ScrollView…   │
-│  invisible)    │   └──────────────────────────┘
-└────────────────┘
-```
+<img src="/images/vmt-architecture.svg" alt="Architecture overview: Scene drives an Entity tree through the rAF loop, physics, and IRenderer backends (Canvas2D, WebGL, WebGPU), projecting an A11y shadow DOM layer and consuming @vecto-ui/ui components" class="diagram" />
 
 ### The Virtual Math Tree (VMT)
 
@@ -77,24 +52,7 @@ The Scene walks the tree every frame: translate → scale → rotate for each en
 
 ### The render loop
 
-```text
-       requestAnimationFrame
-              │
-              ▼
-    ┌─ for each entity ──────────────────────────┐
-    │  update(dt, time)   ← dt in MILLISECONDS   │
-    │  getBounds() → skip if outside viewport    │
-    │  save → translate → scale → rotate         │
-    │  render(renderer)                          │
-    │  restore                                   │
-    └────────────────────────────────────────────┘
-              │
-              ▼
-    Flush batch draws (WebGL circles/rects)
-              │
-              ▼
-    syncA11y() — update shadow DOM positions
-```
+<img src="/images/render-loop.svg" alt="Render loop: requestAnimationFrame triggers a per-entity loop of update, getBounds culling, save/transform, render, restore — then flushes WebGL batches and syncs A11y shadow DOM positions" class="diagram" />
 
 ### The A11y shadow layer
 
@@ -300,6 +258,6 @@ Before running any profiler, predict which of the three scenarios below would be
 
 ## Next steps
 
+- [Mathematical Foundations](/learn/math-foundations/) — the linear algebra, spline geometry, and ODE solvers powering VectoUI.
 - [Getting Started](/learn/getting-started/) — install and create your first scene.
 - [Core Scene](/learn/core-scene/) — the render loop, entities, and transforms in depth.
-- [Custom Entities](/learn/custom-entity/) — subclassing Entity for your own components.

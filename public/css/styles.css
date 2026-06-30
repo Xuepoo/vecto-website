@@ -30,7 +30,7 @@ body {
   position: relative;
 }
 
-/* Background glow grid */
+/* Background glow grid — homepage only */
 body::before {
   content: '';
   position: absolute;
@@ -42,6 +42,10 @@ body::before {
     radial-gradient(circle at 90% 80%, var(--accent-glow) 0%, transparent 50%);
   pointer-events: none;
   z-index: -2;
+}
+
+body.page-docs::before {
+  display: none;
 }
 
 .container {
@@ -186,6 +190,69 @@ body::before {
 .nav-github-icon {
   width: 20px;
   height: 20px;
+}
+
+/* Mobile hamburger toggle + slide-down menu (revealed in the 768px media query) */
+.nav-menu-toggle {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  width: 40px;
+  height: 40px;
+  padding: 0 9px;
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  background: transparent;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.nav-menu-bar {
+  display: block;
+  height: 2px;
+  width: 100%;
+  background: var(--text-color);
+  border-radius: 2px;
+  transition:
+    transform 0.25s ease,
+    opacity 0.2s ease;
+}
+
+.nav-menu-toggle.is-open .nav-menu-bar:nth-child(1) {
+  transform: translateY(7px) rotate(45deg);
+}
+.nav-menu-toggle.is-open .nav-menu-bar:nth-child(2) {
+  opacity: 0;
+}
+.nav-menu-toggle.is-open .nav-menu-bar:nth-child(3) {
+  transform: translateY(-7px) rotate(-45deg);
+}
+
+.nav-mobile-menu {
+  display: none;
+  flex-direction: column;
+  padding: 0.5rem 1.25rem 1rem;
+  border-top: 1px solid var(--border-color);
+  background: var(--bg-color);
+}
+
+.nav-mobile-menu a {
+  color: var(--text-color);
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 1rem;
+  padding: 0.85rem 0.25rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.nav-mobile-menu a:last-child {
+  border-bottom: none;
+}
+
+.nav-mobile-menu a:hover,
+.nav-mobile-menu a.nav-link-active {
+  color: var(--accent);
 }
 
 /* Search modal overlay */
@@ -672,6 +739,69 @@ body::before {
   min-height: calc(100vh - var(--navbar-h));
   max-width: 1440px;
   margin: 0 auto;
+  transition: grid-template-columns 0.22s ease;
+}
+
+/* Sidebar collapsed state */
+.docs-layout.sidebar-collapsed {
+  grid-template-columns: 0px 1fr var(--toc-w);
+}
+.docs-layout.sidebar-collapsed .docs-sidebar {
+  overflow: hidden;
+  width: 0;
+  padding: 0;
+  border-right: none;
+  pointer-events: none;
+}
+
+/* Sidebar collapse toggle button (desktop only, inside sidebar) */
+.sidebar-collapse-btn {
+  display: block;
+  margin-left: auto;
+  margin-bottom: 1.25rem;
+  width: 28px;
+  height: 28px;
+  background: transparent;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  cursor: pointer;
+  color: var(--text-muted);
+  font-size: 10px;
+  line-height: 1;
+  transition: color 0.15s, border-color 0.15s;
+}
+.sidebar-collapse-btn:hover {
+  color: var(--accent);
+  border-color: rgba(59, 130, 246, 0.5);
+}
+
+/* Expand button: visible only when sidebar is collapsed */
+.sidebar-expand-btn {
+  display: none;
+  position: fixed;
+  top: calc(var(--navbar-h) + 80px);
+  left: 0;
+  z-index: 90;
+  width: 22px;
+  height: 48px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-left: none;
+  border-radius: 0 8px 8px 0;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  font-size: 10px;
+  transition: color 0.15s;
+}
+.sidebar-expand-btn:hover { color: var(--accent); }
+.docs-layout.sidebar-collapsed ~ .sidebar-expand-btn { display: flex; }
+
+/* Suppress these controls on mobile (uses the existing mobile drawer instead) */
+@media (max-width: 768px) {
+  .sidebar-collapse-btn,
+  .sidebar-expand-btn { display: none !important; }
 }
 
 /* ---- Left Sidebar ---- */
@@ -680,10 +810,13 @@ body::before {
   top: var(--navbar-h);
   height: calc(100vh - var(--navbar-h));
   overflow-y: auto;
+  overflow-x: hidden;
   padding: 2rem 0 2rem 1.5rem;
   border-right: 1px solid var(--border-color);
   scrollbar-width: thin;
   scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
+  transition: padding 0.22s ease, border-color 0.22s ease;
+  min-width: 0;
 }
 
 .sidebar-nav {
@@ -1188,6 +1321,33 @@ html {
 }
 
 /* ============================================================
+   KaTeX math — allow wide display equations to scroll
+   ============================================================ */
+
+.katex-display {
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-bottom: 0.25em;
+}
+
+/* ============================================================
+   Mermaid diagrams
+   ============================================================ */
+
+.mermaid {
+  margin: 1.5rem 0;
+  display: flex;
+  justify-content: center;
+  overflow-x: auto;
+}
+
+.mermaid svg {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+}
+
+/* ============================================================
    Docs pagination (prev / next)
    ============================================================ */
 
@@ -1359,9 +1519,17 @@ html {
   .nav-search-kbd {
     display: none;
   }
-  /* Hide text links, keep GitHub icon */
-  .nav-links a:not(.nav-github-link) {
+  /* Hide the whole desktop nav cluster (it's the grid's 3rd column). The
+     hamburger then flows into that column; its drawer carries every link. */
+  .nav-links {
     display: none;
+  }
+  /* Reveal hamburger; its menu provides Demos / Learn / Reference + GitHub */
+  .nav-menu-toggle {
+    display: flex;
+  }
+  .nav-mobile-menu.is-open {
+    display: flex;
   }
   .footer-container {
     flex-direction: column;

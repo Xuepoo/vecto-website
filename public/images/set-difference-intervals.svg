@@ -1,0 +1,53 @@
+<svg viewBox="0 0 640 168" xmlns="http://www.w3.org/2000/svg" font-family="'Inter', system-ui, sans-serif">
+
+  <!-- ── Row labels (left margin) ── -->
+  <g font-size="12" fill="#cbd5e1" dominant-baseline="middle">
+    <text x="0" y="40">Total interval</text>
+    <text x="0" y="85">Obstacle</text>
+    <text x="0" y="130">Set difference</text>
+  </g>
+
+  <!-- ── Row 1: total interval (x=120 → x=595) ── -->
+  <line x1="120" y1="40" x2="595" y2="40" stroke="#e2e8f0" stroke-width="2.5" stroke-linecap="round"/>
+  <line x1="120" y1="34" x2="120" y2="46" stroke="#e2e8f0" stroke-width="2"/>
+  <line x1="595" y1="34" x2="595" y2="46" stroke="#e2e8f0" stroke-width="2"/>
+  <text x="120" y="29" font-size="10" fill="#94a3b8" font-family="'Roboto Mono','Fira Code',monospace" text-anchor="middle">[0</text>
+  <text x="595" y="29" font-size="10" fill="#94a3b8" font-family="'Roboto Mono','Fira Code',monospace" text-anchor="middle">maxWidth]</text>
+
+  <!-- ── Row 2: obstacle (x=280 → x=455) ── -->
+  <line x1="280" y1="85" x2="455" y2="85" stroke="#f59e0b" stroke-width="2.5" stroke-linecap="round"/>
+  <line x1="280" y1="79" x2="280" y2="91" stroke="#f59e0b" stroke-width="2"/>
+  <line x1="455" y1="79" x2="455" y2="91" stroke="#f59e0b" stroke-width="2"/>
+  <text x="280" y="74" font-size="10" fill="#94a3b8" font-family="'Roboto Mono','Fira Code',monospace" text-anchor="middle">[xs&#x2081;</text>
+  <text x="455" y="74" font-size="10" fill="#94a3b8" font-family="'Roboto Mono','Fira Code',monospace" text-anchor="middle">xe&#x2081;]</text>
+
+  <!-- ── Row 3: set difference — two segments ── -->
+  <!-- left segment: x=120 → x=255 -->
+  <line x1="120" y1="130" x2="255" y2="130" stroke="#22c55e" stroke-width="2.5" stroke-linecap="round"/>
+  <line x1="120" y1="124" x2="120" y2="136" stroke="#22c55e" stroke-width="2"/>
+  <line x1="255" y1="124" x2="255" y2="136" stroke="#22c55e" stroke-width="2"/>
+  <text x="120" y="119" font-size="10" fill="#94a3b8" font-family="'Roboto Mono','Fira Code',monospace" text-anchor="middle">[0</text>
+  <!-- right segment: x=455 → x=595 -->
+  <line x1="455" y1="130" x2="595" y2="130" stroke="#22c55e" stroke-width="2.5" stroke-linecap="round"/>
+  <line x1="455" y1="124" x2="455" y2="136" stroke="#22c55e" stroke-width="2"/>
+  <line x1="595" y1="124" x2="595" y2="136" stroke="#22c55e" stroke-width="2"/>
+  <text x="455" y="119" font-size="10" fill="#94a3b8" font-family="'Roboto Mono','Fira Code',monospace" text-anchor="middle">[xe&#x2081;</text>
+  <text x="595" y="119" font-size="10" fill="#94a3b8" font-family="'Roboto Mono','Fira Code',monospace" text-anchor="middle">maxWidth]</text>
+  <!-- gap label centered between segments -->
+  <text x="355" y="134" text-anchor="middle" font-size="11" fill="#f59e0b">— gap —</text>
+
+  <!-- ── Vertical alignment guides ── -->
+  <line x1="280" y1="48" x2="280" y2="112" stroke="#334155" stroke-width="1" stroke-dasharray="3,3"/>
+  <line x1="455" y1="48" x2="455" y2="112" stroke="#334155" stroke-width="1" stroke-dasharray="3,3"/>
+
+  <!-- ── Legend ── -->
+  <g font-size="11" fill="#94a3b8">
+    <line x1="120" y1="155" x2="140" y2="155" stroke="#e2e8f0" stroke-width="2" stroke-linecap="round"/>
+    <text x="145" y="159">I&#x2080; (total)</text>
+    <line x1="240" y1="155" x2="260" y2="155" stroke="#f59e0b" stroke-width="2" stroke-linecap="round"/>
+    <text x="265" y="159">E&#x2096; (obstacle)</text>
+    <line x1="385" y1="155" x2="405" y2="155" stroke="#22c55e" stroke-width="2" stroke-linecap="round"/>
+    <text x="410" y="159">I_allowed (result)</text>
+  </g>
+
+</svg>

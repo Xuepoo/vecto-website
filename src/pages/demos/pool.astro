@@ -1,0 +1,71 @@
+---
+import Base from '../../layouts/Base.astro';
+import { demoBySlug } from '../../consts';
+const demo = demoBySlug('pool');
+---
+
+<Base title={demo.title} description={demo.description}>
+  <link slot="head" rel="stylesheet" href="/css/demo.css" />
+  <section class="demo-wrap container">
+    <header class="demo-head">
+      <a class="demo-back" href="/demos/">← All demos</a>
+      <h1>{demo.title}</h1>
+      <p class="demo-lede">{demo.description}</p>
+    </header>
+
+    <!-- The pool stage: canvas fills it; cue stick is the only DOM child element -->
+    <div class="stage stage-pool" id="pool-stage">
+      <canvas id="pool-canvas"></canvas>
+
+      <!-- THE single DOM element on the table -->
+      <div id="pool-stick" aria-hidden="true"></div>
+
+      <!-- Win / fail overlay -->
+      <div id="pool-overlay" hidden>
+        <div class="pool-ov-icon" id="pool-ov-icon"></div>
+        <div class="pool-ov-title" id="pool-ov-title"></div>
+        <div class="pool-ov-sub" id="pool-ov-sub"></div>
+        <button class="pool-ov-btn" id="pool-ov-btn" type="button"></button>
+      </div>
+
+      <div class="pool-hint">
+        Drag back from the cue ball &middot; release to shoot &middot; sink the red ball in the
+        glowing pocket
+      </div>
+      <div class="pool-hud">Attempt <span id="pool-attempts">0</span>&thinsp;/&thinsp;{5}</div>
+    </div>
+
+    <section class="demo-explain">
+      <h2>How it works</h2>
+      <div class="explain-grid">
+        <div class="explain-card explain-win">
+          <h4>One DOM element</h4>
+          <p>
+            The pool table is entirely canvas — felt, rails, pockets, and balls. The cue stick is
+            the sole <code>&lt;div&gt;</code>, positioned and rotated via CSS transforms as your
+            cursor orbits the cue ball.
+          </p>
+        </div>
+        <div class="explain-card">
+          <h4>2D elastic physics</h4>
+          <p>
+            Each frame applies friction damping, elastic ball–rail reflections with restitution, and
+            impulse-based ball–ball collision resolution. No physics library — 60 fps in pure canvas
+            2D.
+          </p>
+        </div>
+        <div class="explain-card">
+          <h4>CAPTCHA mechanic</h4>
+          <p>
+            Sink the <em>red ball</em> into the <em>glowing top-right pocket</em> using the white cue
+            ball. You have 5 attempts. The blue blocker ball stops a trivial direct shot.
+          </p>
+        </div>
+      </div>
+    </section>
+  </section>
+</Base>
+
+<script>
+  import '../../demos/pool';
+</script>
