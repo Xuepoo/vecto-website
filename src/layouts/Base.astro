@@ -54,15 +54,38 @@ const isReference = pathname.startsWith('/reference');
       <div class="container nav-container">
         <!-- Left: logo -->
         <a href="/" class="nav-logo" aria-label="Vecto home">
-          <svg class="nav-logo-mark" viewBox="0 0 32 32" fill="none" aria-hidden="true">
-            <polygon points="16,2 30,28 2,28" fill="url(#logo-grad)"></polygon>
+          <svg
+            class="nav-logo-mark"
+            viewBox="0 0 32 32"
+            fill="none"
+            stroke="url(#logo-grad)"
+            stroke-width="2.2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M 22 5 L 12 15"></path>
+            <path d="M 9 11 L 23 11"></path>
+            <path d="M 16 11 L 16 19 L 7 28"></path>
+            <path d="M 5 19 L 27 19"></path>
+            <path d="M 16 19 L 25 28"></path>
+            <circle cx="22" cy="5" r="1.5" fill="url(#logo-grad)" stroke="none"></circle>
+            <circle cx="12" cy="15" r="1.5" fill="url(#logo-grad)" stroke="none"></circle>
+            <circle cx="9" cy="11" r="1.5" fill="url(#logo-grad)" stroke="none"></circle>
+            <circle cx="23" cy="11" r="1.5" fill="url(#logo-grad)" stroke="none"></circle>
+            <circle cx="16" cy="11" r="1.5" fill="url(#logo-grad)" stroke="none"></circle>
+            <circle cx="16" cy="19" r="1.5" fill="url(#logo-grad)" stroke="none"></circle>
+            <circle cx="5" cy="19" r="1.5" fill="url(#logo-grad)" stroke="none"></circle>
+            <circle cx="27" cy="19" r="1.5" fill="url(#logo-grad)" stroke="none"></circle>
+            <circle cx="7" cy="28" r="1.5" fill="url(#logo-grad)" stroke="none"></circle>
+            <circle cx="25" cy="28" r="1.5" fill="url(#logo-grad)" stroke="none"></circle>
             <defs>
               <linearGradient
                 id="logo-grad"
-                x1="2"
+                x1="5"
                 y1="28"
-                x2="30"
-                y2="2"
+                x2="27"
+                y2="5"
                 gradientUnits="userSpaceOnUse"
               >
                 <stop offset="0%" stop-color="#6366f1"></stop>
