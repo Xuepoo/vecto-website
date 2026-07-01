@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="/sandbox/no-ff-webgpu.js"></script>
+  <title>VectoJS — Event flow diagram</title>
+  <style>
+    * { margin: 0; box-sizing: border-box; }
+    html, body { width: 100%; height: 100%; overflow: hidden; background: #0a0e1a; font-family: Inter, system-ui, sans-serif; }
+    #app { position: relative; width: 100%; height: 100%; }
+    canvas { display: block; width: 100%; height: 100%; }
+  </style>
+  <script type="importmap">
+  {
+    "imports": {
+      "@vectojs/core": "https://esm.sh/@vectojs/core@0.1.0"
+    }
+  }
+  </script>
+</head>
+<body>
+  <div id="app"><canvas id="canvas"></canvas></div>
+  <script type="module">
+  // This diagram is drawn live by VectoJS itself — one Entity that paints the
+  // capture/bubble flow through the IRenderer and animates a pulse along the path.
+  import { Scene, Entity } from '@vectojs/core';
+
+  const app = document.getElementById('app');
+  const canvas = document.getElementById('canvas');
+
+  // Fixed design space; the Scene scales it (T·S·R) to fit the canvas.
+  const DW = 640, DH = 400;
+
+  const C = {
+    nodeFill: '#161b2e', nodeStroke: '#334155', nodeText: '#cbd5e1',
+    targetFill: '#222a52', targetStroke: '#818cf8', targetText: '#ffffff', targetTag: '#a5b4fc',
+    edge: '#2a3550',
+    captureOn: '#60a5fa', captureOff: '#27405f',
+    bubbleOn: '#fb923c', bubbleOff: '#5e3a1e',
+    pointer: '#22d3ee', muted: '#64748b',
+  };
+
+  class EventDiagram extends Entity {
+    constructor() {
+      super();
+      this.t = 0;
+      this.width = DW;
+      this.height = DH;
+    }
+    getBounds() { return { x: 0, y: 0, width: DW, height: DH }; }
+    update(dt) { this.t = (this.t + dt / 3200) % 1; }
+
+    box(r, x, y, w, h, fill, stroke, sw) {
+      r.beginPath();
+      r.roundRect(x, y, w, h, 10);
+      r.fill(fill);
+      r.stroke(stroke, sw);
+    }
+    // Approximate horizontal centering (the renderer draws text left-aligned).
+    ctext(r, text, cx, y, font, px, color) {
+      r.fillText(text, cx - text.length * px * 0.27, y, font, color);
+    }
+    arrowV(r, x, y0, y1, color, width, head) {
+      r.beginPath();
+      r.moveTo(x, y0);
+      r.lineTo(x, y1);
+      r.stroke(color, width);
+      const dir = y1 > y0 ? 1 : -1;
+      r.beginPath();
+      r.moveTo(x, y1);
+      r.lineTo(x - head * 0.66, y1 - dir * head);
+      r.lineTo(x + head * 0.66, y1 - dir * head);
+      r.closePath();
+      r.fill(color);
+    }
+
+    render(r) {
+      const captureActive = this.t < 0.5;
+      const capCol = captureActive ? C.captureOn : C.captureOff;
+      const bubCol = captureActive ? C.bubbleOff : C.bubbleOn;
+      const cx = 320;
+
+      // Tree edges (drawn behind the boxes)
+      r.beginPath(); r.moveTo(cx, 84); r.lineTo(cx, 224); r.stroke(C.edge, 1.5);
+
+      // Vertical phase arrows
+      this.arrowV(r, 150, 66, 252, capCol, 3, 11); // capture: root → target (down)
+      this.arrowV(r, 490, 252, 66, bubCol, 3, 11); // bubble: target → root (up)
+
+      // Nodes
+      this.box(r, 240, 42, 160, 48, C.nodeFill, C.nodeStroke, 1.5);
+      this.ctext(r, 'Scene root', cx, 71, '600 15px Inter, system-ui', 15, C.nodeText);
+
+      this.box(r, 240, 134, 160, 48, C.nodeFill, C.nodeStroke, 1.5);
+      this.ctext(r, 'Card', cx, 163, '600 15px Inter, system-ui', 15, C.nodeText);
+
+      this.box(r, 235, 226, 170, 58, C.targetFill, C.targetStroke, 2);
+      this.ctext(r, 'Button', cx, 252, '700 15px Inter, system-ui', 15, C.targetText);
+      this.ctext(r, '← target', cx, 270, '500 11px Inter, system-ui', 11, C.targetTag);
+
+      // Phase labels
+      r.fillText('Capture phase', 22, 150, '700 13px Inter, system-ui', capCol);
+      r.fillText('root → target', 22, 168, '400 12px Inter, system-ui', C.muted);
+      r.fillText('Bubble phase', 506, 150, '700 13px Inter, system-ui', bubCol);
+      r.fillText('target → root', 506, 168, '400 12px Inter, system-ui', C.muted);
+
+      // Pointer origin
+      r.beginPath(); r.moveTo(cx, 290); r.lineTo(cx, 330); r.stroke(C.edge, 1.5);
+      r.beginPath(); r.arc(cx, 342, 11, 0, Math.PI * 2); r.stroke(C.pointer, 2);
+      r.beginPath(); r.arc(cx, 342, 5, 0, Math.PI * 2); r.fill(C.pointer);
+      this.ctext(r, 'pointer event originates here', cx, 376, '400 12px Inter, system-ui', 12, C.muted);
+
+      // Animated pulse travelling the active path
+      const p = this.t;
+      let px, py, col;
+      if (captureActive) {
+        const f = p / 0.5; px = 150; py = 72 + (246 - 72) * f; col = C.captureOn;
+      } else {
+        const f = (p - 0.5) / 0.5; px = 490; py = 246 - (246 - 72) * f; col = C.bubbleOn;
+      }
+      r.beginPath(); r.arc(px, py, 9, 0, Math.PI * 2); r.stroke(col, 2);
+      r.beginPath(); r.arc(px, py, 5, 0, Math.PI * 2); r.fill(col);
+    }
+  }
+
+  const scene = new Scene(canvas, { renderMode: 'always', maxFPS: 30 });
+  const diagram = new EventDiagram();
+  scene.add(diagram);
+
+  function fit() {
+    // Logical (CSS) px — not the DPR-scaled canvas.width that scene.resize() sets.
+    const W = app.offsetWidth, H = app.offsetHeight;
+    scene.resize(W, H);
+    const s = Math.min(W / DW, H / DH);
+    diagram.scaleX = diagram.scaleY = s;
+    diagram.setPosition((W - DW * s) / 2, (H - DH * s) / 2);
+    scene.markDirty();
+  }
+  window.addEventListener('resize', fit);
+  requestAnimationFrame(fit);
+
+  // Pause the loop when the diagram scrolls out of the docs page / the tab hides.
+  let running = false;
+  const setRunning = (on) => {
+    if (on === running) return;
+    running = on;
+    if (on) scene.start();
+    else scene.stop();
+  };
+  setRunning(true);
+  try {
+    const frame = window.frameElement;
+    if (frame && window.parent && window.parent.IntersectionObserver) {
+      new window.parent.IntersectionObserver(
+        (entries) => setRunning(entries[entries.length - 1].isIntersecting),
+        { threshold: 0.01 },
+      ).observe(frame);
+    }
+  } catch {
+    /* cross-origin parent — visibility listener still applies */
+  }
+  document.addEventListener('visibilitychange', () => setRunning(!document.hidden));
+  </script>
+</body>
+</html>

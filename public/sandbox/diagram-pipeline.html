@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="/sandbox/no-ff-webgpu.js"></script>
+    <title>VectoJS — Render pipeline</title>
+    <style>
+      * {
+        margin: 0;
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        background: #0a0e1a;
+        font-family: Inter, system-ui, sans-serif;
+      }
+      #app {
+        position: relative;
+        width: 100%;
+        height: 100%;
+      }
+      canvas {
+        display: block;
+        width: 100%;
+        height: 100%;
+      }
+    </style>
+    <script type="importmap">
+      {
+        "imports": {
+          "@vectojs/core": "https://esm.sh/@vectojs/core@0.1.0"
+        }
+      }
+    </script>
+  </head>
+  <body>
+    <div id="app"><canvas id="canvas"></canvas></div>
+    <script type="module">
+      // The render pipeline, drawn live by VectoJS. A playhead sweeps the six
+      // stages of one dirty frame and lights up the stage it is currently over.
+      import { Scene, Entity } from '@vectojs/core';
+      import { mountDiagram, ctext, box, line, pulse } from '/sandbox/diagram-core.js';
+
+      const app = document.getElementById('app');
+      const canvas = document.getElementById('canvas');
+      const DW = 720,
+        DH = 450;
+
+      const STAGES = [
+        ['Clear', 'renderer.clear()'],
+        ['Update', 'entity.update(dt)'],
+        ['Cull', 'getBounds() test'],
+        ['Render', 'entity.render(r)'],
+        ['Flush', 'commit batches'],
+        ['Sync A11y', 'shadow DOM'],
+      ];
+      const N = STAGES.length;
+      const CARD_W = 104,
+        STEP = 112,
+        X0 = 28,
+        CARD_TOP = 178,
+        CARD_H = 112,
+        TRACK_Y = 150;
+      const centerX = (i) => X0 + i * STEP + CARD_W / 2;
+
+      const C = {
+        idleFill: '#161b2e',
+        idleStroke: '#334155',
+        idleText: '#cbd5e1',
+        onFill: '#222a52',
+        onStroke: '#38bdf8',
+        onText: '#ffffff',
+        num: '#38bdf8',
+        numIdle: '#475569',
+        sub: '#64748b',
+        edge: '#2a3550',
+        track: '#22304d',
+        pulse: '#38bdf8',
+        title: '#e2e8f0',
+        subtitle: '#7c8aa5',
+      };
+
+      class Pipeline extends Entity {
+        constructor() {
+          super();
+          this.t = 0;
+          this.active = 0; // discrete stage the playhead is dwelling on
+          this.px = centerX(0); // eased x of the dot — settles on the active tick
+          this.width = DW;
+          this.height = DH;
+        }
+        getBounds() {
+          return { x: 0, y: 0, width: DW, height: DH };
+        }
+        update(dt) {
+          this.t = (this.t + dt / 5400) % 1;
+          // One discrete stage per 1/N of the cycle; the dot eases to that card's
+          // centre and rests exactly on its tick (no drifting between stages).
+          this.active = Math.min(N - 1, Math.floor(this.t * N));
+          const target = centerX(this.active);
+          this.px += (target - this.px) * 0.2;
+          if (Math.abs(target - this.px) < 0.4) this.px = target; // snap to the tick
+        }
+
+        render(r) {
+          // Header
+          ctext(r, 'The Render Pipeline', DW / 2, 70, '800 26px Inter, system-ui', 26, C.title);
+          ctext(
+            r,
+            'what happens inside one requestAnimationFrame tick',
+            DW / 2,
+            100,
+            '400 13px Inter, system-ui',
+            13,
+            C.subtitle,
+          );
+
+          const active = this.active;
+          const playX = this.px;
+
+          // Playhead track + per-stage ticks down to the cards
+          line(r, centerX(0), TRACK_Y, centerX(N - 1), TRACK_Y, C.track, 2);
+          for (let i = 0; i < N; i++) {
+            const on = i === active;
+            line(r, centerX(i), TRACK_Y, centerX(i), CARD_TOP, on ? C.onStroke : C.edge, on ? 2 : 1);
+          }
+
+          // Stage cards
+          for (let i = 0; i < N; i++) {
+            const x = X0 + i * STEP;
+            const on = i === active;
+            box(
+              r,
+              x,
+              CARD_TOP,
+              CARD_W,
+              CARD_H,
+              10,
+              on ? C.onFill : C.idleFill,
+              on ? C.onStroke : C.idleStroke,
+              on ? 2 : 1.5,
+            );
+            const cx = x + CARD_W / 2;
+            ctext(r, String(i + 1), cx, CARD_TOP + 26, '700 12px Inter, system-ui', 12, on ? C.num : C.numIdle);
+            ctext(r, STAGES[i][0], cx, CARD_TOP + 56, '700 15px Inter, system-ui', 15, on ? C.onText : C.idleText);
+            ctext(r, STAGES[i][1], cx, CARD_TOP + 82, '400 10.5px Inter, system-ui', 10.5, C.sub);
+          }
+
+          // Travelling playhead
+          pulse(r, playX, TRACK_Y, 8, C.pulse);
+
+          // Footer notes
+          ctext(
+            r,
+            'runs every dirty frame · capped by maxFPS · idle scenes throttle to ~2 fps',
+            DW / 2,
+            356,
+            '600 13px Inter, system-ui',
+            13,
+            C.idleText,
+          );
+          ctext(
+            r,
+            'all in JS memory, then straight to canvas — no reflow, no layout thrashing',
+            DW / 2,
+            384,
+            '400 12px Inter, system-ui',
+            12,
+            C.sub,
+          );
+        }
+      }
+
+      mountDiagram(Scene, canvas, app, DW, DH, new Pipeline());
+    </script>
+  </body>
+</html>
