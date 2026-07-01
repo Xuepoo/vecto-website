@@ -1,12 +1,12 @@
 /**
- * Nexus — a WebGPU particle field. The stage is one VectoUI <canvas> running a
+ * Nexus — a WebGPU particle field. The stage is one VectoJS <canvas> running a
  * ComputeParticleEntity: tens of thousands of particles spring toward origins
- * sampled from the word "VectoUI" and flow away from the cursor as it passes. The
+ * sampled from the word "VectoJS" and flow away from the cursor as it passes. The
  * Scene runs the simulation on a WebGPU compute pass when available
  * (dispatchWorkgroups), falling back to a CPU step otherwise — the HUD names
  * which, so this honestly dogfoods the engine's WebGPU backend.
  */
-import { Scene, ComputeParticleEntity } from '@vecto-ui/core';
+import { Scene, ComputeParticleEntity } from '@vectojs/core';
 import { FrameMeter } from './frame-meter';
 import { keepSceneLive } from './keep-live';
 import { sampleTextPoints } from './nexus/text-shape';
@@ -14,7 +14,7 @@ import { setupReporter } from './report';
 
 const $ = <T extends HTMLElement = HTMLElement>(id: string) =>
   document.getElementById(id) as T | null;
-const SHAPE_TEXT = 'VectoUI';
+const SHAPE_TEXT = 'VectoJS';
 const FLOATS = 8; // per particle: pos.xy, vel.xy, origin.xy, size, life
 
 function initNexus(): void {
@@ -34,7 +34,11 @@ function initNexus(): void {
   keepSceneLive(scene);
 
   let particles: ComputeParticleEntity | null = null;
-  let count = 60000;
+  // WebGPU handles 60k effortlessly; without it (e.g. Firefox, where WebGPU is
+  // disabled to avoid the GPU-process crash) start far lower so the CPU step stays
+  // usable. The count slider can still push it higher.
+  const hasGPU = !!(navigator as Navigator & { gpu?: unknown }).gpu;
+  let count = hasGPU ? 60000 : 4000;
   let springK = 0.5;
   let damping = 0.85;
   let shape: 'text' | 'free' = 'text';
