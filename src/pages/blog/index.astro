@@ -1,0 +1,48 @@
+---
+import Base from '../../layouts/Base.astro';
+import { getCollection } from 'astro:content';
+
+const posts = (await getCollection('blog')).sort((a, b) => {
+  const da = a.data.date?.getTime() ?? 0;
+  const db = b.data.date?.getTime() ?? 0;
+  return db - da;
+});
+
+const fmt = (d?: Date) =>
+  d ? d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : '';
+---
+
+<Base
+  title="Blog"
+  description="Essays and updates on VectoJS — the mathematical UI rendering framework."
+>
+  <section class="blog-section container">
+    <h1 class="section-title">Blog</h1>
+    <p class="blog-lede">
+      Essays on the ideas behind VectoJS, engineering deep-dives, and release notes.
+    </p>
+    <div class="blog-list">
+      {
+        posts.map((post) => (
+          <a class="blog-card" href={`/blog/${post.id}/`}>
+            <p class="blog-card-meta">
+              {post.data.date && <span>{fmt(post.data.date)}</span>}
+              {post.data.author && <span class="blog-dot">·</span>}
+              {post.data.author && <span>{post.data.author}</span>}
+            </p>
+            <h3>{post.data.title}</h3>
+            {post.data.description && <p class="blog-card-desc">{post.data.description}</p>}
+            {post.data.tags && post.data.tags.length > 0 && (
+              <div class="blog-tags">
+                {post.data.tags.map((t) => (
+                  <span class="blog-tag">{t}</span>
+                ))}
+              </div>
+            )}
+            <span class="blog-go">Read post →</span>
+          </a>
+        ))
+      }
+    </div>
+  </section>
+</Base>

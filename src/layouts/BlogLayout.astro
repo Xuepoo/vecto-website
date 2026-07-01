@@ -1,0 +1,113 @@
+---
+import Base from './Base.astro';
+
+interface Props {
+  title: string;
+  description?: string;
+  date?: Date;
+  author?: string;
+  tags?: string[];
+  readingTime?: number;
+}
+const { title, description, date, author, tags, readingTime } = Astro.props;
+const dateStr = date
+  ? date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+  : null;
+---
+
+<Base title={title} description={description}>
+  <Fragment slot="head">
+    <!-- KaTeX: render $...$ and $$...$$ math in posts -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"
+      integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+"
+      crossorigin="anonymous"
+    />
+    <script
+      defer
+      src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"
+      integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm/Yr2r3Dy4lfFg"
+      crossorigin="anonymous"></script>
+    <script
+      defer
+      src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"
+      integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk"
+      crossorigin="anonymous"
+      onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],ignoredTags:['script','noscript','style','textarea','pre','code'],throwOnError:false})"
+    ></script>
+  </Fragment>
+
+  <article class="blog-article prose">
+    <a class="blog-back" href="/blog/">← All posts</a>
+    <h1 class="blog-title">{title}</h1>
+    <p class="blog-meta">
+      {dateStr && <span>{dateStr}</span>}
+      {author && <span class="blog-dot">·</span>}
+      {author && <span>{author}</span>}
+      {readingTime && <span class="blog-dot">·</span>}
+      {readingTime && <span>{readingTime} min read</span>}
+    </p>
+    {
+      tags && tags.length > 0 && (
+        <div class="blog-tags">
+          {tags.map((t) => (
+            <span class="blog-tag">{t}</span>
+          ))}
+        </div>
+      )
+    }
+    <slot />
+  </article>
+</Base>
+
+<script>
+  // Table horizontal-scroll wrappers
+  document.querySelectorAll<HTMLTableElement>('.prose table').forEach((tbl) => {
+    const wrap = document.createElement('div');
+    wrap.className = 'table-scroll-wrapper';
+    tbl.parentNode!.insertBefore(wrap, tbl);
+    wrap.appendChild(tbl);
+  });
+
+  // Code copy buttons + language badges
+  document.querySelectorAll<HTMLPreElement>('.prose pre.astro-code').forEach((pre) => {
+    const wrapper = document.createElement('div');
+    wrapper.className = 'code-block-wrapper';
+    pre.parentNode!.insertBefore(wrapper, pre);
+    wrapper.appendChild(pre);
+    const lang = pre.getAttribute('data-language');
+    if (lang) {
+      const badge = document.createElement('span');
+      badge.className = 'code-lang-badge';
+      badge.textContent = lang;
+      wrapper.appendChild(badge);
+    }
+    const btn = document.createElement('button');
+    btn.className = 'code-copy-btn';
+    btn.textContent = 'Copy';
+    btn.setAttribute('aria-label', 'Copy code to clipboard');
+    btn.addEventListener('click', async () => {
+      const code = pre.querySelector('code')?.innerText ?? pre.innerText;
+      await navigator.clipboard.writeText(code);
+      btn.textContent = '✓ Copied';
+      btn.classList.add('copied');
+      setTimeout(() => {
+        btn.textContent = 'Copy';
+        btn.classList.remove('copied');
+      }, 2000);
+    });
+    wrapper.appendChild(btn);
+  });
+
+  // Heading anchor links
+  document.querySelectorAll<HTMLHeadingElement>('.prose h2, .prose h3').forEach((h) => {
+    if (!h.id) return;
+    const a = document.createElement('a');
+    a.href = `#${h.id}`;
+    a.className = 'heading-anchor';
+    a.setAttribute('aria-label', `Link to ${h.textContent}`);
+    a.textContent = '#';
+    h.appendChild(a);
+  });
+</script>

@@ -38,13 +38,18 @@ const calloutsPlugin = {
   },
 };
 
-// Static site dogfooding VectoUI. No UI framework — pages are plain HTML/CSS and
+// Static site dogfooding VectoJS. No UI framework — pages are plain HTML/CSS and
 // each demo is vanilla TS bundled by Astro's Vite pipeline. Deploys to Cloudflare
 // Pages as a static `dist/`.
 export default defineConfig({
-  site: 'https://vecto-ui.xuepoo.xyz',
+  site: 'https://vectojs.xuepoo.xyz',
   trailingSlash: 'always',
   server: { port: 1111 },
+  // Two philosophy essays moved from the Learn docs into the Blog section.
+  redirects: {
+    '/learn/rethinking-frontend/': '/blog/rethinking-frontend/',
+    '/learn/beyond-jsx/': '/blog/beyond-jsx/',
+  },
   integrations: [sitemap()],
   markdown: {
     processor: satteri({ hastPlugins: [calloutsPlugin] }),
