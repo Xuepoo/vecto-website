@@ -1,11 +1,11 @@
 ---
 import Base from '../../layouts/Base.astro';
-import { demoBySlug } from '../../consts';
+import { demoBySlug, BUILD_ID } from '../../consts';
 const demo = demoBySlug('chat');
 ---
 
 <Base title={demo.title} description={demo.description}>
-  <link slot="head" rel="stylesheet" href="/css/demo.css" />
+  <link slot="head" rel="stylesheet" href={`/css/demo.css?v=${BUILD_ID}`} />
   <section class="demo-wrap container">
     <header class="demo-head">
       <a class="demo-back" href="/demos/">← All demos</a>
@@ -13,15 +13,16 @@ const demo = demoBySlug('chat');
       <p class="demo-lede">{demo.description}</p>
     </header>
 
-    <div class="chat-shell">
+    <div class="chat-shell" data-immersive>
       <aside class="chat-side">
         <button id="chat-new" type="button" class="chat-new">＋ New chat</button>
+        <button id="chat-copy" type="button" class="chat-copy">Copy last reply</button>
 
         <div class="chat-side-group">
           <h4>Try a question</h4>
-          <button type="button" data-sample>What can I do with VectoUI?</button>
-          <button type="button" data-sample>What is the underlying principle of VectoUI?</button>
-          <button type="button" data-sample>What can VectoUI do that the DOM cannot?</button>
+          <button type="button" data-sample>What can I do with VectoJS?</button>
+          <button type="button" data-sample>What is the underlying principle of VectoJS?</button>
+          <button type="button" data-sample>What can VectoJS do that the DOM cannot?</button>
         </div>
 
         <div class="chat-side-group">
@@ -41,7 +42,7 @@ const demo = demoBySlug('chat');
         </div>
 
         <details class="chat-settings">
-          <summary>Model (optional — local Ollama)</summary>
+          <summary>Model (optional — Ollama or any OpenAI-compatible API)</summary>
           <label
             >Base URL<input
               id="cfg-baseurl"
@@ -50,6 +51,15 @@ const demo = demoBySlug('chat');
               autocomplete="off"
             /></label
           >
+          <div class="cfg-presets" aria-label="Base URL presets">
+            <button type="button" data-baseurl="http://localhost:11434/v1">Ollama</button>
+            <button type="button" data-baseurl="https://openrouter.ai/api/v1">OpenRouter</button>
+            <button type="button" data-baseurl="https://api.openai.com/v1">OpenAI</button>
+            <button
+              type="button"
+              data-baseurl="https://generativelanguage.googleapis.com/v1beta/openai">Gemini</button
+            >
+          </div>
           <label
             >Model<input
               id="cfg-model"
@@ -70,7 +80,7 @@ const demo = demoBySlug('chat');
             >System prompt<textarea
               id="cfg-system"
               rows="2"
-              placeholder="You are VectoUI's helpful assistant."></textarea></label
+              placeholder="You are VectoJS's helpful assistant."></textarea></label
           >
           <label class="row"
             >Temperature <input
@@ -113,7 +123,7 @@ const demo = demoBySlug('chat');
           <input
             id="chat-input"
             type="text"
-            placeholder="Ask VectoUI anything…"
+            placeholder="Ask VectoJS anything…"
             autocomplete="off"
             aria-label="Message"
           />
@@ -126,4 +136,5 @@ const demo = demoBySlug('chat');
 
 <script>
   import '../../demos/chat';
+  import '../../demos/immersive';
 </script>
