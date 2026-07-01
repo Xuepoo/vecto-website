@@ -1,0 +1,86 @@
+---
+import Base from '../../layouts/Base.astro';
+import { demoBySlug, BUILD_ID } from '../../consts';
+const demo = demoBySlug('graph');
+---
+
+<Base title={demo.title} description={demo.description}>
+  <link slot="head" rel="stylesheet" href={`/css/demo.css?v=${BUILD_ID}`} />
+  <section class="demo-wrap container">
+    <header class="demo-head">
+      <a class="demo-back" href="/demos/">← All demos</a>
+      <h1>{demo.title}</h1>
+      <p class="demo-lede">{demo.description}</p>
+    </header>
+
+    <div class="stage stage-graph" id="graph-stage" data-immersive>
+      <canvas id="graph-canvas"></canvas>
+      <div class="hud">
+        <span>Nodes <b id="hud-graph-nodes">0</b></span>
+        <span>Satellites <b id="hud-graph-sats">0</b></span>
+        <span>Edges <b id="hud-graph-edges">0</b></span>
+        <span>FPS <b id="hud-graph-fps">60</b></span>
+        <span>DOM nodes <b id="hud-graph-dom">0</b></span>
+      </div>
+      <div class="graph-hover-label" id="graph-hover-label" hidden></div>
+      <div class="nexus-hint">
+        Scroll to zoom · drag to pan · double-click to recenter · hover a node
+      </div>
+    </div>
+
+    <div class="controls" id="controls">
+      <label class="ctl"
+        >Satellite nodes <output id="out-graph-count">4,000</output>
+        <input
+          id="ctl-graph-count"
+          type="range"
+          min="500"
+          max="20000"
+          step="500"
+          value="4000"
+          autocomplete="off"
+        />
+      </label>
+      <div class="ctl-actions">
+        <button id="ctl-graph-reset" type="button">⊙ Recenter</button>
+      </div>
+    </div>
+
+    <section class="demo-explain">
+      <h2>What you're looking at</h2>
+      <div class="explain-grid">
+        <div class="explain-card explain-win">
+          <h4>A real map, not just a stress test</h4>
+          <p>
+            The backbone is the actual VectoJS ecosystem — <code>@vectojs/core</code>,
+            <code>ui</code>, <code>three</code>, and Vectomancy — down to real concepts like
+            <code>Scene</code> and <code>LayoutEngine</code>. Everything else is a synthetic
+            satellite cloud, colored by which package it belongs to.
+          </p>
+        </div>
+        <div class="explain-card">
+          <h4>Static layout, WebGL-batched satellites</h4>
+          <p>
+            No force-directed simulation — positions are computed once by formula, so 20,000 nodes
+            costs the same layout pass as 500. Satellites render through the same
+            <code>ComputeParticleEntity</code> WebGL-batching that pushes 150,000 points in the
+            <a href="/demos/nexus/">Nexus</a> demo — one instance per cluster color.
+          </p>
+        </div>
+        <div class="explain-card">
+          <h4>Spatial-hash hover, not per-pixel search</h4>
+          <p>
+            Hovering doesn't scan every node — it queries a spatial hash grid (the same technique
+            from <a href="/learn/math-foundations/">Mathematical Foundations</a>), testing only the
+            cursor's cell and its neighbours regardless of how many thousand nodes are on screen.
+          </p>
+        </div>
+      </div>
+    </section>
+  </section>
+</Base>
+
+<script>
+  import '../../demos/graph';
+  import '../../demos/immersive';
+</script>
