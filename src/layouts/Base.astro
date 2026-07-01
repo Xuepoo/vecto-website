@@ -13,6 +13,8 @@ const pathname = Astro.url.pathname;
 const isDemos = pathname.startsWith('/demos');
 const isLearn = pathname.startsWith('/learn');
 const isReference = pathname.startsWith('/reference');
+const isBlog = pathname.startsWith('/blog');
+const isHome = pathname === '/';
 ---
 
 <!doctype html>
@@ -20,6 +22,29 @@ const isReference = pathname.startsWith('/reference');
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Firefox's WebGPU backend SIGSEGVs the whole browser on some Linux/NVIDIA/Wayland
+         setups (MozCrashReason "Queue ... does not exist"), and the engine probes
+         navigator.gpu on every Scene. Hide WebGPU on Firefox → CPU/WebGL fallback.
+         Must run before any engine code; Chromium is unaffected. -->
+    <script is:inline>
+      (function () {
+        if (!/firefox/i.test(navigator.userAgent)) return;
+        try {
+          Object.defineProperty(navigator, 'gpu', { value: undefined, configurable: true });
+        } catch (e) {
+          /* fall through */
+        }
+        try {
+          if (navigator.gpu && navigator.gpu.requestAdapter) {
+            navigator.gpu.requestAdapter = function () {
+              return Promise.resolve(null);
+            };
+          }
+        } catch (e) {
+          /* ignore */
+        }
+      })();
+    </script>
     <title>{fullTitle}</title>
     <meta name="description" content={description} />
     <!-- Open Graph -->
@@ -30,7 +55,7 @@ const isReference = pathname.startsWith('/reference');
     <meta name="twitter:card" content="summary" />
     <meta name="twitter:title" content={fullTitle} />
     <meta name="twitter:description" content={description} />
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/favicon.svg?v=2" type="image/svg+xml" />
 
     <!-- Cross-document view transitions (Chrome 126+) -->
     <style>
@@ -49,7 +74,7 @@ const isReference = pathname.startsWith('/reference');
     <link rel="stylesheet" href="/css/styles.css" />
     <slot name="head" />
   </head>
-  <body class:list={[{ 'page-docs': isLearn || isReference }]}>
+  <body class:list={[{ 'page-docs': isLearn || isReference, 'page-home': isHome }]}>
     <header class="navbar">
       <div class="container nav-container">
         <!-- Left: logo -->
@@ -125,6 +150,7 @@ const isReference = pathname.startsWith('/reference');
           <a href="/reference/core-api/" class:list={[{ 'nav-link-active': isReference }]}
             >Reference</a
           >
+          <a href="/blog/" class:list={[{ 'nav-link-active': isBlog }]}>Blog</a>
           <a
             href={SITE.github}
             target="_blank"
@@ -162,6 +188,7 @@ const isReference = pathname.startsWith('/reference');
         <a href="/reference/core-api/" class:list={[{ 'nav-link-active': isReference }]}
           >Reference</a
         >
+        <a href="/blog/" class:list={[{ 'nav-link-active': isBlog }]}>Blog</a>
         <a href={SITE.github} target="_blank" rel="noopener noreferrer">GitHub ↗</a>
       </nav>
     </header>
