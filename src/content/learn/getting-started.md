@@ -1,31 +1,31 @@
 ---
 title: 'Getting Started'
-description: 'Install VectoUI, create a Scene, and build a complete settings panel with Input, Toggle, Slider, Button, and ScrollView.'
+description: 'Install VectoJS, create a Scene, and build a complete settings panel with Input, Toggle, Slider, Button, and ScrollView.'
 order: 2
 ---
 
 # Getting Started
 
-This guide walks you through installing VectoUI and building a complete interactive settings panel — a realistic example that exercises forms, layout, scrolling, and accessibility.
+This guide walks you through installing VectoJS and building a complete interactive settings panel — a realistic example that exercises forms, layout, scrolling, and accessibility.
 
 ## Installation
 
 ```bash
-bun add @vecto-ui/core @vecto-ui/ui
+bun add @vectojs/core @vectojs/ui
 ```
 
-VectoUI is split into a core math engine and a high-level component library. Most apps import from both.
+VectoJS is split into a core math engine and a high-level component library. Most apps import from both.
 
 ## HTML setup
 
-VectoUI needs a `<canvas>` element with a positioned parent:
+VectoJS needs a `<canvas>` element with a positioned parent:
 
 ```html
 <!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title>My VectoUI App</title>
+    <title>My VectoJS App</title>
     <style>
       body {
         margin: 0;
@@ -53,13 +53,13 @@ VectoUI needs a `<canvas>` element with a positioned parent:
 </html>
 ```
 
-The parent `<div id="app">` must be `position: relative` — VectoUI inserts its accessibility shadow layer as an absolute-positioned sibling of the canvas. The `Scene` enforces this automatically, but setting it explicitly prevents visual jumps.
+The parent `<div id="app">` must be `position: relative` — VectoJS inserts its accessibility shadow layer as an absolute-positioned sibling of the canvas. The `Scene` enforces this automatically, but setting it explicitly prevents visual jumps.
 
 ## Creating the Scene
 
 ```typescript
 // src/main.ts
-import { Scene } from '@vecto-ui/core';
+import { Scene } from '@vectojs/core';
 
 const canvas = document.querySelector<HTMLCanvasElement>('#canvas')!;
 const scene = new Scene(canvas, {
@@ -76,7 +76,7 @@ scene.start();
 ## Try it live
 
 <figure class="sandbox">
-  <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · vecto-ui@0.9</span></div>
+  <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · vectojs@0.9</span></div>
   <iframe src="/sandbox/getting-started.html" class="sandbox-frame" loading="lazy" title="Getting Started interactive example" sandbox="allow-scripts allow-same-origin"></iframe>
   <figcaption>Counter + Toggle + Slider — all running on canvas with no DOM components. Click and interact.</figcaption>
 </figure>
@@ -86,7 +86,7 @@ scene.start();
 Add a `Toggle` to verify everything is wired:
 
 ```typescript
-import { Toggle } from '@vecto-ui/ui';
+import { Toggle } from '@vectojs/ui';
 
 const toggle = new Toggle({
   label: 'Dark mode',
@@ -107,8 +107,8 @@ Open the browser and inspect the DOM — you will find a real `<div role="switch
 Let us build something more complete: a scrollable settings panel with a text input, toggles, a slider, and a submit button. All state lives in a plain object; the components read from and write to it.
 
 ```typescript
-import { Scene } from '@vecto-ui/core';
-import { Stack, Card, Text, Input, Toggle, Slider, Button, ScrollView } from '@vecto-ui/ui';
+import { Scene } from '@vectojs/core';
+import { Stack, Card, Text, Input, Toggle, Slider, Button, ScrollView } from '@vectojs/ui';
 
 const canvas = document.querySelector<HTMLCanvasElement>('#canvas')!;
 const scene = new Scene(canvas, { maxFPS: 60 });
@@ -262,14 +262,14 @@ window.addEventListener('resize', () => {
 
 ## Framework integration
 
-VectoUI mounts on a `<canvas>`, so it integrates with any framework the same way a WebGL library does.
+VectoJS mounts on a `<canvas>`, so it integrates with any framework the same way a WebGL library does.
 
 ### React
 
 ```typescript
 import { useEffect, useRef } from 'react';
-import { Scene } from '@vecto-ui/core';
-import { Button } from '@vecto-ui/ui';
+import { Scene } from '@vectojs/core';
+import { Button } from '@vectojs/ui';
 
 export function VectoCanvas() {
   const ref = useRef<HTMLCanvasElement>(null);
@@ -293,7 +293,7 @@ export function VectoCanvas() {
 ```typescript
 <script setup>
 import { onMounted, onUnmounted, ref } from 'vue';
-import { Scene } from '@vecto-ui/core';
+import { Scene } from '@vectojs/core';
 
 const canvasRef = ref(null);
 let scene;

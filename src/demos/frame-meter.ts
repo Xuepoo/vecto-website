@@ -1,4 +1,4 @@
-import { Entity, type IRenderer } from '@vecto-ui/core';
+import { Entity, type IRenderer } from '@vectojs/core';
 
 /**
  * An invisible scene node that measures the scene's real frame rate. Add it to a

@@ -1,5 +1,5 @@
 /**
- * VectoUI homepage hero — dogfooded entirely in VectoUI.
+ * VectoJS homepage hero — dogfooded entirely in VectoJS.
  *
  * One <canvas>, zero per-element DOM. A glowing neural field (hundreds of real
  * entities) sits behind an elegant serif title, a tagline, two CTAs, and a live
@@ -7,11 +7,11 @@
  * entities, a handful of real DOM nodes. The two buttons are real, operable
  * ARIA shadow nodes (Playwright / an AI agent can getByRole().click() them).
  */
-import { Scene, Entity, LayoutEngine, type GlyphMeasurer, type IRenderer } from '@vecto-ui/core';
-import { Button } from '@vecto-ui/ui';
+import { Scene, Entity, LayoutEngine, type GlyphMeasurer, type IRenderer } from '@vectojs/core';
+import { Button } from '@vectojs/ui';
 import { keepSceneLive } from './demos/keep-live';
 
-const GITHUB = 'https://github.com/Xuepoo/vecto-ui';
+const GITHUB = 'https://github.com/vectojs/vectojs';
 const ACCENT = '#5b9cff';
 const ACCENT_BRIGHT = '#7cb3ff';
 const TITLE_FONT = '"Playfair Display", Georgia, serif';
@@ -406,7 +406,7 @@ function initHero(): void {
   const bg = new NeuralField(560);
   scene.add(bg);
 
-  const title = new Title('VectoUI');
+  const title = new Title('VectoJS');
   scene.add(title);
 
   const subtitle = new TrackedText(
@@ -497,9 +497,21 @@ function initHero(): void {
   bg.place();
   fit();
   scene.start();
+
   // The starfield drifts every frame; keep the scene live so 0.9.2's idle
-  // auto-throttle doesn't drop it (and the on-canvas FPS readout) to ~2.
-  keepSceneLive(scene);
+  // auto-throttle doesn't drop it (and the on-canvas FPS readout) to ~2 —
+  // BUT only while the hero is on screen and the tab is visible. Once it scrolls
+  // away, let it throttle so the continuous loop stops stuttering page scroll.
+  let heroVisible = true;
+  if ('IntersectionObserver' in window) {
+    new IntersectionObserver(
+      (entries) => {
+        heroVisible = entries[entries.length - 1].isIntersecting;
+      },
+      { threshold: 0.01 },
+    ).observe(section);
+  }
+  keepSceneLive(scene, () => heroVisible && !document.hidden);
 }
 
 function boot(): void {

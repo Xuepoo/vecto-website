@@ -1,26 +1,26 @@
 ---
 title: 'Mathematical Foundations'
-description: 'The mathematical and physical principles underpinning the VectoUI rendering engine: linear algebra, spline geometry, spatial hashing, set-difference wrapping, and numerical differential solvers.'
+description: 'The mathematical and physical principles underpinning the VectoJS rendering engine: linear algebra, spline geometry, spatial hashing, set-difference wrapping, and numerical differential solvers.'
 order: 2
 ---
 
 # Mathematical Foundations
 
-VectoUI treats UI rendering not as a series of CSS styling cascade resolutions, but as a pure **geometric and algebraic computation problem**. By converting layout, culling, hit-testing, text wrapping, and animation into formal mathematical systems, the engine bypasses the browser's layout recalculation entirely.
+VectoJS treats UI rendering not as a series of CSS styling cascade resolutions, but as a pure **geometric and algebraic computation problem**. By converting layout, culling, hit-testing, text wrapping, and animation into formal mathematical systems, the engine bypasses the browser's layout recalculation entirely.
 
-This document details the five mathematical pillars that serve as the foundation of the VectoUI runtime.
+This document details the five mathematical pillars that serve as the foundation of the VectoJS runtime.
 
 ---
 
 ## 1. Affine Transformations & $SE(2)$ Group Theory
 
-At the core of the Virtual Math Tree (VMT) is the composition of 2D space coordinate transforms. Instead of relying on CSS positioning, VectoUI models every node's transform as a homogeneous $3 \times 3$ matrix representing an **affine transformation** in the Euclidean plane.
+At the core of the Virtual Math Tree (VMT) is the composition of 2D space coordinate transforms. Instead of relying on CSS positioning, VectoJS models every node's transform as a homogeneous $3 \times 3$ matrix representing an **affine transformation** in the Euclidean plane.
 
 ### The Transformation Matrix
 
 An entity's translation $(t_x, t_y)$, scale $(s_x, s_y)$, and rotation $\theta$ (in radians) are combined into a single matrix $M \in \text{Aff}(2)$:
 
-$$M = \begin{bmatrix} s_x \cos\theta & -s_y \sin\theta & t_x \\ s_x \sin\theta & s_y \cos\theta & t_y \\ 0 & 0 & 1 \end{bmatrix}$$
+$$M = \begin{bmatrix} s_x \cos\theta & -s_y \sin\theta & t_x \\\\ s_x \sin\theta & s_y \cos\theta & t_y \\\\ 0 & 0 & 1 \end{bmatrix}$$
 
 ### Cascading Transforms (Matrix Multiplication)
 
@@ -28,7 +28,7 @@ When traversing the node tree, children inherit their parent's coordinate space.
 
 $$M_{\text{global}} = M_{\text{parent}} \times M_{\text{local}}$$
 
-This is executed during the pre-order depth-first traversal (DFS) render pass. VectoUI does this directly on scalar float variables (avoiding heap allocations) to optimize calculation throughput:
+This is executed during the pre-order depth-first traversal (DFS) render pass. VectoJS does this directly on scalar float variables (avoiding heap allocations) to optimize calculation throughput:
 
 ```typescript
 // Scalar multiplication of 3x3 transformation matrix
@@ -38,17 +38,11 @@ const globalY = parent.m10 * local.x + parent.m11 * local.y + parent.m12;
 
 ### Closed-Form Inverse Transforms (Cramer's Rule)
 
-To reverse-map coordinates (e.g., translating screen-space mouse clicks or 3D raycast coordinates back into a local entity's coordinate space), VectoUI computes the inverse matrix $M_{\text{global}}^{-1}$.
+To reverse-map coordinates (e.g., translating screen-space mouse clicks or 3D raycast coordinates back into a local entity's coordinate space), VectoJS computes the inverse matrix $M_{\text{global}}^{-1}$.
 
-Instead of running slow Gauss-Jordan elimination, VectoUI solves the inverse analytically using **Cramer's Rule** for $3 \times 3$ matrices:
+Instead of running slow Gauss-Jordan elimination, VectoJS solves the inverse analytically using **Cramer's Rule** for $3 \times 3$ matrices:
 
-$$
-M^{-1} = \frac{1}{\det(M)} \begin{bmatrix}
-m_{11}m_{22} - m_{12}m_{21} & m_{02}m_{21} - m_{01}m_{22} & m_{01}m_{12} - m_{02}m_{11} \\
-m_{12}m_{20} - m_{10}m_{22} & m_{00}m_{22} - m_{02}m_{20} & m_{02}m_{10} - m_{00}m_{12} \\
-m_{10}m_{21} - m_{11}m_{20} & m_{01}m_{20} - m_{00}m_{21} & m_{00}m_{11} - m_{01}m_{10}
-\end{bmatrix}
-$$
+$$M^{-1} = \frac{1}{\det(M)} \begin{bmatrix} m_{11}m_{22} - m_{12}m_{21} & m_{02}m_{21} - m_{01}m_{22} & m_{01}m_{12} - m_{02}m_{11} \\\\ m_{12}m_{20} - m_{10}m_{22} & m_{00}m_{22} - m_{02}m_{20} & m_{02}m_{10} - m_{00}m_{12} \\\\ m_{10}m_{21} - m_{11}m_{20} & m_{01}m_{20} - m_{00}m_{21} & m_{00}m_{11} - m_{01}m_{10} \end{bmatrix}$$
 
 Since the third row of our homogeneous matrix is always $\begin{bmatrix} 0 & 0 & 1 \end{bmatrix}$, the determinant reduces to:
 
@@ -62,7 +56,7 @@ If $\det(M) \neq 0$, the inverse coordinates are solved in constant time ($O(1)$
 
 Traditional canvas frameworks hit-test curves by drawing them invisibly and reading color pixels, or checking if clicks lie inside the rectangular bounding box (AABB) enclosing the curve. The former is slow, and the latter is highly inaccurate.
 
-VectoUI (via the Vectomancy engine) solves this analytically. A cubic Bézier curve segment is represented as a parametric vector function $P(t)$ for $t \in [0, 1]$:
+VectoJS (via the Vectomancy engine) solves this analytically. A cubic Bézier curve segment is represented as a parametric vector function $P(t)$ for $t \in [0, 1]$:
 
 $$P(t) = (1-t)^3 P_0 + 3(1-t)^2 t P_1 + 3(1-t) t^2 P_2 + t^3 P_3$$
 
@@ -82,7 +76,7 @@ Since $P(t)$ is a cubic polynomial (degree 3) and $P'(t)$ is quadratic (degree 2
 
 ### Numerical Root Finding
 
-To solve this efficiently at runtime, VectoUI combines two numerical techniques:
+To solve this efficiently at runtime, VectoJS combines two numerical techniques:
 
 1. **Bézier Subdivision (Interval Halving)**: The curve is subdivided into segments using de Casteljau's algorithm to approximate the closest interval.
 2. **Newton-Raphson Iteration**: Once a close interval $t_k$ is found, the root is refined iteratively:
@@ -96,9 +90,12 @@ This converges to float-level precision in $3$ to $5$ iterations, checking if th
 
 In a scene containing $N$ entities, testing which elements are hovered or visible inside the viewport naively requires an $O(N)$ sweep. At $N = 100,000$, this drops frame rates significantly.
 
-VectoUI maps the 2D infinite coordinate plane to a **Spatial Hash Grid** to bound complexity.
+VectoJS maps the 2D infinite coordinate plane to a **Spatial Hash Grid** to bound complexity.
 
-<img src="/images/spatial-hash-grid.svg" alt="3×3 spatial hash grid showing coordinate cells (0,0) through (2,2), with the active cursor cell (1,1) highlighted in blue, and annotations explaining the cell-key formula and O(1) lookup" class="diagram" />
+<figure>
+  <iframe src="/sandbox/diagram-spatial-hash.html" class="diagram-frame" loading="lazy" title="A spatial hash grid where a moving cursor only tests its own cell and eight neighbours, rendered live by VectoJS" sandbox="allow-scripts allow-same-origin"></iframe>
+  <figcaption>Only the cursor's cell and its eight neighbours are ever hit-tested — the rest of the grid is skipped. <em>(Rendered live by VectoJS.)</em></figcaption>
+</figure>
 
 ### The Hash Function
 
@@ -124,7 +121,7 @@ Where $p_1 = 73856093$ and $p_2 = 19349663$ are large prime numbers, and $M$ is 
 
 Traditional web browsers wrap text using line-breaking properties. However, wrapping text around irregular obstacles (such as float images or inline callouts) requires heavy browser reflow passes.
 
-VectoUI models text flow mathematically as **Interval Subtraction Set Theory** over the real number line.
+VectoJS models text flow mathematically as **Interval Subtraction Set Theory** over the real number line.
 
 ### Line-Interval Splitting
 
@@ -155,7 +152,7 @@ This allows complex typographic wrapping to be solved as a deterministic, flat i
 
 CSS animations operate on fixed time scales ($t \in [0, 1]$). If the target position changes mid-flight (e.g., following a cursor), the bezier curve must be recalculated, resulting in visual jumps or momentum loss.
 
-VectoUI solves this using **ordinary differential equations (ODE)** simulating a physical mass-spring-damper system.
+VectoJS solves this using **ordinary differential equations (ODE)** simulating a physical mass-spring-damper system.
 
 ### The Governing Equation
 
@@ -171,7 +168,7 @@ Where:
 
 ### Numerical Integration (Semi-Implicit Euler)
 
-To solve this equation step-by-step at runtime, VectoUI uses a **Semi-implicit Euler integration** solver. Unlike explicit Euler (which is unstable and accumulates energy error), the semi-implicit solver calculates velocity using the current state and then computes position using the _next_ velocity:
+To solve this equation step-by-step at runtime, VectoJS uses a **Semi-implicit Euler integration** solver. Unlike explicit Euler (which is unstable and accumulates energy error), the semi-implicit solver calculates velocity using the current state and then computes position using the _next_ velocity:
 
 $$v_{t+\Delta t} = v_t + \frac{-k(x_t - x_{\text{target}}) - c v_t}{m} \Delta t$$
 
@@ -185,7 +182,7 @@ Because the solver calculates forces dynamically based on the current value $x_t
 
 ## Summary of Mathematical Advantages
 
-| Dimension      | Browser / DOM              | VectoUI                      | Math Principle                 |
+| Dimension      | Browser / DOM              | VectoJS                      | Math Principle                 |
 | -------------- | -------------------------- | ---------------------------- | ------------------------------ |
 | **Transforms** | CSS Layout Engine          | 3x3 Homogeneous Matrices     | Linear Algebra / $SE(2)$ Group |
 | **Picking**    | Bounding box / DOM overlay | Analytical Polynomial Solver | Newton-Raphson Iteration       |

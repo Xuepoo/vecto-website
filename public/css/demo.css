@@ -1,4 +1,4 @@
-/* VectoUI demos — gallery + per-demo stage styling. */
+/* VectoJS demos — gallery + per-demo stage styling. */
 
 /* ---- Demos gallery ---- */
 .demos-section {
@@ -571,6 +571,24 @@
   background: rgba(37, 99, 235, 0.3);
 }
 
+.chat-copy {
+  padding: 0.5rem 1rem;
+  border-radius: 9px;
+  border: 1px solid var(--border-color);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text-muted);
+  font-weight: 500;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease;
+}
+.chat-copy:hover {
+  background: rgba(255, 255, 255, 0.07);
+  color: var(--text-color);
+}
+
 .chat-side-group h4 {
   font-size: 0.78rem;
   text-transform: uppercase;
@@ -610,6 +628,32 @@
 .chat-settings summary {
   cursor: pointer;
   font-weight: 600;
+  color: var(--text-color);
+}
+
+/* Base URL provider presets */
+.cfg-presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 0.5rem;
+}
+.cfg-presets button {
+  padding: 0.28rem 0.6rem;
+  border-radius: 7px;
+  border: 1px solid var(--border-color);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease,
+    border-color 0.15s ease;
+}
+.cfg-presets button:hover {
+  background: rgba(91, 156, 255, 0.12);
+  border-color: rgba(91, 156, 255, 0.4);
   color: var(--text-color);
 }
 
@@ -659,12 +703,82 @@
 
 .chat-stage {
   position: relative;
-  height: 64vh;
-  min-height: 420px;
+  height: 74vh;
+  min-height: 520px;
   border-radius: 16px;
   overflow: hidden;
   border: 1px solid var(--border-color);
   background: linear-gradient(180deg, #0a0e1a 0%, #070a13 100%);
+}
+
+/* ============================================================
+   Immersive (zoom-in) mode — shared by all demos
+   ============================================================ */
+[data-immersive] {
+  position: relative;
+}
+
+.demo-immersive-btn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 40;
+  width: 38px;
+  height: 38px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9px;
+  border: 1px solid var(--border-color);
+  background: rgba(8, 12, 22, 0.72);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition:
+    color 0.15s ease,
+    border-color 0.15s ease,
+    background 0.15s ease;
+}
+.demo-immersive-btn:hover {
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.25);
+  background: rgba(8, 12, 22, 0.92);
+}
+
+.is-immersive {
+  position: fixed !important;
+  inset: 0 !important;
+  width: 100vw !important;
+  height: 100dvh !important;
+  /* .stage caps itself with max-height:70vh + aspect-ratio — override both so the
+     immersive view truly fills the viewport instead of leaving a gap below. */
+  max-width: none !important;
+  max-height: none !important;
+  aspect-ratio: auto !important;
+  margin: 0 !important;
+  border-radius: 0 !important;
+  z-index: 2000;
+  background: #060a13;
+}
+.is-immersive .demo-immersive-btn {
+  top: 16px;
+  right: 16px;
+}
+body.immersive-lock {
+  overflow: hidden;
+}
+
+/* Chat needs its stage to grow in immersive (sidebar + input stay usable) */
+.chat-shell.is-immersive {
+  padding: 1rem 1.25rem;
+  gap: 1.25rem;
+}
+.chat-shell.is-immersive .chat-main {
+  height: 100%;
+}
+.chat-shell.is-immersive .chat-stage {
+  height: auto;
+  flex: 1 1 auto;
+  min-height: 0;
 }
 
 #chat-canvas {
@@ -810,16 +924,26 @@
   transition: opacity 0.28s ease;
 }
 
-#pool-overlay.pool-visible { opacity: 1; }
-#pool-overlay[data-type='win']  { background: rgba(1, 15, 7, 0.86); }
-#pool-overlay[data-type='fail'] { background: rgba(18, 2, 2, 0.86); }
+#pool-overlay.pool-visible {
+  opacity: 1;
+}
+#pool-overlay[data-type='win'] {
+  background: rgba(1, 15, 7, 0.86);
+}
+#pool-overlay[data-type='fail'] {
+  background: rgba(18, 2, 2, 0.86);
+}
 
 .pool-ov-icon {
   font-size: 2.8rem;
   line-height: 1;
 }
-#pool-overlay[data-type='win']  .pool-ov-icon { color: #22c55e; }
-#pool-overlay[data-type='fail'] .pool-ov-icon { color: #ef4444; }
+#pool-overlay[data-type='win'] .pool-ov-icon {
+  color: #22c55e;
+}
+#pool-overlay[data-type='fail'] .pool-ov-icon {
+  color: #ef4444;
+}
 
 .pool-ov-title {
   font-family: var(--font-title);
@@ -843,7 +967,9 @@
   cursor: pointer;
   transition: background 0.18s;
 }
-.pool-ov-btn:hover { background: rgba(255, 255, 255, 0.13); }
+.pool-ov-btn:hover {
+  background: rgba(255, 255, 255, 0.13);
+}
 
 .pool-hud {
   position: absolute;
@@ -878,4 +1004,39 @@
   .demo-head h1 {
     font-size: 2rem;
   }
+}
+
+/* ---- Knowledge Graph ---- */
+.stage-graph {
+  background:
+    radial-gradient(1400px 900px at 50% 50%, rgba(56, 189, 248, 0.05), transparent 70%), #05070d;
+  cursor: grab;
+}
+
+#graph-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.graph-hover-label {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  padding: 7px 13px;
+  border-radius: 10px;
+  background: rgba(7, 10, 19, 0.7);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(226, 232, 240, 0.22);
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #e2e8f0;
+  pointer-events: none;
+  max-width: 60%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }

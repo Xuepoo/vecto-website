@@ -5,7 +5,7 @@ import { SITE } from '../consts';
 
 <Base>
   <section class="hero-section">
-    {/* The entire hero is one VectoUI canvas (zero per-element DOM). */}
+    {/* The entire hero is one VectoJS canvas (zero per-element DOM). */}
     <canvas id="hero-canvas" class="hero-canvas" aria-hidden="true"></canvas>
 
     {
@@ -13,7 +13,7 @@ import { SITE } from '../consts';
         interactive controls project their own a11y shadow nodes at runtime. */
     }
     <div class="hero-fallback sr-only">
-      <h1>VectoUI — the Zero-DOM canvas UI engine an AI agent can actually drive</h1>
+      <h1>VectoJS — the Zero-DOM canvas UI engine an AI agent can actually drive</h1>
       <p>
         Zero-DOM, accessible, agent-native. The canvas UI runtime that screen readers — and AI
         agents — can operate by role.
@@ -31,7 +31,7 @@ import { SITE } from '../consts';
         <h3>ECS architecture</h3>
         <p>
           Every object is an <code>Entity</code> in the Virtual Math Tree. Extend built-in components
-          via inheritance or build entirely custom ones — if JavaScript can express it, VectoUI can render
+          via inheritance or build entirely custom ones — if JavaScript can express it, VectoJS can render
           it. No opaque component registries.
         </p>
       </div>
@@ -90,7 +90,7 @@ import { SITE } from '../consts';
         <div class="feature-icon">◉</div>
         <h3>Three.js &amp; 2.5D depth</h3>
         <p>
-          <code>ThreeAdapter</code> renders a full VectoUI scene as a
+          <code>ThreeAdapter</code> renders a full VectoJS scene as a
           <code>THREE.CanvasTexture</code> with UV raycasting for pointer events. A built-in depth sort
           handles pseudo-3D layering without a raw WebGL depth buffer.
         </p>
@@ -153,7 +153,7 @@ import { SITE } from '../consts';
         <h3>Text editors &amp; dev tools</h3>
         <p>
           Canvas-based editors like <code>vscode.dev</code> use canvas because the DOM text engine can't
-          be controlled at the character level. VectoUI provides the missing layout engine, IME input,
+          be controlled at the character level. VectoJS provides the missing layout engine, IME input,
           and accessibility layer.
         </p>
       </div>
@@ -171,7 +171,7 @@ import { SITE } from '../consts';
         <div class="usecase-label">XR &amp; 3D</div>
         <h3>WebXR &amp; Three.js integration</h3>
         <p>
-          Render VectoUI panels as <code>THREE.CanvasTexture</code> on any 3D mesh. Spatial dashboards,
+          Render VectoJS panels as <code>THREE.CanvasTexture</code> on any 3D mesh. Spatial dashboards,
           in-world terminals, and head-up displays with full UV-raycasted pointer events.
         </p>
       </div>

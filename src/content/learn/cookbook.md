@@ -1,12 +1,12 @@
 ---
 title: 'Cookbook'
-description: 'Common patterns and recipes for VectoUI: modals, tooltips, virtualized lists, drag-and-drop, animated charts, and more.'
+description: 'Common patterns and recipes for VectoJS: modals, tooltips, virtualized lists, drag-and-drop, animated charts, and more.'
 order: 12
 ---
 
 # Cookbook
 
-Self-contained patterns for the most common VectoUI problems. Each recipe is complete and copy-pasteable.
+Self-contained patterns for the most common VectoJS problems. Each recipe is complete and copy-pasteable.
 
 ---
 
@@ -15,9 +15,9 @@ Self-contained patterns for the most common VectoUI problems. Each recipe is com
 Renders a blocking overlay above all scene content. Closes on backdrop click or Escape key, and projects a `role="dialog"` landmark for screen readers.
 
 ```typescript
-import { Scene, Entity } from '@vecto-ui/core';
-import type { IRenderer } from '@vecto-ui/core/renderer';
-import { Card, Text, Button } from '@vecto-ui/ui';
+import { Scene, Entity } from '@vectojs/core';
+import type { IRenderer } from '@vectojs/core/renderer';
+import { Card, Text, Button } from '@vectojs/ui';
 
 class ModalBackdrop extends Entity {
   constructor(w: number, h: number) {
@@ -128,8 +128,8 @@ scene.start();
 Attaches a 400 ms delayed tooltip popup to any entity. The tooltip tracks the pointer position reported by the `hover` event and fades in/out on the overlay layer.
 
 ```typescript
-import { Scene, Entity } from '@vecto-ui/core';
-import type { IRenderer } from '@vecto-ui/core/renderer';
+import { Scene, Entity } from '@vectojs/core';
+import type { IRenderer } from '@vectojs/core/renderer';
 
 class TooltipPopup extends Entity {
   constructor(private readonly text: string) {
@@ -190,7 +190,7 @@ export function attachTooltip(scene: Scene, target: Entity, text: string): void 
 }
 
 // ── Usage ────────────────────────────────────────────────────────────────────
-import { Card } from '@vecto-ui/ui';
+import { Card } from '@vectojs/ui';
 
 const canvas = document.querySelector<HTMLCanvasElement>('#canvas')!;
 const scene = new Scene(canvas, { maxFPS: 60 });
@@ -214,8 +214,8 @@ scene.start();
 A `DraggableCard` entity captures pointer events on the canvas directly (since `pointermove` must fire even when the pointer leaves entity bounds). Drop zones highlight while the draggable hovers over them and snap it to center on release.
 
 ```typescript
-import { Scene, Entity } from '@vecto-ui/core';
-import type { IRenderer } from '@vecto-ui/core/renderer';
+import { Scene, Entity } from '@vectojs/core';
+import type { IRenderer } from '@vectojs/core/renderer';
 
 // ── Drop zone ────────────────────────────────────────────────────────────────
 class DropZone extends Entity {
@@ -342,9 +342,9 @@ scene.start();
 Intercepts every click in capture phase on the scene root before it reaches children. Used to close menus, dropdowns, and popups when the user clicks anywhere outside them.
 
 ```typescript
-import { Scene, Entity } from '@vecto-ui/core';
-import type { IRenderer } from '@vecto-ui/core/renderer';
-import { Card, Text } from '@vecto-ui/ui';
+import { Scene, Entity } from '@vectojs/core';
+import type { IRenderer } from '@vectojs/core/renderer';
+import { Card, Text } from '@vectojs/ui';
 
 interface MenuItem {
   label: string;
@@ -440,8 +440,8 @@ scene.start();
 Each bar is an independent entity with a `displayHeight` property that `animate()` drives from 0 to the bar's target height. Bars are staggered with `setTimeout` to cascade in left-to-right.
 
 ```typescript
-import { Scene, Entity } from '@vecto-ui/core';
-import type { IRenderer } from '@vecto-ui/core/renderer';
+import { Scene, Entity } from '@vectojs/core';
+import type { IRenderer } from '@vectojs/core/renderer';
 
 interface BarDatum {
   label: string;
@@ -559,8 +559,8 @@ scene.start();
 `ToastManager` maintains a FIFO queue. Showing a toast while another is visible queues it. Each toast fades in, stays for 3 seconds, then fades out before the next one is shown.
 
 ```typescript
-import { Scene, Entity } from '@vecto-ui/core';
-import type { IRenderer } from '@vecto-ui/core/renderer';
+import { Scene, Entity } from '@vectojs/core';
+import type { IRenderer } from '@vectojs/core/renderer';
 
 type ToastVariant = 'info' | 'success' | 'error';
 
@@ -649,7 +649,7 @@ export class ToastManager {
 }
 
 // ── Usage ────────────────────────────────────────────────────────────────────
-import { Button } from '@vecto-ui/ui';
+import { Button } from '@vectojs/ui';
 
 const canvas = document.querySelector<HTMLCanvasElement>('#canvas')!;
 const scene = new Scene(canvas, { maxFPS: 60 });
@@ -683,8 +683,8 @@ scene.start();
 Composes `Input`, `Slider`, `Toggle`, and `Button` into a validated form. Errors are `Text` entities rendered red and set on submit; they clear as soon as the user edits the corresponding field.
 
 ```typescript
-import { Scene } from '@vecto-ui/core';
-import { Stack, Card, Text, Input, Toggle, Slider, Button } from '@vecto-ui/ui';
+import { Scene } from '@vectojs/core';
+import { Stack, Card, Text, Input, Toggle, Slider, Button } from '@vectojs/ui';
 
 interface FormState {
   username: string;

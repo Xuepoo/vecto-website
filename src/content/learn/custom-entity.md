@@ -6,12 +6,12 @@ order: 4
 
 # Building Custom Entities
 
-Every object in VectoUI is an `Entity` — a node in the Virtual Math Tree. Built-in components like `Button` and `Toggle` are just Entity subclasses you can use as-is. This guide shows you how to build your own.
+Every object in VectoJS is an `Entity` — a node in the Virtual Math Tree. Built-in components like `Button` and `Toggle` are just Entity subclasses you can use as-is. This guide shows you how to build your own.
 
 ## Try it live
 
 <figure class="sandbox">
-  <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · vecto-ui@0.9</span></div>
+  <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · vectojs@0.9</span></div>
   <iframe src="/sandbox/custom-entity.html" class="sandbox-frame" loading="lazy" title="Custom Entity interactive example" sandbox="allow-scripts allow-same-origin"></iframe>
   <figcaption>Three <code>GaugeWidget</code> custom entities with animated arc fills. Click Randomize to see the <code>animate()</code> tween system in action.</figcaption>
 </figure>
@@ -30,8 +30,8 @@ The `Scene` applies transforms in **T · S · R** order (Translate → Scale →
 </figure>
 
 ```typescript
-import { Entity } from '@vecto-ui/core';
-import type { IRenderer } from '@vecto-ui/core/renderer';
+import { Entity } from '@vectojs/core';
+import type { IRenderer } from '@vectojs/core/renderer';
 
 class Banner extends Entity {
   color = '#6366f1';
@@ -79,7 +79,7 @@ isPointInside(gx: number, gy: number): boolean {
 }
 ```
 
-> [!NOTE] > `UIComponent` already implements this AABB test for you. Extend `UIComponent` from `@vecto-ui/ui` instead of `Entity` directly when your component has a rectangular hitbox — you get `isPointInside`, `getBounds`, and `padding` for free.
+> [!NOTE] > `UIComponent` already implements this AABB test for you. Extend `UIComponent` from `@vectojs/ui` instead of `Entity` directly when your component has a rectangular hitbox — you get `isPointInside`, `getBounds`, and `padding` for free.
 
 ## The IRenderer API
 
@@ -234,10 +234,10 @@ class Chip extends Entity {
 
 ## A11y projection with `getA11yAttributes()`
 
-When your entity is `interactive`, VectoUI projects a transparent real DOM node over it. By default this is a plain `<div>` — not very useful for assistive technology. Override `getA11yAttributes()` to tell the framework what node to project:
+When your entity is `interactive`, VectoJS projects a transparent real DOM node over it. By default this is a plain `<div>` — not very useful for assistive technology. Override `getA11yAttributes()` to tell the framework what node to project:
 
 ```typescript
-import type { A11yAttributes } from '@vecto-ui/core';
+import type { A11yAttributes } from '@vectojs/core';
 
 class Chip extends Entity {
   getA11yAttributes(): A11yAttributes {
@@ -313,9 +313,9 @@ getBatchRect() {
 ## Full example: animated gauge widget
 
 ```typescript
-import { Entity } from '@vecto-ui/core';
-import type { IRenderer } from '@vecto-ui/core/renderer';
-import type { A11yAttributes } from '@vecto-ui/core';
+import { Entity } from '@vectojs/core';
+import type { IRenderer } from '@vectojs/core/renderer';
+import type { A11yAttributes } from '@vectojs/core';
 
 class GaugeWidget extends Entity {
   private _value = 0;

@@ -1,12 +1,12 @@
 /**
- * Danmaku-at-scale demo. The stage is one VectoUI <canvas> holding thousands of
+ * Danmaku-at-scale demo. The stage is one VectoJS <canvas> holding thousands of
  * comment entities — smooth like a canvas-2D danmaku engine, yet every comment
  * is individually hit-tested (hover to freeze, click for a real action menu),
  * and the action menu's buttons are real ARIA shadow nodes an agent can drive.
  * A DOM control panel and an on-demand accessible list sit alongside.
  */
-import { Scene } from '@vecto-ui/core';
-import { Button } from '@vecto-ui/ui';
+import { Scene } from '@vectojs/core';
+import { Button } from '@vectojs/ui';
 import { DanmakuEngine } from './danmaku/engine';
 import { Danmaku } from './danmaku/danmaku';
 import { rollComment } from './danmaku/corpus';

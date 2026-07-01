@@ -6,7 +6,7 @@ order: 3
 
 # Core Scene Architecture
 
-VectoUI discards the traditional browser DOM. Instead, it implements a **Virtual Math Tree (VMT)** inside `@vecto-ui/core`.
+VectoJS discards the traditional browser DOM. Instead, it implements a **Virtual Math Tree (VMT)** inside `@vectojs/core`.
 
 <figure>
   <img src="/images/vmt-architecture.svg" alt="VMT Architecture diagram showing entity tree, canvas rendering, and A11y shadow layer" class="diagram" />
@@ -24,7 +24,7 @@ The `Scene` class is the root orchestrator. It manages three critical pipelines:
 ### Initialization
 
 ```typescript
-import { Scene } from '@vecto-ui/core';
+import { Scene } from '@vectojs/core';
 
 const canvas = document.querySelector<HTMLCanvasElement>('#canvas')!;
 const scene = new Scene(canvas, {
@@ -52,7 +52,7 @@ scene.renderMode = 'onDemand';
 
 ## The Entity System
 
-Every object in VectoUI extends the abstract `Entity` class.
+Every object in VectoJS extends the abstract `Entity` class.
 
 <figure>
   <img src="/images/entity-hierarchy.svg" alt="Entity class hierarchy showing Entity → UIComponent → all components" class="diagram" />
@@ -83,8 +83,8 @@ An `Entity` owns:
 ### Subclassing Entity
 
 ```typescript
-import { Entity } from '@vecto-ui/core';
-import type { IRenderer } from '@vecto-ui/core/renderer';
+import { Entity } from '@vectojs/core';
+import type { IRenderer } from '@vectojs/core/renderer';
 
 class GlowRect extends Entity {
   color = '#6366f1';
@@ -168,8 +168,8 @@ class Spinner extends Entity {
 ## The Rendering Pipeline
 
 <figure>
-  <img src="/images/render-pipeline.svg" alt="Render pipeline flow: markDirty → rAF → Update → Render → A11y sync → display" class="diagram" />
-  <figcaption>Each dirty frame walks the entire entity tree twice: once for update, once for render.</figcaption>
+  <iframe src="/sandbox/diagram-pipeline.html" class="diagram-frame" loading="lazy" title="The VectoJS render pipeline: the six stages of one dirty frame, rendered live by VectoJS" sandbox="allow-scripts allow-same-origin"></iframe>
+  <figcaption>Each dirty frame walks the entity tree — update, cull, then render — before syncing the A11y shadow DOM. <em>(Rendered live by VectoJS.)</em></figcaption>
 </figure>
 
 Each frame:

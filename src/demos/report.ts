@@ -131,7 +131,7 @@ export async function measurePerformance(opts: MeasureOptions = {}): Promise<Per
 
 export function formatReport(r: PerfReport): string {
   const lines = [
-    `VectoUI demo — performance report`,
+    `VectoJS demo — performance report`,
     `page         ${r.page}`,
     `when         ${r.timestamp}`,
     `browser      ${r.browser}`,

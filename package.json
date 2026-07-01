@@ -1,5 +1,5 @@
 {
-  "name": "vecto-website",
+  "name": "vectojs-website",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -12,8 +12,8 @@
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.7.3",
-    "@vecto-ui/core": "^0.9.2",
-    "@vecto-ui/ui": "^0.4.2",
+    "@vectojs/core": "^0.1.0",
+    "@vectojs/ui": "^0.1.0",
     "astro": "^7.0.3"
   },
   "devDependencies": {

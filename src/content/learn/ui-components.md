@@ -1,12 +1,12 @@
 ---
 title: 'UI Components'
-description: 'Overview of the @vecto-ui/ui component library: forms, layout containers, overlays, and rich content.'
+description: 'Overview of the @vectojs/ui component library: forms, layout containers, overlays, and rich content.'
 order: 5
 ---
 
 # UI Components
 
-The `@vecto-ui/ui` package provides a set of ready-to-use, production-quality components built on top of `@vecto-ui/core`. Every component renders entirely on canvas; accessibility comes from the automatic A11y shadow DOM layer.
+The `@vectojs/ui` package provides a set of ready-to-use, production-quality components built on top of `@vectojs/core`. Every component renders entirely on canvas; accessibility comes from the automatic A11y shadow DOM layer.
 
 ## All Components Extend `UIComponent`
 
@@ -26,8 +26,8 @@ The `@vecto-ui/ui` package provides a set of ready-to-use, production-quality co
 A flexbox-like container — positions children sequentially along a main axis:
 
 ```typescript
-import { Stack } from '@vecto-ui/ui';
-import { Button, Text } from '@vecto-ui/ui';
+import { Stack } from '@vectojs/ui';
+import { Button, Text } from '@vectojs/ui';
 
 const col = new Stack({ direction: 'vertical', gap: 12 });
 col.add(new Text('Hello'));
@@ -42,7 +42,7 @@ Supports `direction`, `gap`, `align` (cross-axis), and optional `wrap` with `max
 A `Stack` pre-wired as `{ direction: 'horizontal', wrap: true }` — for chip rows and tag clouds:
 
 ```typescript
-import { Flow } from '@vecto-ui/ui';
+import { Flow } from '@vectojs/ui';
 
 const tags = new Flow({ gap: 8, maxWidth: 400 });
 for (const label of ['TypeScript', 'WebGPU', 'Canvas']) {
@@ -56,7 +56,7 @@ scene.add(tags.setPosition(20, 20));
 A rounded background panel — add children on top:
 
 ```typescript
-import { Card } from '@vecto-ui/ui';
+import { Card } from '@vectojs/ui';
 
 const card = new Card({
   width: 300,
@@ -77,7 +77,7 @@ All form controls project a real, transparent shadow DOM node. Agents and screen
 ### `Button`
 
 ```typescript
-import { Button } from '@vecto-ui/ui';
+import { Button } from '@vectojs/ui';
 
 const btn = new Button('Save', {
   bg: '#2563eb',
@@ -92,7 +92,7 @@ Auto-sizes to label. Projects `<button>` → `getByRole('button', { name: 'Save'
 ### `Input` (single-line)
 
 ```typescript
-import { Input } from '@vecto-ui/ui';
+import { Input } from '@vectojs/ui';
 
 const input = new Input({
   width: 300,
@@ -111,7 +111,7 @@ Same model as `Input`, backed by a `<textarea>`. Supports `lineHeight`, vertical
 ### `Toggle`
 
 ```typescript
-import { Toggle } from '@vecto-ui/ui';
+import { Toggle } from '@vectojs/ui';
 
 const toggle = new Toggle({
   label: 'Dark mode',
@@ -126,7 +126,7 @@ Projects `role="switch"` with `aria-checked`. Both canvas clicks and keyboard ac
 ### `Checkbox`
 
 ```typescript
-import { Checkbox } from '@vecto-ui/ui';
+import { Checkbox } from '@vectojs/ui';
 
 const cb = new Checkbox({
   label: 'Subscribe to updates',
@@ -141,7 +141,7 @@ Backed by `<input type="checkbox">` — natively toggleable by keyboard and assi
 ### `Slider`
 
 ```typescript
-import { Slider } from '@vecto-ui/ui';
+import { Slider } from '@vectojs/ui';
 
 const slider = new Slider({ min: 0, max: 100, value: 50, width: 200 });
 slider.on('change', (e) => console.log(e.value));
@@ -152,7 +152,7 @@ Draggable thumb; value rounded to nearest integer. Projects `role="slider"`.
 ### `Dropdown`
 
 ```typescript
-import { Dropdown } from '@vecto-ui/ui';
+import { Dropdown } from '@vectojs/ui';
 
 const dd = new Dropdown(['Small', 'Medium', 'Large'], { value: 'Medium' });
 dd.on('change', (e) => setSize(e.value));
@@ -168,9 +168,9 @@ Opens a floating overlay menu via `scene.showOverlay()`; closes on selection or 
 Wrapping multi-line text with a cold/hot layout split:
 
 ```typescript
-import { Text } from '@vecto-ui/ui';
+import { Text } from '@vectojs/ui';
 
-const label = new Text('Hello, VectoUI!', {
+const label = new Text('Hello, VectoJS!', {
   font: '600 18px "Outfit", sans-serif',
   color: '#e2e8f0',
   maxWidth: 400,
@@ -187,7 +187,7 @@ const label = new Text('Hello, VectoUI!', {
 Multi-style inline text with bold/italic/color/size runs, link hotspots, and exclusion shapes:
 
 ```typescript
-import { RichText } from '@vecto-ui/ui';
+import { RichText } from '@vectojs/ui';
 
 const rich = new RichText(
   [
@@ -206,7 +206,7 @@ For streaming: use `appendSpans(newSpans)` — O(changed paragraph).
 ### `Modal`
 
 ```typescript
-import { Modal } from '@vecto-ui/ui';
+import { Modal } from '@vectojs/ui';
 
 const modal = new Modal('Confirm Delete', {
   modalWidth: 420,
@@ -224,7 +224,7 @@ Spring-animated scale-in. Includes a built-in Close button.
 A clipped viewport with spring-physics scroll:
 
 ```typescript
-import { ScrollView } from '@vecto-ui/ui';
+import { ScrollView } from '@vectojs/ui';
 
 const feed = new ScrollView({ width: 360, height: 600 });
 for (const item of items) feed.add(new Card({ ... }));
@@ -241,7 +241,7 @@ Wheel, touch-drag, and programmatic `scrollTo(y)` all supported.
 Renders a Markdown string into a VMT subtree — headings, paragraphs, code blocks with syntax highlighting, tables, blockquotes, links, and inline formatting:
 
 ```typescript
-import { Markdown } from '@vecto-ui/ui';
+import { Markdown } from '@vectojs/ui';
 
 const doc = new Markdown('## Hello\n\nThis is **bold** and `code`.', {
   maxWidth: 700,
@@ -260,7 +260,7 @@ for await (const token of llmStream) {
 ```
 
 <figure>
-  <img src="/images/component-gallery.svg" alt="VectoUI component gallery showing Button, Text, Input, Card, ScrollView, Slider, Toggle, Checkbox, and Dropdown" class="diagram" />
+  <img src="/images/component-gallery.svg" alt="VectoJS component gallery showing Button, Text, Input, Card, ScrollView, Slider, Toggle, Checkbox, and Dropdown" class="diagram" />
   <figcaption>All components render entirely on canvas. Shadow DOM nodes (invisible) provide native accessibility and automation support.</figcaption>
 </figure>
 

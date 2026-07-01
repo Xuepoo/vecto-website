@@ -1,6 +1,6 @@
 ---
 title: 'FAQ'
-description: 'Frequently asked questions about VectoUI — architecture decisions, performance, accessibility, and troubleshooting.'
+description: 'Frequently asked questions about VectoJS — architecture decisions, performance, accessibility, and troubleshooting.'
 order: 3
 ---
 
@@ -10,11 +10,11 @@ order: 3
 
 ### Why canvas instead of the DOM?
 
-The DOM renders a flat list of CSS-styled boxes. For high-density UIs — thousands of individually animated items, physics simulations, or tight layout math — the browser's layout engine becomes the bottleneck. A canvas context is a blank buffer: VectoUI draws precisely what the math says, at predictable cost. You trade declarative CSS for predictable performance and complete layout control.
+The DOM renders a flat list of CSS-styled boxes. For high-density UIs — thousands of individually animated items, physics simulations, or tight layout math — the browser's layout engine becomes the bottleneck. A canvas context is a blank buffer: VectoJS draws precisely what the math says, at predictable cost. You trade declarative CSS for predictable performance and complete layout control.
 
 ### How does accessibility work if everything is drawn on canvas?
 
-`Scene` maintains a **shadow DOM** — a transparent overlay of real `<button>`, `<input>`, `<a>`, and `<div>` elements positioned exactly above every interactive entity. These invisible nodes receive all real pointer, keyboard, and focus events from the browser, which are then re-dispatched into the VectoUI event system. Screen readers, browser DevTools, and automation frameworks (Playwright's `page.getByRole()`) see the shadow nodes and work normally without any special adapters.
+`Scene` maintains a **shadow DOM** — a transparent overlay of real `<button>`, `<input>`, `<a>`, and `<div>` elements positioned exactly above every interactive entity. These invisible nodes receive all real pointer, keyboard, and focus events from the browser, which are then re-dispatched into the VectoJS event system. Screen readers, browser DevTools, and automation frameworks (Playwright's `page.getByRole()`) see the shadow nodes and work normally without any special adapters.
 
 Set `entity.interactive = true` to project a shadow node. Override `getA11yAttributes()` to control the tag and ARIA attributes:
 
@@ -26,12 +26,12 @@ getA11yAttributes() {
 
 ### Is there a React / Vue / Svelte integration?
 
-Not yet as first-party packages. Because VectoUI owns a `<canvas>` element, it integrates with any framework exactly like a WebGL library would — mount the canvas, initialize a `Scene` in a lifecycle hook (`useEffect`, `onMounted`, etc.), and tear it down on unmount.
+Not yet as first-party packages. Because VectoJS owns a `<canvas>` element, it integrates with any framework exactly like a WebGL library would — mount the canvas, initialize a `Scene` in a lifecycle hook (`useEffect`, `onMounted`, etc.), and tear it down on unmount.
 
 ```typescript
 // React example
 import { useEffect, useRef } from 'react';
-import { Scene } from '@vecto-ui/core';
+import { Scene } from '@vectojs/core';
 
 export function VectoCanvas() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -48,7 +48,7 @@ export function VectoCanvas() {
 
 ## Performance
 
-### How many entities can VectoUI handle at 60 fps?
+### How many entities can VectoJS handle at 60 fps?
 
 It depends on backend and workload:
 
@@ -96,7 +96,7 @@ Normally a shadow DOM node is only projected when `entity.interactive && entity.
 
 ### My `Entity.update()` animation is twice as fast as expected — why?
 
-> [!CAUTION] > `Entity.update(dt, time)` receives **dt in milliseconds**, not seconds. This is the single most common VectoUI gotcha. `dt` at 60 fps ≈ 16.7, not 0.017.
+> [!CAUTION] > `Entity.update(dt, time)` receives **dt in milliseconds**, not seconds. This is the single most common VectoJS gotcha. `dt` at 60 fps ≈ 16.7, not 0.017.
 
 A common mistake when porting from physics libraries that use seconds:
 

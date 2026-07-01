@@ -6,7 +6,7 @@ order: 4
 
 # Physics & Animation
 
-VectoUI goes beyond static layout. Because the UI lives in a Virtual Math Tree, you can apply **continuous force-directed physics** to any component — including standard `Button`s and `Input`s.
+VectoJS goes beyond static layout. Because the UI lives in a Virtual Math Tree, you can apply **continuous force-directed physics** to any component — including standard `Button`s and `Input`s.
 
 ## Built-in Tweening: `entity.animate()`
 
@@ -29,7 +29,7 @@ While a tween is running, the scene is kept non-static — no need to call `mark
 `SpringPhysics` is a damped spring for smooth, physical-feeling numeric transitions:
 
 ```typescript
-import { SpringPhysics } from '@vecto-ui/core';
+import { SpringPhysics } from '@vectojs/core';
 
 const spring = new SpringPhysics(0);   // initial value = 0
 spring.stiffness = 180;
@@ -53,8 +53,8 @@ Use `SpringPhysics` instead of `animate()` when the target changes continuously 
 Every `Entity` has `x`/`y` and `update(dt, time)`. You can implement any physics model by overriding `update`:
 
 ```typescript
-import { Entity } from '@vecto-ui/core';
-import type { IRenderer } from '@vecto-ui/core/renderer';
+import { Entity } from '@vectojs/core';
+import type { IRenderer } from '@vectojs/core/renderer';
 
 class BallEntity extends Entity {
   vx = (Math.random() - 0.5) * 200;
@@ -128,7 +128,7 @@ This is exactly how the **Nexus** particle demo was built — simulating 15,000+
 For N-body interactions (repulsion, collision), a naive O(N²) loop breaks down above ~1000 nodes. Use `SpatialHashGrid` for O(1) average-case neighbor lookups:
 
 ```typescript
-import { SpatialHashGrid } from '@vecto-ui/core';
+import { SpatialHashGrid } from '@vectojs/core';
 
 const grid = new SpatialHashGrid(64); // cell size in world units
 
@@ -158,7 +158,7 @@ The hash grid is exactly what the `ComputeParticleEntity` uses internally for it
 For tens of thousands of particles with spring-to-origin + mouse repulsion, use `ComputeParticleEntity`. It automatically uses WebGPU compute shaders when available, falling back to CPU:
 
 ```typescript
-import { ComputeParticleEntity } from '@vecto-ui/core';
+import { ComputeParticleEntity } from '@vectojs/core';
 
 const particles = new ComputeParticleEntity({
   maxParticles: 15000,

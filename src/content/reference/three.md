@@ -1,17 +1,17 @@
 ---
-title: '@vecto-ui/three'
-description: 'Three.js adapters for VectoUI: render 2D UI panels as 3D textures (ThreeAdapter) or use Three.js as the rendering backend (ThreeRenderer).'
+title: '@vectojs/three'
+description: 'Three.js adapters for VectoJS: render 2D UI panels as 3D textures (ThreeAdapter) or use Three.js as the rendering backend (ThreeRenderer).'
 order: 4
 ---
 
-# `@vecto-ui/three`
+# `@vectojs/three`
 
 Two exports, two distinct use cases:
 
 | Export          | Use case                                                                                                                                                                          |
 | --------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `ThreeAdapter`  | Render a VectoUI `Scene` onto an offscreen canvas, expose it as a `THREE.CanvasTexture`, and wire pointer events via UV raycasting. The rest of your Three.js scene is untouched. |
-| `ThreeRenderer` | Use Three.js as the 2D rendering backend for a VectoUI `Scene` — fills, strokes, and text become Three.js meshes in an orthographic scene rather than Canvas 2D draw calls.       |
+| `ThreeAdapter`  | Render a VectoJS `Scene` onto an offscreen canvas, expose it as a `THREE.CanvasTexture`, and wire pointer events via UV raycasting. The rest of your Three.js scene is untouched. |
+| `ThreeRenderer` | Use Three.js as the 2D rendering backend for a VectoJS `Scene` — fills, strokes, and text become Three.js meshes in an orthographic scene rather than Canvas 2D draw calls.       |
 
 `ThreeAdapter` is the common path: you have a 3D scene and want a 2D UI panel floating on a surface. `ThreeRenderer` is for projects that already commit to Three.js and want hardware-accelerated 2D primitives with no Canvas 2D fallback.
 
@@ -20,7 +20,7 @@ Two exports, two distinct use cases:
 ## Installation
 
 ```sh
-bun add @vecto-ui/three three
+bun add @vectojs/three three
 ```
 
 For TypeScript projects, add the Three.js types:
@@ -33,7 +33,7 @@ bun add -d @types/three
 
 ## ThreeAdapter
 
-`ThreeAdapter` creates an offscreen `HTMLCanvasElement`, renders a VectoUI `Scene` onto it, wraps the result as a `THREE.CanvasTexture`, and gives you a ready-to-use `THREE.Mesh` (a unit `PlaneGeometry` with a `MeshBasicMaterial`). Pointer and scroll events from your Three.js event listeners are translated back into VectoUI canvas coordinates via raycasting.
+`ThreeAdapter` creates an offscreen `HTMLCanvasElement`, renders a VectoJS `Scene` onto it, wraps the result as a `THREE.CanvasTexture`, and gives you a ready-to-use `THREE.Mesh` (a unit `PlaneGeometry` with a `MeshBasicMaterial`). Pointer and scroll events from your Three.js event listeners are translated back into VectoJS canvas coordinates via raycasting.
 
 ### Constructor
 
@@ -56,9 +56,9 @@ interface ThreeAdapterOptions {
 
 | Property     | Type                  | Description                                                                                                                 |
 | ------------ | --------------------- | --------------------------------------------------------------------------------------------------------------------------- |
-| `texture`    | `THREE.CanvasTexture` | The texture wrapping the offscreen VectoUI canvas. Set `needsUpdate = true` automatically after every VectoUI render frame. |
-| `vectoScene` | `VectoScene`          | The active VectoUI `Scene` instance. Add entities to this.                                                                  |
-| `canvas`     | `HTMLCanvasElement`   | The offscreen canvas onto which VectoUI draws.                                                                              |
+| `texture`    | `THREE.CanvasTexture` | The texture wrapping the offscreen VectoJS canvas. Set `needsUpdate = true` automatically after every VectoJS render frame. |
+| `vectoScene` | `VectoScene`          | The active VectoJS `Scene` instance. Add entities to this.                                                                  |
+| `canvas`     | `HTMLCanvasElement`   | The offscreen canvas onto which VectoJS draws.                                                                              |
 | `mesh`       | `THREE.Mesh`          | Pre-built `PlaneGeometry(1, 1)` + `MeshBasicMaterial` mesh ready to drop into your Three.js scene.                          |
 
 ### Methods
@@ -73,11 +73,11 @@ updateIntersection(
 ): boolean
 ```
 
-Cast the ray against the adapter mesh, translate the UV hit into VectoUI canvas coordinates, and dispatch the event into the VectoUI scene. Returns `true` when the ray intersected the mesh.
+Cast the ray against the adapter mesh, translate the UV hit into VectoJS canvas coordinates, and dispatch the event into the VectoJS scene. Returns `true` when the ray intersected the mesh.
 
 Call this from within your Three.js render loop or pointer-event listeners. The adapter maintains per-`pointerId` hover state so WebXR controllers and multi-touch inputs each carry independent hover/focus contexts.
 
-**UV remapping**: Three.js UV coordinates have Y=0 at the bottom of a plane; VectoUI has Y=0 at the top. The adapter flips the Y axis automatically — you do not need to adjust coordinates.
+**UV remapping**: Three.js UV coordinates have Y=0 at the bottom of a plane; VectoJS has Y=0 at the top. The adapter flips the Y axis automatically — you do not need to adjust coordinates.
 
 #### `resize(width, height)`
 
@@ -97,12 +97,12 @@ Disposes the `THREE.CanvasTexture`, geometry, and material on the mesh, destroys
 
 ### Complete example
 
-The following example renders a VectoUI settings panel on a rotating plane in a Three.js scene. Pointer events from the `pointermove`, `pointerdown`, and `pointerup` DOM listeners are forwarded into VectoUI via `updateIntersection`.
+The following example renders a VectoJS settings panel on a rotating plane in a Three.js scene. Pointer events from the `pointermove`, `pointerdown`, and `pointerup` DOM listeners are forwarded into VectoJS via `updateIntersection`.
 
 ```ts
 import * as THREE from 'three';
-import { ThreeAdapter } from '@vecto-ui/three';
-import { Text, Button, Stack } from '@vecto-ui/ui';
+import { ThreeAdapter } from '@vectojs/three';
+import { Text, Button, Stack } from '@vectojs/ui';
 
 // --- Three.js scene setup ---
 const renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -114,7 +114,7 @@ const threeScene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 100);
 camera.position.set(0, 0, 3);
 
-// --- VectoUI panel adapter (512×256 logical pixels, displayed on a 2×1 plane) ---
+// --- VectoJS panel adapter (512×256 logical pixels, displayed on a 2×1 plane) ---
 const adapter = new ThreeAdapter({ width: 512, height: 256 });
 
 const heading = new Text('Settings', { font: '600 24px Inter', color: '#f8fafc' });
@@ -188,9 +188,9 @@ window.addEventListener('unload', () => adapter.dispose());
 
 ### How the adapter works internally
 
-The constructor monkey-patches `vectoScene.render` to set `texture.needsUpdate = true` after each VectoUI frame. Three.js then uploads the canvas to the GPU on the next `renderer.render()` call. No polling or manual sync is required.
+The constructor monkey-patches `vectoScene.render` to set `texture.needsUpdate = true` after each VectoJS frame. Three.js then uploads the canvas to the GPU on the next `renderer.render()` call. No polling or manual sync is required.
 
-Hit events dispatched by `updateIntersection` are forwarded to the entity's accessibility DOM element when one exists (which routes them through the a11y shadow layer and fires `click`/`change` on interactive components), or directly as `VectoUIEvent` objects otherwise.
+Hit events dispatched by `updateIntersection` are forwarded to the entity's accessibility DOM element when one exists (which routes them through the a11y shadow layer and fires `click`/`change` on interactive components), or directly as `VectoJSEvent` objects otherwise.
 
 ---
 
@@ -213,11 +213,11 @@ session.addEventListener('selectstart', (xrEvent) => {
 
 ## ThreeRenderer
 
-`ThreeRenderer` implements the `IRenderer` interface from `@vecto-ui/core` using Three.js — fills, strokes, and text are rendered as Three.js meshes and lines into an orthographic scene rather than Canvas 2D operations. Use it when Three.js is already in your project and you want the VectoUI scene itself rendered with the WebGL pipeline instead of Canvas 2D.
+`ThreeRenderer` implements the `IRenderer` interface from `@vectojs/core` using Three.js — fills, strokes, and text are rendered as Three.js meshes and lines into an orthographic scene rather than Canvas 2D operations. Use it when Three.js is already in your project and you want the VectoJS scene itself rendered with the WebGL pipeline instead of Canvas 2D.
 
 ### When to use
 
-- Your project has an existing `THREE.WebGLRenderer` and you want VectoUI's 2D content to render into the same WebGL context.
+- Your project has an existing `THREE.WebGLRenderer` and you want VectoJS's 2D content to render into the same WebGL context.
 - You need hardware-accelerated gradient fills backed by GLSL shaders.
 - You are benchmarking or experimenting with a pure-WebGL 2D pipeline.
 
@@ -232,7 +232,7 @@ new ThreeRenderer(canvas: HTMLCanvasElement)
 Creates:
 
 - `THREE.WebGLRenderer` with `{ canvas, alpha: true, antialias: true }`
-- `THREE.OrthographicCamera` with Y pointing down (top = 0, bottom = height) to match VectoUI's coordinate system
+- `THREE.OrthographicCamera` with Y pointing down (top = 0, bottom = height) to match VectoJS's coordinate system
 - Pixel ratio set to `window.devicePixelRatio` automatically
 
 ### Public properties
@@ -245,11 +245,11 @@ Creates:
 
 ### Usage
 
-Pass the renderer as the `renderer` option to the VectoUI `Scene` constructor:
+Pass the renderer as the `renderer` option to the VectoJS `Scene` constructor:
 
 ```ts
-import { Scene } from '@vecto-ui/core';
-import { ThreeRenderer } from '@vecto-ui/three';
+import { Scene } from '@vectojs/core';
+import { ThreeRenderer } from '@vectojs/three';
 
 const canvas = document.querySelector<HTMLCanvasElement>('#canvas')!;
 const threeRenderer = new ThreeRenderer(canvas);
@@ -277,7 +277,7 @@ scene.start();
 
 ### Linewidth caveat
 
-`THREE.LineBasicMaterial.linewidth` is **silently ignored by WebGL on most platforms** — lines are capped at 1 px regardless of the value passed to `stroke()`. This is a browser/GPU driver limitation, not a VectoUI restriction.
+`THREE.LineBasicMaterial.linewidth` is **silently ignored by WebGL on most platforms** — lines are capped at 1 px regardless of the value passed to `stroke()`. This is a browser/GPU driver limitation, not a VectoJS restriction.
 
 If your design requires thick strokes (> 1 px), consider:
 
@@ -325,11 +325,11 @@ adapter.mesh.scale.set(logicalWidth / 100, logicalHeight / 100, 1); // scale in 
 
 Then set `canvas.style.width` / `canvas.style.height` to logical pixels if the canvas is ever inserted into the DOM.
 
-### Pointer events have no effect on VectoUI components
+### Pointer events have no effect on VectoJS components
 
 `updateIntersection()` must be called on every frame where input should be processed — it is not enough to call it only in DOM event listeners, because the raycaster needs the current camera and mesh state at the time of the event. Confirm:
 
 1. `updateIntersection()` is called inside your render loop (or directly in pointer-event handlers with a freshly set raycaster).
 2. The raycaster's camera matches the camera used to render the scene.
 3. `adapter.mesh` is part of the Three.js scene graph when the ray is cast — orphan meshes (not added to the scene) are not intersected.
-4. `adapter.vectoScene.start()` has been called — VectoUI does not process events until the scene loop is running.
+4. `adapter.vectoScene.start()` has been called — VectoJS does not process events until the scene loop is running.

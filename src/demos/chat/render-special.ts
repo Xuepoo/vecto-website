@@ -1,6 +1,6 @@
 /**
  * Lazy-loads external renderers (Mermaid, KaTeX, abcjs) and converts their SVG
- * output into VectoUI Entity objects for embedding in the chat canvas transcript.
+ * output into VectoJS Entity objects for embedding in the chat canvas transcript.
  *
  * Each renderer is fetched from a CDN exactly once; subsequent calls reuse the
  * cached global. The returned entity is a BitmapBlock that draws the pre-loaded
@@ -11,7 +11,7 @@
  * library-generated SVG strings there is safe. Direct `.innerHTML` assignment is
  * intentionally avoided; library DOM APIs are used instead.
  */
-import { Entity, type Bounds, type IRenderer } from '@vecto-ui/core';
+import { Entity, type Bounds, type IRenderer } from '@vectojs/core';
 import type { SpecialType } from './segment';
 
 export type RenderSpecial = (

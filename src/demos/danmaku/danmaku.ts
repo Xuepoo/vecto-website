@@ -1,4 +1,4 @@
-import { Entity, type Bounds, type IRenderer } from '@vecto-ui/core';
+import { Entity, type Bounds, type IRenderer } from '@vectojs/core';
 import type { DanmakuType } from './corpus';
 import { danmakuBitmap } from './bitmap';
 

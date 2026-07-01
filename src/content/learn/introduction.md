@@ -1,14 +1,14 @@
 ---
-title: 'Introduction to VectoUI'
-description: 'What VectoUI is, why it exists, how its architecture differs from DOM-based frameworks, and when to use it.'
+title: 'Introduction to VectoJS'
+description: 'What VectoJS is, why it exists, how its architecture differs from DOM-based frameworks, and when to use it.'
 order: 1
 ---
 
-# Introduction to VectoUI
+# Introduction to VectoJS
 
-**VectoUI** is a mathematical UI rendering engine for the browser. It uses a pure JavaScript entity tree (the _Virtual Math Tree_) to compute layout, applies physics and animations entirely in memory, then paints the result to a `<canvas>`. There is no DOM involvement in the render path — no layout reflows, no style recalculations, no composite layers.
+**VectoJS** is a mathematical UI rendering engine for the browser. It uses a pure JavaScript entity tree (the _Virtual Math Tree_) to compute layout, applies physics and animations entirely in memory, then paints the result to a `<canvas>`. There is no DOM involvement in the render path — no layout reflows, no style recalculations, no composite layers.
 
-At the same time, VectoUI is fully accessible: for every interactive component, the engine projects an invisible real DOM node (a `<button>`, `<input>`, `<a>`, etc.) positioned over the canvas, so screen readers, keyboard navigation, and Playwright tests work without any extra adapters.
+At the same time, VectoJS is fully accessible: for every interactive component, the engine projects an invisible real DOM node (a `<button>`, `<input>`, `<a>`, etc.) positioned over the canvas, so screen readers, keyboard navigation, and Playwright tests work without any extra adapters.
 
 ## What problem does it solve?
 
@@ -18,13 +18,13 @@ The browser's DOM is a general-purpose document renderer. It is excellent for te
 - Layout has **tight math constraints** — spring physics, force-directed graphs, precision coordinate systems.
 - You target environments where **CSS layout is unavailable** — WebGL scenes, offscreen canvas, server-side SVG export.
 
-VectoUI trades the convenience of declarative CSS for predictable performance and complete layout control.
+VectoJS trades the convenience of declarative CSS for predictable performance and complete layout control.
 
 ## How it differs from other canvas frameworks
 
-Most canvas libraries give you a drawing API and leave layout, hit-testing, and accessibility to you. VectoUI provides a full component stack:
+Most canvas libraries give you a drawing API and leave layout, hit-testing, and accessibility to you. VectoJS provides a full component stack:
 
-| Layer             | VectoUI                                                | Typical Canvas Lib  |
+| Layer             | VectoJS                                                | Typical Canvas Lib  |
 | ----------------- | ------------------------------------------------------ | ------------------- |
 | **Layout**        | Pure-math entity tree, no reflow                       | Manual              |
 | **Hit-testing**   | Per-entity `isPointInside()`, O(N) depth-first         | Manual              |
@@ -36,7 +36,7 @@ Most canvas libraries give you a drawing API and leave layout, hit-testing, and 
 
 ## Architecture overview
 
-<img src="/images/vmt-architecture.svg" alt="Architecture overview: Scene drives an Entity tree through the rAF loop, physics, and IRenderer backends (Canvas2D, WebGL, WebGPU), projecting an A11y shadow DOM layer and consuming @vecto-ui/ui components" class="diagram" />
+<img src="/images/vmt-architecture.svg" alt="Architecture overview: Scene drives an Entity tree through the rAF loop, physics, and IRenderer backends (Canvas2D, WebGL, WebGPU), projecting an A11y shadow DOM layer and consuming @vectojs/ui components" class="diagram" />
 
 ### The Virtual Math Tree (VMT)
 
@@ -52,7 +52,10 @@ The Scene walks the tree every frame: translate → scale → rotate for each en
 
 ### The render loop
 
-<img src="/images/render-loop.svg" alt="Render loop: requestAnimationFrame triggers a per-entity loop of update, getBounds culling, save/transform, render, restore — then flushes WebGL batches and syncs A11y shadow DOM positions" class="diagram" />
+<figure>
+  <iframe src="/sandbox/diagram-pipeline.html" class="diagram-frame" loading="lazy" title="The VectoJS render loop: the six stages of one dirty frame, rendered live by VectoJS" sandbox="allow-scripts allow-same-origin"></iframe>
+  <figcaption>One requestAnimationFrame tick: update, cull, render, flush WebGL batches, then sync the A11y shadow DOM. <em>(Rendered live by VectoJS.)</em></figcaption>
+</figure>
 
 ### The A11y shadow layer
 
@@ -71,21 +74,21 @@ Screen readers discover these real elements. Playwright's `page.getByRole('butto
 
 ## Packages
 
-| Package           | Contents                                                                                    |
-| ----------------- | ------------------------------------------------------------------------------------------- |
-| `@vecto-ui/core`  | `Scene`, `Entity`, `LayoutEngine`, text/MSDF, particles, renderers, math utilities          |
-| `@vecto-ui/ui`    | High-level components: `Button`, `Input`, `Toggle`, `Markdown`, `ScrollView`, `Dropdown`, … |
-| `@vecto-ui/three` | Three.js / WebGL 3D renderer adapter                                                        |
+| Package          | Contents                                                                                    |
+| ---------------- | ------------------------------------------------------------------------------------------- |
+| `@vectojs/core`  | `Scene`, `Entity`, `LayoutEngine`, text/MSDF, particles, renderers, math utilities          |
+| `@vectojs/ui`    | High-level components: `Button`, `Input`, `Toggle`, `Markdown`, `ScrollView`, `Dropdown`, … |
+| `@vectojs/three` | Three.js / WebGL 3D renderer adapter                                                        |
 
 ## Features
 
 ### ECS architecture
 
-Every object in VectoUI is an `Entity` in the Virtual Math Tree. You add behavior by subclassing `Entity` and overriding `update(dt)` and `render(renderer)`. There are no opaque component registries — the entity tree is a plain JavaScript object graph with deterministic traversal order and full transform inheritance (translate → scale → rotate).
+Every object in VectoJS is an `Entity` in the Virtual Math Tree. You add behavior by subclassing `Entity` and overriding `update(dt)` and `render(renderer)`. There are no opaque component registries — the entity tree is a plain JavaScript object graph with deterministic traversal order and full transform inheritance (translate → scale → rotate).
 
 ### Zero DOM
 
-The entire UI tree lives inside a single `<canvas>` element. No matter how many animated objects, buttons, or text blocks the scene contains, the DOM node count stays flat. Browser CSS layout never fires for canvas content — VectoUI's own math engine replaces the box model entirely.
+The entire UI tree lives inside a single `<canvas>` element. No matter how many animated objects, buttons, or text blocks the scene contains, the DOM node count stays flat. Browser CSS layout never fires for canvas content — VectoJS's own math engine replaces the box model entirely.
 
 ### Hot/cold LayoutEngine with bidirectional text support
 
@@ -93,7 +96,7 @@ Text layout runs in two phases. `prepare()` (cold) measures glyph widths and bui
 
 ### WebGL and WebGPU hardware acceleration
 
-Same-color, same-alpha shapes on the WebGL point layer are coalesced into a single `gl.drawArrays()` call. WebGPU compute shaders simulate up to 1,000,000 spring particles on the GPU, bypassing the CPU entirely. VectoUI avoids the overhead of rendering massive numbers of DOM nodes by keeping everything on the canvas. Peak measured: 150,000 particles at 238 fps on a mid-range desktop GPU.
+Same-color, same-alpha shapes on the WebGL point layer are coalesced into a single `gl.drawArrays()` call. WebGPU compute shaders simulate up to 1,000,000 spring particles on the GPU, bypassing the CPU entirely. VectoJS avoids the overhead of rendering massive numbers of DOM nodes by keeping everything on the canvas. Peak measured: 150,000 particles at 238 fps on a mid-range desktop GPU.
 
 ### `a11yRoot` — full parity with standard web pages
 
@@ -101,23 +104,23 @@ A transparent overlay `<div>` positioned above the canvas holds a real `<button>
 
 ### Low memory footprint
 
-A single DOM node carries style state, layout state, event listener chains, and accessibility data. VectoUI with 10,000 entities allocates a handful of real DOM nodes: the `<canvas>` element, the `a11yRoot` overlay, and shadow nodes only for currently-interactive entities. Particle simulation data lives in a contiguous `Float32Array` — no per-particle heap objects, no garbage collection pressure.
+A single DOM node carries style state, layout state, event listener chains, and accessibility data. VectoJS with 10,000 entities allocates a handful of real DOM nodes: the `<canvas>` element, the `a11yRoot` overlay, and shadow nodes only for currently-interactive entities. Particle simulation data lives in a contiguous `Float32Array` — no per-particle heap objects, no garbage collection pressure.
 
 ### Highly customizable
 
-`Entity` is an open base class. `render(renderer: IRenderer)` gives access to path drawing, gradients, image compositing, and clipping. Effects that require CSS hacks — irregular shapes, canvas-to-canvas blending, pixel-perfect concave hit testing — are straightforward in VectoUI because the render path is plain JavaScript with no style system in the way.
+`Entity` is an open base class. `render(renderer: IRenderer)` gives access to path drawing, gradients, image compositing, and clipping. Effects that require CSS hacks — irregular shapes, canvas-to-canvas blending, pixel-perfect concave hit testing — are straightforward in VectoJS because the render path is plain JavaScript with no style system in the way.
 
 ### Built-in component library
 
-`@vecto-ui/ui` ships `Button`, `Input`, `Toggle`, `Slider`, `Dropdown`, `ScrollView`, `Table`, `Markdown`, `Modal`, `Stack`, `Flow`, and more. Every component is a plain `Entity` subclass — extend it, override `render()`, change layout behavior, or compose components freely.
+`@vectojs/ui` ships `Button`, `Input`, `Toggle`, `Slider`, `Dropdown`, `ScrollView`, `Table`, `Markdown`, `Modal`, `Stack`, `Flow`, and more. Every component is a plain `Entity` subclass — extend it, override `render()`, change layout behavior, or compose components freely.
 
 ### Native Markdown rendering optimized for streaming
 
-The `Markdown` component renders GitHub Flavored Markdown (tables, task lists, fenced code, links, images) via VectoUI's LayoutEngine. `appendMarkdown(delta)` processes only the changed paragraph boundary on each call — O(changed paragraph), not O(document). Suitable for LLM token streaming at hundreds of tokens per second. Math (via MathJax), Mermaid diagrams, and ABC musical notation are exported to SVG and rendered as engine `Image` entities.
+The `Markdown` component renders GitHub Flavored Markdown (tables, task lists, fenced code, links, images) via VectoJS's LayoutEngine. `appendMarkdown(delta)` processes only the changed paragraph boundary on each call — O(changed paragraph), not O(document). Suitable for LLM token streaming at hundreds of tokens per second. Math (via MathJax), Mermaid diagrams, and ABC musical notation are exported to SVG and rendered as engine `Image` entities.
 
 ### High compatibility
 
-VectoUI produces a `<canvas>` element that fits anywhere: React `useEffect`, Vue `onMounted`, Angular `ngAfterViewInit`, or a plain `<script>`. It does not conflict with surrounding CSS layout. `scene.resize()` handles responsive layouts; device pixel ratio scaling is automatic. Libraries like React, Vue, and Angular can import VectoUI directly.
+VectoJS produces a `<canvas>` element that fits anywhere: React `useEffect`, Vue `onMounted`, Angular `ngAfterViewInit`, or a plain `<script>`. It does not conflict with surrounding CSS layout. `scene.resize()` handles responsive layouts; device pixel ratio scaling is automatic. Libraries like React, Vue, and Angular can import VectoJS directly.
 
 ### Configurable maxFPS with idle throttling
 
@@ -125,7 +128,7 @@ VectoUI produces a `<canvas>` element that fits anywhere: React `useEffect`, Vue
 
 ### Three.js adapter for 3D effects
 
-`ThreeAdapter` renders a full VectoUI scene onto an offscreen canvas and uploads it as a `THREE.CanvasTexture` on any Three.js mesh. UV coordinates from Three.js raycasts are mapped back through VectoUI's hit-test system, so canvas buttons and inputs work on 3D surfaces and in WebXR sessions.
+`ThreeAdapter` renders a full VectoJS scene onto an offscreen canvas and uploads it as a `THREE.CanvasTexture` on any Three.js mesh. UV coordinates from Three.js raycasts are mapped back through VectoJS's hit-test system, so canvas buttons and inputs work on 3D surfaces and in WebXR sessions.
 
 ### Zero-GC and contiguous memory
 
@@ -145,7 +148,7 @@ Consecutive same-color, same-alpha sibling entities on the WebGL point layer mer
 
 ### Native mathematical curve rendering
 
-The `IRenderer` interface exposes Bézier path commands (`moveTo`, `lineTo`, `bezierCurveTo`, `arcTo`). Vectomancy — the curve engine underlying VectoUI — approximates arbitrary parametric and spline curves as polylines with configurable precision, enabling smooth shapes that canvas `arc()` alone cannot express.
+The `IRenderer` interface exposes Bézier path commands (`moveTo`, `lineTo`, `bezierCurveTo`, `arcTo`). Vectomancy — the curve engine underlying VectoJS — approximates arbitrary parametric and spline curves as polylines with configurable precision, enabling smooth shapes that canvas `arc()` alone cannot express.
 
 ### 2.5D pseudo-3D depth sorting
 
@@ -153,17 +156,17 @@ An optional depth pass orders entities by their `z` property before rendering, e
 
 ### Small bundle with modular imports
 
-`@vecto-ui/core` is split into subpath exports: `@vecto-ui/core/layout` (LayoutEngine only), `@vecto-ui/core/renderer` (Canvas2D renderer only). WebGL and WebGPU backends register via `Scene.registerWebGL()` / `Scene.registerWebGPU()` — omit them for a pure Canvas2D build with no GPU code in the bundle. Users can choose not to import specific modules they don't need.
+`@vectojs/core` is split into subpath exports: `@vectojs/core/layout` (LayoutEngine only), `@vectojs/core/renderer` (Canvas2D renderer only). WebGL and WebGPU backends register via `Scene.registerWebGL()` / `Scene.registerWebGPU()` — omit them for a pure Canvas2D build with no GPU code in the bundle. Users can choose not to import specific modules they don't need.
 
 ### Automation and framework friendly
 
-The `a11yRoot` shadow layer means Playwright's `page.getByRole('button', { name })` finds VectoUI buttons by ARIA role — test automation is identical to testing a standard webpage. Selenium, Cypress, and AI agent frameworks work the same way. React, Vue, Angular, and Svelte can all import VectoUI directly.
+The `a11yRoot` shadow layer means Playwright's `page.getByRole('button', { name })` finds VectoJS buttons by ARIA role — test automation is identical to testing a standard webpage. Selenium, Cypress, and AI agent frameworks work the same way. React, Vue, Angular, and Svelte can all import VectoJS directly.
 
 ---
 
 ## Use cases
 
-VectoUI solves problems where the DOM breaks down. These are the environments it was designed for.
+VectoJS solves problems where the DOM breaks down. These are the environments it was designed for.
 
 ### Data visualization and real-time dashboards
 
@@ -175,19 +178,19 @@ Charts, topology viewers, and tables that update on every data tick. Adding 800 
 
 Paragraph-level memoization makes text append O(changed paragraph), not O(document). The `Markdown` component's `appendMarkdown()` re-lexes only the last token boundary and updates the visible result with a single `markDirty()` call.
 
-DOM-based danmaku solutions choke past ~200 concurrent comment elements because each element triggers a layout pass. VectoUI danmaku sustains 5,000+ live comments at 60 fps because canvas entities have no layout cost.
+DOM-based danmaku solutions choke past ~200 concurrent comment elements because each element triggers a layout pass. VectoJS danmaku sustains 5,000+ live comments at 60 fps because canvas entities have no layout cost.
 
 **Examples:** LLM chat clients, real-time video comment overlays (danmaku/Niconico-style), K8s event feeds, live stream chatrooms.
 
 ### Infinite canvases and knowledge graphs
 
-Collaborative whiteboards, node-edge knowledge graphs, and design tools use VectoUI's O(1) spatial index to cull offscreen entities entirely. Users can pan and zoom through millions of nodes without the browser re-rendering what is not visible. The `a11yRoot` shadow layer keeps keyboard navigation working even on canvases with thousands of interactive nodes.
+Collaborative whiteboards, node-edge knowledge graphs, and design tools use VectoJS's O(1) spatial index to cull offscreen entities entirely. Users can pan and zoom through millions of nodes without the browser re-rendering what is not visible. The `a11yRoot` shadow layer keeps keyboard navigation working even on canvases with thousands of interactive nodes.
 
 **Examples:** collaborative whiteboards, knowledge graphs, mind maps, Figma/Miro/Excalidraw-style design tools.
 
 ### Web games and interactive media
 
-VectoUI's `update(dt)` loop, spring physics, `ComputeParticleEntity`, and `animate()` tweens provide the primitives a browser game needs without a full game engine. Game controls still work via keyboard and can be tested by automation tools because interactive entities project real ARIA shadow nodes.
+VectoJS's `update(dt)` loop, spring physics, `ComputeParticleEntity`, and `animate()` tweens provide the primitives a browser game needs without a full game engine. Game controls still work via keyboard and can be tested by automation tools because interactive entities project real ARIA shadow nodes.
 
 The same architecture works for educational explainer animations — a web-native alternative to Remotion and Manim that runs directly in the browser without a video pipeline.
 
@@ -195,40 +198,40 @@ The same architecture works for educational explainer animations — a web-nativ
 
 ### Web-based text editors and developer tools
 
-Canvas-based editors like `vscode.dev` use canvas because the browser's text layout engine cannot be controlled at the character level. VectoUI provides the layout engine, input handling via real `<input>` shadow nodes for IME, and the accessibility layer a full editor needs — without writing a bespoke canvas framework from scratch.
+Canvas-based editors like `vscode.dev` use canvas because the browser's text layout engine cannot be controlled at the character level. VectoJS provides the layout engine, input handling via real `<input>` shadow nodes for IME, and the accessibility layer a full editor needs — without writing a bespoke canvas framework from scratch.
 
 **Examples:** code editors, rich-text editors, terminal emulators, diff viewers.
 
 ### Privacy-sensitive and scraping-resistant interfaces
 
-Because VectoUI renders content to a pixel buffer rather than a DOM tree, there is no structured HTML for scraping bots to parse. This property is valuable for premium content protection, anti-bot surfaces, and CAPTCHA-alternative applications. Advanced implementations can take this further with pixel-level watermarking and anti-cheat layers.
+Because VectoJS renders content to a pixel buffer rather than a DOM tree, there is no structured HTML for scraping bots to parse. This property is valuable for premium content protection, anti-bot surfaces, and CAPTCHA-alternative applications. Advanced implementations can take this further with pixel-level watermarking and anti-cheat layers.
 
 ### WebXR and immersive spatial UIs
 
-`ThreeAdapter` renders a full VectoUI scene as a `THREE.CanvasTexture` on any Three.js mesh. In a WebXR session, a VectoUI panel can float as a 3D plane in the user's field of view, with pointer-event routing via UV raycasting from XR controllers.
+`ThreeAdapter` renders a full VectoJS scene as a `THREE.CanvasTexture` on any Three.js mesh. In a WebXR session, a VectoJS panel can float as a 3D plane in the user's field of view, with pointer-event routing via UV raycasting from XR controllers.
 
 **Examples:** VR/AR spatial dashboards, in-world terminal screens, head-up display instrument clusters.
 
 ### Everything a Pretext-style renderer handles, and more
 
-VectoUI covers everything Pretext can render — mathematical curves, Bézier-spline paths, parametric shapes, precise coordinate-system layouts — and adds an event system, accessibility layer, component library, and physics engine on top. If you were using Pretext for interactive or web-targeted output, VectoUI is the natural upgrade path.
+VectoJS covers everything Pretext can render — mathematical curves, Bézier-spline paths, parametric shapes, precise coordinate-system layouts — and adds an event system, accessibility layer, component library, and physics engine on top. If you were using Pretext for interactive or web-targeted output, VectoJS is the natural upgrade path.
 
 ### Advanced and unconventional interactive websites
 
-Tech-focused product sites and portfolio pages that want to go beyond what CSS alone can produce: physics-driven layouts, cursor-reactive particle fields, magnetic typography, real-time generative art integrated with page content. VectoUI makes these possible while keeping the surrounding HTML/CSS structure intact — the canvas sits inside a normal webpage.
+Tech-focused product sites and portfolio pages that want to go beyond what CSS alone can produce: physics-driven layouts, cursor-reactive particle fields, magnetic typography, real-time generative art integrated with page content. VectoJS makes these possible while keeping the surrounding HTML/CSS structure intact — the canvas sits inside a normal webpage.
 
 ---
 
-## When not to use VectoUI
+## When not to use VectoJS
 
-VectoUI is a **low-level building block**, not a page framework. It is not the right tool when:
+VectoJS is a **low-level building block**, not a page framework. It is not the right tool when:
 
 - You are building a mostly-text website or blog (use HTML + CSS).
 - Your UI is data-driven forms with standard validation (use React/Vue/Svelte).
 - You need SEO crawlability of rendered content (use SSR HTML).
 - You do not need custom layout math or high entity counts.
 
-VectoUI shines when you need **canvas-level control** with **production-grade infrastructure** (events, accessibility, text, physics) that you would otherwise build yourself.
+VectoJS shines when you need **canvas-level control** with **production-grade infrastructure** (events, accessibility, text, physics) that you would otherwise build yourself.
 
 ## Challenges
 
@@ -242,7 +245,7 @@ Trace the full path from a user clicking the canvas to a frame being painted and
 
 ### Identify use cases
 
-Given three app descriptions, decide whether VectoUI is the right tool for each and justify your reasoning using the trade-offs described in this page.
+Given three app descriptions, decide whether VectoJS is the right tool for each and justify your reasoning using the trade-offs described in this page.
 
 - **App A**: A company blog with long-form articles, images, and a comment section. The content is mostly static text, refreshed by a CMS on each page load.
 - **App B**: A real-time network topology viewer displaying 800+ animated nodes and edges, with physics-based layout that updates on every data tick.
@@ -258,6 +261,6 @@ Before running any profiler, predict which of the three scenarios below would be
 
 ## Next steps
 
-- [Mathematical Foundations](/learn/math-foundations/) — the linear algebra, spline geometry, and ODE solvers powering VectoUI.
+- [Mathematical Foundations](/learn/math-foundations/) — the linear algebra, spline geometry, and ODE solvers powering VectoJS.
 - [Getting Started](/learn/getting-started/) — install and create your first scene.
 - [Core Scene](/learn/core-scene/) — the render loop, entities, and transforms in depth.

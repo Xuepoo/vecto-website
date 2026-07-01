@@ -1,4 +1,4 @@
-import { Entity, type Scene } from '@vecto-ui/core';
+import { Entity, type Scene } from '@vectojs/core';
 import { Danmaku } from './danmaku';
 import { LaneManager } from './lane';
 import { Pool } from './pool';

@@ -1,17 +1,17 @@
 ---
 title: 'Events & Hit-Testing'
-description: 'How pointer and keyboard events flow through the VectoUI entity tree: capture, bubble, VectoUIEvent, form change payloads, and findEntityAt.'
+description: 'How pointer and keyboard events flow through the VectoJS entity tree: capture, bubble, VectoJSEvent, form change payloads, and findEntityAt.'
 order: 5
 ---
 
 # Events & Hit-Testing
 
-VectoUI uses a DOM-like **capture + bubble** event model. If you have used browser `addEventListener`, the mechanics are identical — but the tree traversal runs over the Virtual Math Tree rather than the DOM.
+VectoJS uses a DOM-like **capture + bubble** event model. If you have used browser `addEventListener`, the mechanics are identical — but the tree traversal runs over the Virtual Math Tree rather than the DOM.
 
 ## Try it live
 
 <figure class="sandbox">
-  <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · vecto-ui@0.9</span></div>
+  <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · vectojs@0.9</span></div>
   <iframe src="/sandbox/events.html" class="sandbox-frame" loading="lazy" title="Events & Hit-Testing interactive example" sandbox="allow-scripts allow-same-origin"></iframe>
   <figcaption>Three custom Entity subclasses — hover to scale, click to count. Each wires <code>on('hover')</code>, <code>on('pointerleave')</code>, and <code>on('click')</code>.</figcaption>
 </figure>
@@ -26,8 +26,8 @@ When the user clicks (or taps, or hovers) on the canvas, the Scene:
 4. Runs the **bubble phase**: fires listeners (default phase) from the target back up to the root.
 
 <figure>
-  <img src="/images/event-capture-bubble.svg" alt="Diagram showing capture phase descending root→button (blue arrow) and bubble phase ascending button→root (orange arrow), with the button node highlighted as target" class="diagram" />
-  <figcaption>Capture fires root → target; bubble fires target → root. The target receives both.</figcaption>
+  <iframe src="/sandbox/diagram-events.html" class="diagram-frame" loading="lazy" title="Event capture and bubble phases, rendered live by VectoJS" sandbox="allow-scripts allow-same-origin"></iframe>
+  <figcaption>Capture fires root → target; bubble fires target → root. The target receives both. <em>(Rendered live by VectoJS.)</em></figcaption>
 </figure>
 
 ## Listening for events
@@ -71,12 +71,12 @@ Available event types:
 | `'focus'`        | Shadow DOM node gained focus               |
 | `'blur'`         | Shadow DOM node lost focus                 |
 
-## VectoUIEvent
+## VectoJSEvent
 
-The callback receives a `VectoUIEvent` with these members:
+The callback receives a `VectoJSEvent` with these members:
 
 ```typescript
-interface VectoUIEvent {
+interface VectoJSEvent {
   type: string; // event name
   target: Entity; // entity where the event originated
   currentTarget: Entity; // entity whose listener is currently running
@@ -111,12 +111,12 @@ interface VectoUIEvent {
 
 ## `emit()` vs `dispatchEvent()`
 
-VectoUI has two dispatch paths:
+VectoJS has two dispatch paths:
 
 | Method                               | What it does                                                                |
 | ------------------------------------ | --------------------------------------------------------------------------- |
 | `entity.emit(event, payload)`        | Fires **this entity's own bubble-phase listeners only**. No tree traversal. |
-| `entity.dispatchEvent(vectoUIEvent)` | Full DOM-like **capture + bubble** traversal across the tree.               |
+| `entity.dispatchEvent(vectoJSEvent)` | Full DOM-like **capture + bubble** traversal across the tree.               |
 
 `emit()` is how built-in components signal their own state changes internally (e.g., a `Toggle` emitting its own `'change'`). You almost never call `dispatchEvent()` directly — the `Scene` calls it for pointer and keyboard events coming from the browser.
 
@@ -289,8 +289,8 @@ panel.on(
 ## Full example: hover card
 
 ```typescript
-import { Entity } from '@vecto-ui/core';
-import type { IRenderer } from '@vecto-ui/core/renderer';
+import { Entity } from '@vectojs/core';
+import type { IRenderer } from '@vectojs/core/renderer';
 
 class HoverCard extends Entity {
   private hovered = false;

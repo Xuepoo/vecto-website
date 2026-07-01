@@ -1,5 +1,5 @@
-import { Entity } from '@vecto-ui/core';
-import { Markdown, Stack, type MarkdownTheme } from '@vecto-ui/ui';
+import { Entity } from '@vectojs/core';
+import { Markdown, Stack, type MarkdownTheme } from '@vectojs/ui';
 import { segmentMarkdown, type SpecialType } from './segment';
 
 export type RenderSpecial = (

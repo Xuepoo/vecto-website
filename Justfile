@@ -17,7 +17,7 @@ deploy: test
     @echo "=== Building Astro site ==="
     @bun run build
     @echo "=== Deploying to Cloudflare Pages ==="
-    @./scripts/deploy-pages.sh dist vecto-ui main
+    @./scripts/deploy-pages.sh dist vectojs main
 
 commit message="":
     @if [ -z "{{message}}" ]; then \

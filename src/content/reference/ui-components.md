@@ -1,12 +1,12 @@
 ---
-title: '@vecto-ui/ui Component Reference'
-description: 'Complete reference for all @vecto-ui/ui components: layout containers, form controls, overlays, and rich content.'
+title: '@vectojs/ui Component Reference'
+description: 'Complete reference for all @vectojs/ui components: layout containers, form controls, overlays, and rich content.'
 order: 2
 ---
 
-# `@vecto-ui/ui` — Component Reference
+# `@vectojs/ui` — Component Reference
 
-> Reusable high-level components for the VectoUI zero-DOM Canvas engine.
+> Reusable high-level components for the VectoJS zero-DOM Canvas engine.
 > Version documented: **0.4.2**. Source of truth: `dist/index.d.ts` (public surface) and `packages/ui/src/*` (behavior).
 
 Every component is a leaf or container in the Virtual Math Tree (VMT). Nothing here is real DOM — components draw themselves to a Canvas via an `IRenderer`. Accessibility, agent automation, and crawlability come from a parallel **A11y Shadow DOM**: when a component is `interactive`, the `Scene` projects a single hidden, transparent real DOM node positioned over the component's box, built from `getA11yAttributes()`. That is why `page.getByRole('button', { name })` / `fill()` / screen readers work against a pure-Canvas UI.
@@ -46,7 +46,7 @@ Centralizes the box model + axis-aligned (AABB) hit-test shared by every compone
 
 ### `getA11yAttributes(): A11yAttributes`
 
-The hook every interactive component overrides. The returned shape (from `@vecto-ui/core`) drives the projected shadow node:
+The hook every interactive component overrides. The returned shape (from `@vectojs/core`) drives the projected shadow node:
 
 ```ts
 interface A11yAttributes {
@@ -262,7 +262,7 @@ interface ImageOptions {
 }
 ```
 
-Draws via `drawImage`; projects `{ tag: 'img', src, alt, label: alt }`. Loading is async — a placeholder box is drawn until ready. In `onDemand` scenes pass `onLoad: () => scene.markDirty()` to repaint on load. (Shadows `globalThis.Image`; reference the class as `import { Image } from '@vecto-ui/ui'`.)
+Draws via `drawImage`; projects `{ tag: 'img', src, alt, label: alt }`. Loading is async — a placeholder box is drawn until ready. In `onDemand` scenes pass `onLoad: () => scene.markDirty()` to repaint on load. (Shadows `globalThis.Image`; reference the class as `import { Image } from '@vectojs/ui'`.)
 
 ### `Input`
 

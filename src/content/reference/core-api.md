@@ -1,10 +1,10 @@
 ---
-title: '@vecto-ui/core API Reference'
+title: '@vectojs/core API Reference'
 description: 'Complete API reference for Scene, Entity, LayoutEngine, renderers, particles, text, and math utilities.'
 order: 1
 ---
 
-# `@vecto-ui/core` API Reference
+# `@vectojs/core` API Reference
 
 The zero-DOM rendering engine behind Vecto. A `Scene` owns a tree of `Entity`
 nodes (the **Virtual Math Tree**), drives a `requestAnimationFrame` loop, paints
@@ -20,15 +20,15 @@ agent-drivable.
 
 ## Entry points & module map
 
-`@vecto-ui/core` ships one side-effecting main entry plus three tree-shakeable
+`@vectojs/core` ships one side-effecting main entry plus three tree-shakeable
 subpaths:
 
-| Import                    | Contents                                                                                                                                              | Side effect                                                                                             |
-| ------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
-| `@vecto-ui/core` (`.`)    | Everything: `Scene`, `Entity`, all entities, renderers, layout, text.                                                                                 | On import, auto-registers **both** pluggable backends (WebGL point renderer + WebGPU particle manager). |
-| `@vecto-ui/core/layout`   | `LayoutEngine`, `PreparedText`, `createCanvasMeasurer`, `LayoutResultBuffer`, `LayoutWorkerManager`, `computeLineSegments`, layout types.             | None.                                                                                                   |
-| `@vecto-ui/core/renderer` | `IRenderer`, `CanvasRenderer`, `SVGRenderer`, `PointRenderer`, `createWebGLPointRenderer`, `WebGPUParticleSystemManager`, `parseColorToRGBA`, `RGBA`. | None.                                                                                                   |
-| `@vecto-ui/core/text`     | `MSDFFont`, `MSDFTextEntity`, `SVGEntity`, `ArabicShaper`, `BidiResolver`, MSDF types.                                                                | None.                                                                                                   |
+| Import                   | Contents                                                                                                                                              | Side effect                                                                                             |
+| ------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| `@vectojs/core` (`.`)    | Everything: `Scene`, `Entity`, all entities, renderers, layout, text.                                                                                 | On import, auto-registers **both** pluggable backends (WebGL point renderer + WebGPU particle manager). |
+| `@vectojs/core/layout`   | `LayoutEngine`, `PreparedText`, `createCanvasMeasurer`, `LayoutResultBuffer`, `LayoutWorkerManager`, `computeLineSegments`, layout types.             | None.                                                                                                   |
+| `@vectojs/core/renderer` | `IRenderer`, `CanvasRenderer`, `SVGRenderer`, `PointRenderer`, `createWebGLPointRenderer`, `WebGPUParticleSystemManager`, `parseColorToRGBA`, `RGBA`. | None.                                                                                                   |
+| `@vectojs/core/text`     | `MSDFFont`, `MSDFTextEntity`, `SVGEntity`, `ArabicShaper`, `BidiResolver`, MSDF types.                                                                | None.                                                                                                   |
 
 **Gotcha:** the backend auto-registration lives only in the `.` entry
 (`Scene.registerWebGLPointRendererCreator(createWebGLPointRenderer)` and
@@ -70,7 +70,7 @@ no-op so headless layout / `toSVG()` still work.
 | `respectReducedMotion` | `boolean`                     | `true`           | When the OS requests `prefers-reduced-motion`, cap to `REDUCED_MOTION_FPS` (30) — or the lower of that and `maxFPS`. `false` ignores the OS setting.                                                                                                                                                                                                  |
 | `a11ySyncInterval`     | `number`                      | `0`              | Throttle the a11y shadow-DOM sync to at most once per N ms. `0` = sync every rendered frame. A small value (e.g. `100`) keeps the a11y layer eventually consistent during heavy animation while sparing per-frame DOM writes. Also live via `scene.a11ySyncInterval`.                                                                                 |
 | `debugA11y`            | `boolean`                     | `false`          | Render shadow nodes with a blue dashed outline (dev aid) instead of `opacity:0`. They stay clickable by automation either way.                                                                                                                                                                                                                        |
-| `renderer`             | `IRenderer`                   | `CanvasRenderer` | Custom renderer (e.g. `ThreeRenderer` from `@vecto-ui/three`).                                                                                                                                                                                                                                                                                        |
+| `renderer`             | `IRenderer`                   | `CanvasRenderer` | Custom renderer (e.g. `ThreeRenderer` from `@vectojs/three`).                                                                                                                                                                                                                                                                                         |
 | `disableWindowResize`  | `boolean`                     | `false`          | Skip the auto `window` resize listener. Use inside a custom layout container / offscreen canvas, then drive size with `resize(w, h)`.                                                                                                                                                                                                                 |
 
 Note: `renderMode` is a **public field** (default `'always'`), not a constructor
@@ -241,12 +241,12 @@ type VectoEvent =
 on(event: VectoEvent, cb: (e: any) => void, options?: { capture?: boolean }): this
 off(event: VectoEvent, cb: (e: any) => void, options?: { capture?: boolean }): this
 emit(event: VectoEvent, payload: any): void          // self-only, bubble-phase listeners (legacy/component-internal)
-dispatchEvent(event: VectoUIEvent): void             // DOM-style capture (root→target) then bubble (target→root)
+dispatchEvent(event: VectoJSEvent): void             // DOM-style capture (root→target) then bubble (target→root)
 ```
 
 - `on`/`off` default to the **bubble** phase; pass `{ capture: true }` for the
   capture phase. Bubble listeners also fire for the legacy `emit()` path.
-- `VectoUIEvent<N>` wraps a `nativeEvent` and adds `target`, `currentTarget`,
+- `VectoJSEvent<N>` wraps a `nativeEvent` and adds `target`, `currentTarget`,
   `bubbles`, `stopPropagation()`, `stopImmediatePropagation()`,
   `preventDefault()`, and pass-throughs (`deltaX/Y`, `clientX/Y`, `key`,
   `defaultPrevented`). A non-bubbling event still runs the capture phase but only
@@ -272,7 +272,7 @@ restore`; runs of same-color siblings coalesce into one `fill()`.
 
 ---
 
-## Layout engine (cold/hot split) — `@vecto-ui/core/layout`
+## Layout engine (cold/hot split) — `@vectojs/core/layout`
 
 `LayoutEngine` separates the expensive **cold** pass (segment + measure, via
 `Intl.Segmenter`) from the cheap **hot** pass (wrap + position arithmetic), so
@@ -325,7 +325,7 @@ fallbackToCanvas? }`; `LayoutNode` is one positioned glyph.
 
 ---
 
-## Renderers — `@vecto-ui/core/renderer`
+## Renderers — `@vectojs/core/renderer`
 
 ### IRenderer
 
@@ -493,7 +493,7 @@ authors.
 
 ---
 
-## Text & Bidi — `@vecto-ui/core/text`
+## Text & Bidi — `@vectojs/core/text`
 
 ### MSDFFont
 
@@ -586,11 +586,11 @@ new DOMPortalEntity(domElement: HTMLElement, width?, height?, id?)
 Projects a **real** DOM element positioned/transformed to track the entity
 (`matrix(...)` + z-index from paint order) in the portal layer. A leaf node —
 `add()` warns and child entities are unsupported. Forwards native pointer/wheel/
-focus events as `VectoUIEvent`s. Uses a `ResizeObserver` to cache intrinsic size
+focus events as `VectoJSEvent`s. Uses a `ResizeObserver` to cache intrinsic size
 (`cachedWidth`/`cachedHeight`) when `width`/`height` are 0. `destroy()` detaches
 listeners, the observer, and removes the element.
 
-### SVGEntity (from `@vecto-ui/core/text`)
+### SVGEntity (from `@vectojs/core/text`)
 
 ```ts
 new SVGEntity(svgSource: string, id?)
@@ -671,7 +671,7 @@ accessibility**" story: visuals are 100% GPU/canvas, yet a Playwright/agent
   idle 2-fps throttle and the `markDirty()`-between-frames rule, reduced motion.
 - **Learn / Building a custom Entity** — `isPointInside`/`render`, transforms,
   `getBounds` culling, the `getBatchCircle`/`getBatchRect` fast-paths.
-- **Learn / Events & hit-testing** — capture/bubble, `VectoUIEvent`,
+- **Learn / Events & hit-testing** — capture/bubble, `VectoJSEvent`,
   `findEntityAt`, form-control `change`/IME.
 - **Learn / Accessibility & automation** — the shadow-DOM contract,
   `getByRole`-driven agents, `debugA11y`, throttling.

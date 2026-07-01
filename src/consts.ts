@@ -1,13 +1,24 @@
 /** Site-wide constants, demo registry, and docs navigation (single source of truth). */
+
+/**
+ * A per-build cache-busting token for unhashed static assets (`/css/*`). Astro
+ * evaluates this ONCE at build time and bakes it into every generated page, so a
+ * redeploy always produces a new `?v=` URL. This matters because `Cache-Control`
+ * headers can't retroactively invalidate a copy a browser already cached under an
+ * older policy — changing the URL is the only thing that guarantees every visitor
+ * fetches the new file immediately, regardless of what they'd cached before.
+ */
+export const BUILD_ID = Date.now().toString(36);
+
 export const VERSIONS = {
   core: '0.9.2',
   ui: '0.4.2',
 } as const;
 
 export const SITE = {
-  title: 'VectoUI',
+  title: 'VectoJS',
   description: 'A mathematical UI rendering framework driven by Vectomancy',
-  github: 'https://github.com/Xuepoo/vecto-ui',
+  github: 'https://github.com/vectojs/vectojs',
 };
 
 export interface DemoMeta {
@@ -29,7 +40,7 @@ export const DEMOS: DemoMeta[] = [
     slug: 'nexus',
     title: 'Nexus — a WebGPU particle field',
     description:
-      'Tens of thousands of particles simulated on a WebGPU compute pass — springing into the word “VectoUI”, flowing away from your cursor, with a transparent CPU fallback.',
+      'Tens of thousands of particles simulated on a WebGPU compute pass — springing into the word “VectoJS”, flowing away from your cursor, with a transparent CPU fallback.',
     tag: 'WebGPU · Compute · particles',
   },
   {
@@ -40,11 +51,18 @@ export const DEMOS: DemoMeta[] = [
     tag: 'Streaming · Markdown · a11y',
   },
   {
-    slug: 'pool',
-    title: 'Pool CAPTCHA',
+    slug: 'catch',
+    title: 'Fruit Catch',
     description:
-      'A pool-table CAPTCHA: aim and shoot the cue ball into the highlighted pocket. The entire table is canvas 2D — the only DOM element is the cue stick div itself.',
-    tag: 'Interaction · Physics · CAPTCHA',
+      'A falling-fruit catcher, osu!Catch-style: move the plate with your mouse or arrow keys to grab the fruit the goal asks for. Zero DOM — fruit, catcher, HUD, and win screen are one canvas Entity.',
+    tag: 'Interaction · Game · Zero-DOM',
+  },
+  {
+    slug: 'graph',
+    title: 'Knowledge Graph',
+    description:
+      'An infinite pan/zoom canvas mapping the VectoJS ecosystem — real packages and concepts as a labeled backbone, surrounded by thousands of colored satellite nodes. Static layout, WebGL-batched, where DOM/SVG graph libraries choke past a couple thousand nodes.',
+    tag: 'Infinite canvas · Scale · Graph',
   },
 ];
 
@@ -76,8 +94,8 @@ export const LEARN_PAGES: DocPage[] = [
 ];
 
 export const REFERENCE_PAGES: DocPage[] = [
-  { slug: 'core-api', title: '@vecto-ui/core' },
-  { slug: 'ui-components', title: '@vecto-ui/ui' },
-  { slug: 'three', title: '@vecto-ui/three' },
+  { slug: 'core-api', title: '@vectojs/core' },
+  { slug: 'ui-components', title: '@vectojs/ui' },
+  { slug: 'three', title: '@vectojs/three' },
   { slug: 'faq', title: 'FAQ' },
 ];

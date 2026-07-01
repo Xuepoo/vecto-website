@@ -1,17 +1,17 @@
 ---
 title: 'Text & Typography'
-description: "VectoUI's text system: cold/hot LayoutEngine split, streaming for LLM output, rich text with mixed styles, MSDF fonts, Arabic/BiDi, and exclusion shapes."
+description: "VectoJS's text system: cold/hot LayoutEngine split, streaming for LLM output, rich text with mixed styles, MSDF fonts, Arabic/BiDi, and exclusion shapes."
 order: 7
 ---
 
 # Text & Typography
 
-VectoUI ships a full-featured text engine built around two key ideas: **separating measurement from layout** (so resize is cheap), and **memoizing at the paragraph level** (so token-by-token streaming is O(new tokens), not O(document)).
+VectoJS ships a full-featured text engine built around two key ideas: **separating measurement from layout** (so resize is cheap), and **memoizing at the paragraph level** (so token-by-token streaming is O(new tokens), not O(document)).
 
 ## Try it live
 
 <figure class="sandbox">
-  <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · vecto-ui@0.9</span></div>
+  <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · vectojs@0.9</span></div>
   <iframe src="/sandbox/text-streaming.html" class="sandbox-frame" loading="lazy" title="Text streaming interactive example" sandbox="allow-scripts allow-same-origin"></iframe>
   <figcaption><code>label.append(chunk)</code> called every 30 ms — O(changed paragraph), not O(document). Click Replay to restart the stream.</figcaption>
 </figure>
@@ -27,7 +27,7 @@ VectoUI ships a full-featured text engine built around two key ideas: **separati
 | Monospace grid (terminal)                     | `GridTextEntity` |
 | Custom text backed by vector atlas            | `TextEntity`     |
 
-`Text`, `RichText`, and `Markdown` live in `@vecto-ui/ui`. The rest are in `@vecto-ui/core`.
+`Text`, `RichText`, and `Markdown` live in `@vectojs/ui`. The rest are in `@vectojs/core`.
 
 ---
 
@@ -36,7 +36,7 @@ VectoUI ships a full-featured text engine built around two key ideas: **separati
 Single and multi-line text with automatic wrapping. Under the hood it runs the core `LayoutEngine` (same segmentation pipeline as every other text component).
 
 ```typescript
-import { Text } from '@vecto-ui/ui';
+import { Text } from '@vectojs/ui';
 
 const label = new Text('Hello, world', {
   font: '400 16px Inter', // CSS shorthand
@@ -83,14 +83,14 @@ When the user resizes the window, call `setMaxWidth(newWidth)` — it reflows wi
 Multi-style inline text: bold, italic, colored, differently-sized, and linked runs, all flowing together on shared baselines.
 
 ```typescript
-import { RichText } from '@vecto-ui/ui';
-import type { StyledSpan } from '@vecto-ui/core';
+import { RichText } from '@vectojs/ui';
+import type { StyledSpan } from '@vectojs/core';
 
 const spans: StyledSpan[] = [
   { text: 'Build ' },
   { text: 'fast', style: { bold: true, color: '#00f0ff' } },
   { text: ' UIs with ', style: { italic: true } },
-  { text: 'VectoUI', style: { bold: true, href: 'https://vecto-ui.xuepoo.xyz/' } },
+  { text: 'VectoJS', style: { bold: true, href: 'https://vectojs.xuepoo.xyz/' } },
   { text: '.' },
 ];
 
@@ -157,7 +157,7 @@ The engine computes free horizontal intervals per line band (`computeLineSegment
 Renders Markdown into a VMT subtree using the `marked` library (GFM flavour).
 
 ```typescript
-import { Markdown } from '@vecto-ui/ui';
+import { Markdown } from '@vectojs/ui';
 
 const md = new Markdown('# Hello\n\nThis is **rich** text.', {
   maxWidth: 700,
@@ -231,10 +231,10 @@ msdf-atlas-gen -font myfont.ttf -type msdf -format png -imageout atlas.png -json
 
 This produces `atlas.png` (the glyph texture) and `atlas.json` (glyph metrics, advance widths, UV bounds).
 
-### Loading in VectoUI
+### Loading in VectoJS
 
 ```typescript
-import { MSDFFont, MSDFTextEntity } from '@vecto-ui/core/text';
+import { MSDFFont, MSDFTextEntity } from '@vectojs/core/text';
 
 // Parse the JSON
 const fontData = await fetch('/fonts/atlas.json').then((r) => r.json());
@@ -292,8 +292,8 @@ Arabic and bidirectional text are handled **automatically** inside `prepare()` a
 This means a `Text` or `RichText` with Arabic or Hebrew content just works:
 
 ```typescript
-const arabic = new Text('مرحبا بك في VectoUI', { font: '20px sans-serif', color: '#f8fafc' });
-const hebrew = new RichText([{ text: 'שלום ' }, { text: 'VectoUI', style: { bold: true } }]);
+const arabic = new Text('مرحبا بك في VectoJS', { font: '20px sans-serif', color: '#f8fafc' });
+const hebrew = new RichText([{ text: 'שלום ' }, { text: 'VectoJS', style: { bold: true } }]);
 ```
 
 > [!NOTE]
@@ -303,10 +303,10 @@ const hebrew = new RichText([{ text: 'שלום ' }, { text: 'VectoUI', style: { 
 
 ## Helper functions
 
-`measureText`, `wrapLines`, and `fontSizePx` are exported from `@vecto-ui/ui` for use in custom components.
+`measureText`, `wrapLines`, and `fontSizePx` are exported from `@vectojs/ui` for use in custom components.
 
 ```typescript
-import { measureText, wrapLines, fontSizePx } from '@vecto-ui/ui';
+import { measureText, wrapLines, fontSizePx } from '@vectojs/ui';
 
 // Rendered pixel width, LRU-cached (cap 1000)
 const w = measureText('Hello world', '600 16px Inter');

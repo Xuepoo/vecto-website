@@ -1,10 +1,10 @@
 /**
  * A prebaked, backend-free pool of sample comments. Deliberately multilingual +
- * emoji so the demo doubles as a showcase of VectoUI's text rendering. Picked at
+ * emoji so the demo doubles as a showcase of VectoJS's text rendering. Picked at
  * random to keep the stream lively without a server.
  */
 export const COMMENTS: readonly string[] = [
-  'VectoUI is buttery smooth 🧈',
+  'VectoJS is buttery smooth 🧈',
   '前方高能!!!',
   '这弹幕一点都不卡 😮',
   '草草草草草',

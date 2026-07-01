@@ -1,12 +1,12 @@
 ---
 title: 'Accessibility & Automation'
-description: "How VectoUI's shadow DOM projection makes a pure-canvas UI fully accessible to screen readers, keyboard users, and Playwright automation agents."
+description: "How VectoJS's shadow DOM projection makes a pure-canvas UI fully accessible to screen readers, keyboard users, and Playwright automation agents."
 order: 8
 ---
 
 # Accessibility & Automation
 
-Canvas and WebGL UIs are typically inaccessible — they are just pixel buffers with no semantic information. VectoUI solves this with a **shadow DOM projection**: for every interactive entity, the engine maintains a real, invisible DOM element positioned exactly over the canvas component. Screen readers, keyboard navigation, and automation tools interact with those real elements; the canvas is purely visual.
+Canvas and WebGL UIs are typically inaccessible — they are just pixel buffers with no semantic information. VectoJS solves this with a **shadow DOM projection**: for every interactive entity, the engine maintains a real, invisible DOM element positioned exactly over the canvas component. Screen readers, keyboard navigation, and automation tools interact with those real elements; the canvas is purely visual.
 
 ## How shadow DOM projection works
 
@@ -43,7 +43,7 @@ Setting `interactive = true` has a side-effect: it flags `a11yNeedsReorder` and 
 Override `getA11yAttributes()` to specify the element type, ARIA role, and semantic state:
 
 ```typescript
-import type { A11yAttributes } from '@vecto-ui/core';
+import type { A11yAttributes } from '@vectojs/core';
 
 class AccessibleBtn extends Entity {
   label = 'Submit';

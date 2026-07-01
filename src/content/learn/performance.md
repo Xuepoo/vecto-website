@@ -6,7 +6,7 @@ order: 7
 
 # Performance
 
-VectoUI is designed to be fast by default, but several opt-in mechanisms unlock significantly higher throughput. This page explains the knobs available, the hidden pitfall that catches most developers, and how to measure performance accurately.
+VectoJS is designed to be fast by default, but several opt-in mechanisms unlock significantly higher throughput. This page explains the knobs available, the hidden pitfall that catches most developers, and how to measure performance accurately.
 
 ## Render modes
 
@@ -47,7 +47,7 @@ input.on('change', () => {
 
 ## The idle auto-throttle (the hidden pitfall)
 
-This is the most common performance trap in VectoUI.
+This is the most common performance trap in VectoJS.
 
 In `'always'` mode, a scene is considered **static** when:
 
@@ -166,7 +166,7 @@ getBounds() {
 }
 ```
 
-`UIComponent` already implements this — all `@vecto-ui/ui` components participate in culling automatically. For raw `Entity` subclasses with a fixed size, add `getBounds()` for free performance on large scenes.
+`UIComponent` already implements this — all `@vectojs/ui` components participate in culling automatically. For raw `Entity` subclasses with a fixed size, add `getBounds()` for free performance on large scenes.
 
 At 60 fps with 5,000 entities and 90% offscreen, culling reduces render calls from 5,000 to ~500 per frame.
 
@@ -211,7 +211,7 @@ The hot path is O(word count), not O(glyph count), and avoids all `Intl.Segmente
 For data-dense UIs (data grids, terminals, log viewers) with thousands of glyphs per frame, the standard `layoutPrepared()` path allocates a `LayoutNode` object per glyph. Use `LayoutResultBuffer` instead:
 
 ```typescript
-import { LayoutEngine, LayoutResultBuffer, createCanvasMeasurer } from '@vecto-ui/core/layout';
+import { LayoutEngine, LayoutResultBuffer, createCanvasMeasurer } from '@vectojs/core/layout';
 
 const engine = new LayoutEngine(400, Infinity, createCanvasMeasurer());
 const buffer = new LayoutResultBuffer(); // reuse across frames (CAPACITY = 16384)

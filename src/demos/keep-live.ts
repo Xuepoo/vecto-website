@@ -1,4 +1,4 @@
-import type { Scene } from '@vecto-ui/core';
+import type { Scene } from '@vectojs/core';
 
 /**
  * Keep a continuously-animated scene rendering at full rate despite the idle

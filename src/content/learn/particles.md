@@ -6,14 +6,16 @@ order: 6
 
 # Particle Systems
 
-`ComputeParticleEntity` is VectoUI's high-throughput particle layer. It runs a spring physics simulation entirely on the GPU via a WebGPU compute pass, with a transparent CPU fallback for browsers that do not support WebGPU. A single entity can simulate and render **100,000 to 1,000,000 particles** at 60 fps on modern hardware.
+`ComputeParticleEntity` is VectoJS's high-throughput particle layer. It runs a spring physics simulation entirely on the GPU via a WebGPU compute pass, with a transparent CPU fallback for browsers that do not support WebGPU. A single entity can simulate and render **100,000 to 1,000,000 particles** at 60 fps on modern hardware.
 
 ## Try it live
 
 <figure class="sandbox">
-  <div class="sandbox-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="sandbox-label">live · vecto-ui@0.9</span></div>
-  <iframe src="/sandbox/particles.html" class="sandbox-frame" loading="lazy" title="Particle System interactive example" sandbox="allow-scripts allow-same-origin"></iframe>
-  <figcaption>2,000 spring particles with mouse repulsion. Move your cursor across the canvas — particles scatter 120 px away. Click to trigger an explosion impulse.</figcaption>
+  <a class="sandbox-cta" href="/demos/nexus/">
+    <span class="sandbox-cta-title">Open the Nexus particle demo →</span>
+    <span class="sandbox-cta-sub">Tens of thousands of <code>ComputeParticleEntity</code> points spelling “VectoJS”, simulated on WebGPU. Drag to pan, scroll to zoom, click to send a pulse through the field.</span>
+  </a>
+  <figcaption>The particle field runs full-speed as a standalone WebGPU page — a small embedded iframe held it back, so this links to the real thing.</figcaption>
 </figure>
 
 ## Particles vs `getBatchCircle`
@@ -30,7 +32,7 @@ If you need a particle field that springs into formations, reacts to the cursor,
 ## Basic setup
 
 ```typescript
-import { Scene, ComputeParticleEntity } from '@vecto-ui/core';
+import { Scene, ComputeParticleEntity } from '@vectojs/core';
 
 const canvas = document.querySelector<HTMLCanvasElement>('#canvas')!;
 
