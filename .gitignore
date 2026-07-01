@@ -11,3 +11,4 @@ node_modules/
 .wrangler/
 # Demo media is fetched at build time (scripts/fetch-assets.ts), not tracked.
 public/demos/*.mp4
+.obsidian/
