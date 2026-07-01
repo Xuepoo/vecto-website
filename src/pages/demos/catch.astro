@@ -1,0 +1,216 @@
+---
+import Base from '../../layouts/Base.astro';
+import { demoBySlug, BUILD_ID } from '../../consts';
+const demo = demoBySlug('catch');
+---
+
+<Base title={demo.title} description={demo.description}>
+  <link slot="head" rel="stylesheet" href={`/css/demo.css?v=${BUILD_ID}`} />
+  <section class="demo-wrap container">
+    <header class="demo-head">
+      <a class="demo-back" href="/demos/">← All demos</a>
+      <h1>{demo.title}</h1>
+      <p class="demo-lede">{demo.description}</p>
+    </header>
+
+    <!-- The whole game is this one canvas. No DOM game elements at all. -->
+    <div class="stage stage-catch" id="catch-stage" data-immersive>
+      <canvas id="catch-canvas"></canvas>
+      <div class="catch-hint">
+        Move with the mouse or the &larr;&nbsp;&rarr; keys &middot; catch the fruit named at the top
+        &middot; no clicks needed
+      </div>
+    </div>
+
+    <section class="demo-explain">
+      <h2>How it works</h2>
+      <div class="explain-grid">
+        <div class="explain-card explain-win">
+          <h4>Truly zero DOM</h4>
+          <p>
+            Fruit, the catcher, the goal, the HUD, and the win screen are <em>all</em> drawn on one
+            <code>&lt;canvas&gt;</code> by a single VectoJS <code>Entity</code>. There is not one
+            <code>&lt;div&gt;</code> in the game — input is just mouse-move and arrow keys.
+          </p>
+        </div>
+        <div class="explain-card">
+          <h4>One Entity, one loop</h4>
+          <p>
+            The engine's <code>Scene</code> drives the entity's <code>update(dt)</code> for physics and
+            <code>render(r)</code> for drawing every frame — falling fruit, catch detection, and the
+            HUD are plain arithmetic over the <code>IRenderer</code>.
+          </p>
+        </div>
+        <div class="explain-card">
+          <h4>The challenge</h4>
+          <p>
+            A random goal each round — say <em>“Catch 3 Apples.”</em> You get five catches: a target
+            fills the goal, a wrong fruit wastes one. Reach the count to pass; run out of the five to
+            fail. Goal and drop positions reshuffle every round.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="demo-explain">
+      <h2>VectoJS vs PixiJS</h2>
+      <p class="compare-lede">
+        Both render this game to a canvas with zero extra DOM. The real difference is what each tool
+        is <em>for</em> — a UI framework versus a 2D rendering library.
+      </p>
+      <div class="compare-scroll">
+        <table class="compare-table">
+          <thead>
+            <tr
+              ><th scope="col">Aspect</th><th scope="col">VectoJS</th><th scope="col">PixiJS</th
+              ></tr
+            >
+          </thead>
+          <tbody>
+            <tr>
+              <th scope="row">What it is</th>
+              <td>A UI framework — accessible components, layout, and text on a canvas.</td>
+              <td>A 2D rendering library — a fast WebGL/WebGPU scene graph.</td>
+            </tr>
+            <tr>
+              <th scope="row">Drawing model</th>
+              <td>
+                Retained entity tree; you draw each entity imperatively in <code>render(r)</code> through
+                an <code>IRenderer</code>.
+              </td>
+              <td>
+                Retained scene graph of display objects (<code>Sprite</code>, <code>Graphics</code>,
+                <code>Text</code>) that it batches for you.
+              </td>
+            </tr>
+            <tr>
+              <th scope="row">This game</th>
+              <td>One <code>Entity</code>; the fruit are plain data drawn each frame.</td>
+              <td
+                >A <code>Graphics</code>/<code>Sprite</code> per fruit, mutated inside a <code
+                  >Ticker</code
+                >.</td
+              >
+            </tr>
+            <tr>
+              <th scope="row">Accessibility</th>
+              <td>
+                Every interactive entity projects a real DOM node automatically — screen readers,
+                Playwright, and IME just work.
+              </td>
+              <td
+                >Canvas is opaque to assistive tech; an opt-in plugin overlays DOM for interactive
+                objects.</td
+              >
+            </tr>
+            <tr>
+              <th scope="row">Text &amp; layout</th>
+              <td
+                >Built-in layout engine — wrapping, rich text, Markdown, and flow around shapes.</td
+              >
+              <td
+                ><code>Text</code>/<code>BitmapText</code>; positioning is manual (layout via a
+                separate plugin).</td
+              >
+            </tr>
+            <tr>
+              <th scope="row">DOM for this game</th>
+              <td>Zero</td>
+              <td>Zero</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="compare-note">
+        PixiJS is the mature, battle-tested choice for high-throughput 2D — heavy sprite and
+        particle scenes, and games. VectoJS's bet is different: treat the whole interface, not just
+        the game layer, as a mathematical canvas with accessibility and layout built in. Here the
+        same game collapses to a single <code>Entity</code> and is accessible-ready by construction.
+        See
+        <a href="/blog/layout-and-typography/">Layout and Typography on Canvas</a> for the reasoning.
+      </p>
+    </section>
+  </section>
+</Base>
+
+<script>
+  import '../../demos/catch';
+  import '../../demos/immersive';
+</script>
+
+<style>
+  /* A soft night-orchard backdrop; the canvas itself is transparent and draws the
+     game over this. Keeping the background in CSS means the game stays zero-DOM. */
+  #catch-stage {
+    background: radial-gradient(120% 90% at 50% -10%, #24314f 0%, #131b30 45%, #0a1020 100%);
+  }
+  #catch-canvas {
+    touch-action: none; /* drag to move the catcher without scrolling the page */
+  }
+  .catch-hint {
+    position: absolute;
+    left: 50%;
+    bottom: 0.7rem;
+    transform: translateX(-50%);
+    color: rgba(226, 232, 240, 0.72);
+    font-size: 0.82rem;
+    text-align: center;
+    pointer-events: none;
+    white-space: nowrap;
+  }
+
+  /* VectoJS vs PixiJS comparison */
+  .compare-lede,
+  .compare-note {
+    color: var(--text-muted);
+    line-height: 1.65;
+    max-width: 72ch;
+    font-size: 0.95rem;
+  }
+  .compare-note {
+    margin-top: 1.25rem;
+  }
+  .compare-scroll {
+    overflow-x: auto;
+    margin: 1.4rem 0 0;
+  }
+  .compare-table {
+    width: 100%;
+    min-width: 640px;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+  }
+  .compare-table th,
+  .compare-table td {
+    text-align: left;
+    padding: 0.7rem 0.9rem;
+    border-bottom: 1px solid var(--border-color);
+    vertical-align: top;
+  }
+  .compare-table thead th {
+    color: #fff;
+    font-weight: 700;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.12);
+  }
+  .compare-table thead th:nth-child(2) {
+    color: #7dd3fc;
+  }
+  .compare-table tbody th {
+    color: #cbd5e1;
+    font-weight: 600;
+    white-space: nowrap;
+    width: 1%;
+  }
+  .compare-table td {
+    color: var(--text-muted);
+    line-height: 1.55;
+  }
+  .compare-table code {
+    font-family: 'JetBrains Mono', 'Fira Code', monospace;
+    font-size: 0.85em;
+    background: rgba(255, 255, 255, 0.06);
+    padding: 0.05em 0.35em;
+    border-radius: 4px;
+    color: #cbd5e1;
+  }
+</style>
