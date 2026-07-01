@@ -1,0 +1,11 @@
+# Cloudflare Pages custom headers.
+# The stylesheets and sandbox pages are UNHASHED files we edit between deploys.
+# Cloudflare Pages caches static assets (~4h) by default, so returning visitors
+# would keep a stale copy and see half-updated styling. Force a revalidation on
+# every request (cheap 304s via ETag) so a redeploy is visible immediately.
+# Hashed bundles under /_astro/ keep their long cache — their URLs change on edit.
+/css/*
+  Cache-Control: public, max-age=0, must-revalidate
+
+/sandbox/*
+  Cache-Control: public, max-age=0, must-revalidate

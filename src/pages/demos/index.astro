@@ -1,14 +1,14 @@
 ---
 import Base from '../../layouts/Base.astro';
-import { DEMOS } from '../../consts';
+import { DEMOS, BUILD_ID } from '../../consts';
 ---
 
 <Base title="Demos">
-  <link slot="head" rel="stylesheet" href="/css/demo.css" />
+  <link slot="head" rel="stylesheet" href={`/css/demo.css?v=${BUILD_ID}`} />
   <section class="demos-section container">
     <h1 class="section-title">Demos</h1>
     <p class="demos-lede">
-      Each demo is a real VectoUI app and a live stress test — dogfooding the engine right in your
+      Each demo is a real VectoJS app and a live stress test — dogfooding the engine right in your
       browser.
     </p>
     <div class="demos-grid">
