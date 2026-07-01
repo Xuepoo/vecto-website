@@ -57,8 +57,9 @@ const TARGET_POCKET = 2; // top-right
 // ── Physics constants ──────────────────────────────────────────────────
 const FRICTION = 0.988;
 const BOUNCE_DAMP = 0.72;
-const MAX_PULL = 90; // px of pull-back drag that maps to full power
-const SPEED_FRAC = 0.07; // full-power launch speed = 7% of table width per frame
+const POWER_STEP = 0.15; // power added per click on the cue ball (~7 clicks = full)
+const FIRE_DELAY = 800; // ms with no clicks after charging before the shot fires
+const SPEED_FRAC = 0.08; // full-power launch speed = 8% of table width per frame
 const MAX_ATT = 5;
 const STOP_SPEED = 0.09;
 
@@ -75,18 +76,19 @@ interface Ball {
   pocketIdx: number;
 }
 
-type Phase = 'aim' | 'pulling' | 'rolling' | 'settling' | 'win' | 'fail';
+type Phase = 'aim' | 'rolling' | 'settling' | 'win' | 'fail';
 
 // ── State ──────────────────────────────────────────────────────────────
 let phase: Phase = 'aim';
 let balls: Ball[];
 let cue: Ball, tgt: Ball, blk: Ball;
-let aimAngle = 0;
-let pullBack = 0;
-let dragging = false;
+let aimAngle = 0; // LAUNCH direction — set by clicking around the cue ball
+let power = 0; // accumulated shot power 0..1 (one notch per cue-ball click)
+let lastInteract = 0; // performance.now() of the last aim / charge click
 let attempts = 0;
 let rollingFrames = 0;
 let flashAlpha = 0;
+let tutorial = true; // animated "how to play" demo, until the first shot
 
 // ── Ball factory ───────────────────────────────────────────────────────
 function makeBall(x: number, y: number, color: string, name: Ball['name']): Ball {
@@ -211,21 +213,28 @@ function showOverlay(type: 'win' | 'fail') {
 
 function hideOverlay(cb: () => void) {
   overlay.classList.remove('pool-visible');
-  overlay.addEventListener(
-    'transitionend',
-    () => {
-      overlay.hidden = true;
-      cb();
-    },
-    { once: true },
-  );
+  // Run the callback on transitionend, but guard against the transition never
+  // firing (forced reduced-motion, interrupted opacity change) — otherwise the
+  // win/fail overlay would stay up and soft-lock the demo.
+  let done = false;
+  const finish = () => {
+    if (done) return;
+    done = true;
+    overlay.removeEventListener('transitionend', finish);
+    overlay.hidden = true;
+    cb();
+  };
+  overlay.addEventListener('transitionend', finish);
+  setTimeout(finish, 400); // > the 0.28s CSS transition
 }
 
 function setPhase(p: Phase) {
   phase = p;
   if (p === 'aim') {
+    power = 0;
+    lastInteract = 0;
     stick.style.opacity = '1';
-    canvas.style.cursor = 'grab';
+    canvas.style.cursor = 'crosshair';
   }
   if (p === 'rolling' || p === 'settling') {
     stick.style.opacity = '0';
@@ -249,13 +258,20 @@ function setPhase(p: Phase) {
 }
 
 function shoot() {
-  const dir = aimAngle + Math.PI; // launch away from the pull side
-  const speed = (pullBack / MAX_PULL) * (W * SPEED_FRAC);
-  cue.vx = Math.cos(dir) * speed;
-  cue.vy = Math.sin(dir) * speed;
-  pullBack = 0;
-  dragging = false;
-  setPhase('rolling');
+  const speed = power * (W * SPEED_FRAC);
+  cue.vx = Math.cos(aimAngle) * speed; // launch toward the aimed direction
+  cue.vy = Math.sin(aimAngle) * speed;
+  tutorial = false; // they've got it
+  setPhase('rolling'); // note: setPhase('rolling') does not reset power
+  power = 0;
+}
+
+// Canvas-drawn SHOOT button rect (only live once charged) — one geometry used by
+// both the renderer and the hit-test, so they can never drift apart.
+function shootRect(): { x: number; y: number; w: number; h: number } {
+  const w = Math.max(84, Math.round(W * 0.12));
+  const h = Math.max(26, Math.round(W * 0.034));
+  return { x: MX() - w / 2, y: PB() - 14 - h / 2, w, h };
 }
 
 function failRound() {
@@ -288,74 +304,47 @@ function canvasXY(clientX: number, clientY: number): [number, number] {
   return [(clientX - r.left) * (W / r.width), (clientY - r.top) * (H / r.height)];
 }
 
-// Slingshot model: the cue points from the ball toward the cursor (the side you
-// pull back to) and the ball launches in the opposite direction (see shoot()).
-// Power grows with how far the cursor is pulled from the ball, so any real drag
-// produces a real shot — a light pull taps, a long pull breaks hard.
-function onMove(x: number, y: number) {
-  if (phase !== 'aim' && phase !== 'pulling') return;
-  aimAngle = Math.atan2(y - cue.y, x - cue.x);
-  if (dragging) {
-    pullBack = Math.max(0, Math.min(MAX_PULL, Math.hypot(x - cue.x, y - cue.y) - cue.r));
-  }
+function addPower() {
+  power = Math.min(1, power + POWER_STEP);
+  lastInteract = performance.now();
+  tutorial = false;
 }
 
+// Clock + click-charge model: click the cue BALL to add a notch of power; click
+// anywhere AROUND it (the clock ring) to set the launch direction; click the
+// SHOOT button to fire now. Otherwise the shot auto-fires FIRE_DELAY ms after the
+// last click. A single click handler drives it all — no hover, drag, or hold.
 function onDown(x: number, y: number) {
-  if (phase !== 'aim' && phase !== 'pulling') return;
-  dragging = true;
-  phase = 'pulling';
-  canvas.style.cursor = 'grabbing';
-  onMove(x, y); // set aim + power from the press point immediately
-}
-
-function onUp() {
-  if (!dragging) return;
-  dragging = false;
-  if (phase === 'pulling' && pullBack > 2) shoot();
-  else {
-    phase = 'aim';
-    pullBack = 0;
-    canvas.style.cursor = 'grab';
+  if (phase !== 'aim') return;
+  // SHOOT button first (only present once there is power to fire)
+  if (power > 0) {
+    const b = shootRect();
+    if (x >= b.x && x <= b.x + b.w && y >= b.y && y <= b.y + b.h) {
+      shoot();
+      return;
+    }
+  }
+  if (Math.hypot(x - cue.x, y - cue.y) <= cue.r + 10) {
+    addPower(); // clicked the ball → charge
+  } else {
+    aimAngle = Math.atan2(y - cue.y, x - cue.x); // clicked around it → aim
+    lastInteract = performance.now();
+    tutorial = false;
   }
 }
 
-// ── Mouse events ───────────────────────────────────────────────────────
-// mousedown on canvas; mousemove/mouseup on document so dragging outside canvas works
+// A click is a single down; everything happens on mousedown / touchstart. No
+// document-level move/up listeners are needed (aim + power are click-driven).
 canvas.addEventListener('mousedown', (e) => {
   e.preventDefault();
   onDown(...canvasXY(e.clientX, e.clientY));
 });
-document.addEventListener('mousemove', (e) => {
-  if (dragging || phase === 'aim') onMove(...canvasXY(e.clientX, e.clientY));
-});
-document.addEventListener('mouseup', () => onUp());
-
-// ── Touch events ───────────────────────────────────────────────────────
 canvas.addEventListener(
   'touchstart',
   (e) => {
     e.preventDefault();
     const t = e.touches[0];
     onDown(...canvasXY(t.clientX, t.clientY));
-  },
-  { passive: false },
-);
-
-canvas.addEventListener(
-  'touchmove',
-  (e) => {
-    e.preventDefault();
-    const t = e.touches[0];
-    onMove(...canvasXY(t.clientX, t.clientY));
-  },
-  { passive: false },
-);
-
-canvas.addEventListener(
-  'touchend',
-  (e) => {
-    e.preventDefault();
-    onUp();
   },
   { passive: false },
 );
@@ -455,88 +444,199 @@ function drawBall(b: Ball) {
   ctx.stroke();
 }
 
-// Dashed line from the cue ball in the LAUNCH direction (where the ball will go),
-// with an arrowhead so the direction is unambiguous.
+// Dashed line from the cue ball in the LAUNCH direction (toward the cursor — where
+// the ball will go).
 function drawAimGuide() {
-  if ((phase !== 'aim' && phase !== 'pulling') || cue.pocketed) return;
-  const sa = aimAngle + Math.PI; // launch direction
+  if (phase !== 'aim' || cue.pocketed || tutorial) return;
   const len = Math.hypot(PR() - PL(), PB() - PT());
-  const x1 = cue.x + Math.cos(sa) * len;
-  const y1 = cue.y + Math.sin(sa) * len;
   ctx.save();
   ctx.setLineDash([6, 7]);
   ctx.strokeStyle = 'rgba(255,255,255,0.3)';
   ctx.lineWidth = 1.5;
   ctx.beginPath();
-  ctx.moveTo(cue.x + Math.cos(sa) * (cue.r + 2), cue.y + Math.sin(sa) * (cue.r + 2));
-  ctx.lineTo(x1, y1);
+  ctx.moveTo(cue.x + Math.cos(aimAngle) * (cue.r + 2), cue.y + Math.sin(aimAngle) * (cue.r + 2));
+  ctx.lineTo(cue.x + Math.cos(aimAngle) * len, cue.y + Math.sin(aimAngle) * len);
   ctx.stroke();
   ctx.restore();
 }
 
-// Pulsing ring on the cue ball while idle — invites the player to grab and pull it.
-function drawCueHint() {
-  if (phase !== 'aim' || dragging || cue.pocketed) return;
-  const t = (performance.now() % 1400) / 1400;
+// Animated "how to play" demo, looping until the first click: aim toward the
+// pocket, fill a power bar one notch at a time (the click-charge), then fire.
+function drawTutorial() {
+  if (!tutorial || phase !== 'aim' || cue.pocketed) return;
+  const [tpx, tpy] = pockets()[TARGET_POCKET];
+  const aim = Math.atan2(tpy - cue.y, tpx - cue.x); // toward the target pocket
+  const cyc = (performance.now() % 3600) / 3600;
+  const rr = cue.r + 14;
+
   ctx.save();
-  ctx.globalAlpha = (1 - t) * 0.5;
-  ctx.strokeStyle = '#fbbf24';
+  // clock ring + aim marker toward the pocket
+  ctx.strokeStyle = 'rgba(255,255,255,0.22)';
   ctx.lineWidth = 2;
   ctx.beginPath();
-  ctx.arc(cue.x, cue.y, cue.r + 4 + t * 11, 0, Math.PI * 2);
+  ctx.arc(cue.x, cue.y, rr, 0, Math.PI * 2);
   ctx.stroke();
+  ctx.fillStyle = '#fbbf24';
+  ctx.beginPath();
+  ctx.arc(cue.x + Math.cos(aim) * rr, cue.y + Math.sin(aim) * rr, 4, 0, Math.PI * 2);
+  ctx.fill();
+
+  // charge phase (0.25..0.8): a segmented power bar fills a notch at a time, and
+  // the ball pulses as if being clicked
+  const demoPower = cyc < 0.25 ? 0 : cyc < 0.8 ? (cyc - 0.25) / 0.55 : 1;
+  if (cyc >= 0.25 && cyc < 0.8) {
+    const beat = 0.5 + 0.5 * Math.sin((cyc - 0.25) * 34);
+    ctx.strokeStyle = `rgba(56,189,248,${0.25 + beat * 0.45})`;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(cue.x, cue.y, cue.r + 3, 0, Math.PI * 2);
+    ctx.stroke();
+  }
+  const segs = 7;
+  const bw = 118;
+  const bh = 10;
+  const g = 3;
+  const dx = cue.x - bw / 2;
+  const dy = cue.y + rr + 16;
+  const cw = (bw - g * (segs - 1)) / segs;
+  for (let i = 0; i < segs; i++) {
+    const sx = dx + i * (cw + g);
+    ctx.fillStyle = 'rgba(255,255,255,0.1)';
+    ctx.beginPath();
+    ctx.roundRect(sx, dy, cw, bh, 2);
+    ctx.fill();
+    if (demoPower * segs > i) {
+      ctx.fillStyle = powerColor(demoPower);
+      ctx.beginPath();
+      ctx.roundRect(sx, dy, cw, bh, 2);
+      ctx.fill();
+    }
+  }
+
+  // fire burst (0.8..1)
+  if (cyc >= 0.8) {
+    ctx.globalAlpha = ((1 - cyc) / 0.2) * 0.7;
+    ctx.strokeStyle = '#22c55e';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.arc(cue.x, cue.y, cue.r + 6 + ((cyc - 0.8) / 0.2) * 30, 0, Math.PI * 2);
+    ctx.stroke();
+  }
+  ctx.restore();
+
+  ctx.save();
+  ctx.globalAlpha = 0.92;
+  ctx.fillStyle = '#fde68a';
+  ctx.font = '600 13px Inter, system-ui';
+  ctx.textAlign = 'center';
+  ctx.fillText(
+    'Click around the ball to aim · click the ball to charge · stop to shoot',
+    W / 2,
+    PT() + (PB() - PT()) * 0.9,
+  );
   ctx.restore();
 }
 
-// While pulling: a bold launch arrow (length + colour track power) plus a power
-// bar and a "release to shoot" prompt, so the gesture and its effect are obvious.
-function drawPower() {
-  if (phase !== 'pulling' || pullBack < 1 || cue.pocketed) return;
-  const pct = Math.min(1, pullBack / MAX_PULL);
-  const col = pct > 0.66 ? '#ef4444' : pct > 0.33 ? '#eab308' : '#22c55e';
-  const sa = aimAngle + Math.PI; // launch direction
-  const start = cue.r + 6;
-  const end = start + 24 + pct * 66;
-  const ax = cue.x + Math.cos(sa) * end;
-  const ay = cue.y + Math.sin(sa) * end;
-
+// Clock-style aim ring around the cue ball: tick marks + a bright marker in the
+// launch direction, so the control reads at a glance.
+function drawClockRing() {
+  if (phase !== 'aim' || cue.pocketed || tutorial) return;
+  const rr = cue.r + 14;
   ctx.save();
-  ctx.strokeStyle = col;
-  ctx.fillStyle = col;
-  ctx.lineWidth = 4;
-  ctx.lineCap = 'round';
+  ctx.strokeStyle = 'rgba(255,255,255,0.22)';
+  ctx.lineWidth = 2;
   ctx.beginPath();
-  ctx.moveTo(cue.x + Math.cos(sa) * start, cue.y + Math.sin(sa) * start);
-  ctx.lineTo(ax, ay);
+  ctx.arc(cue.x, cue.y, rr, 0, Math.PI * 2);
   ctx.stroke();
-  const ah = 9;
+  ctx.strokeStyle = 'rgba(255,255,255,0.28)';
+  ctx.lineWidth = 1.5;
+  for (let i = 0; i < 12; i++) {
+    const a = (i / 12) * Math.PI * 2;
+    ctx.beginPath();
+    ctx.moveTo(cue.x + Math.cos(a) * (rr - 4), cue.y + Math.sin(a) * (rr - 4));
+    ctx.lineTo(cue.x + Math.cos(a) * (rr + 3), cue.y + Math.sin(a) * (rr + 3));
+    ctx.stroke();
+  }
+  ctx.fillStyle = '#fbbf24';
   ctx.beginPath();
-  ctx.moveTo(ax, ay);
-  ctx.lineTo(ax - Math.cos(sa - 0.42) * ah, ay - Math.sin(sa - 0.42) * ah);
-  ctx.lineTo(ax - Math.cos(sa + 0.42) * ah, ay - Math.sin(sa + 0.42) * ah);
-  ctx.closePath();
+  ctx.arc(cue.x + Math.cos(aimAngle) * rr, cue.y + Math.sin(aimAngle) * rr, 4, 0, Math.PI * 2);
   ctx.fill();
+  ctx.restore();
+}
+
+function powerColor(p: number): string {
+  return p > 0.66 ? '#ef4444' : p > 0.33 ? '#eab308' : '#22c55e';
+}
+
+// Bottom-of-table HUD: a segmented power bar that fills one notch per click, and a
+// SHOOT button whose fill doubles as the "auto-fire in FIRE_DELAY" countdown.
+function drawPowerHUD() {
+  if (phase !== 'aim' || cue.pocketed || tutorial) return;
+
+  // Segmented power bar
+  const segs = 7;
+  const bw = Math.max(150, Math.round(W * 0.24));
+  const bh = 14;
+  const bx = MX() - bw / 2;
+  const by = PB() - 40 - bh / 2;
+  const gap = 3;
+  const cellW = (bw - gap * (segs - 1)) / segs;
+  const filled = power * segs;
+  for (let i = 0; i < segs; i++) {
+    const cx = bx + i * (cellW + gap);
+    ctx.fillStyle = 'rgba(255,255,255,0.09)';
+    ctx.beginPath();
+    ctx.roundRect(cx, by, cellW, bh, 3);
+    ctx.fill();
+    const frac = Math.max(0, Math.min(1, filled - i));
+    if (frac > 0) {
+      ctx.fillStyle = powerColor(power);
+      ctx.beginPath();
+      ctx.roundRect(cx, by, cellW * frac, bh, 3);
+      ctx.fill();
+    }
+  }
+
+  // Prompt
+  ctx.save();
+  ctx.fillStyle = 'rgba(255,255,255,0.82)';
+  ctx.font = '600 12px Inter, system-ui';
+  ctx.textAlign = 'center';
+  ctx.fillText(
+    power > 0 ? 'Click the ball to add power' : 'Click the ball to charge · click around it to aim',
+    MX(),
+    by - 9,
+  );
   ctx.restore();
 
-  // Power bar + prompt under the ball
-  const bw = 56;
-  const bh = 6;
-  const bx = cue.x - bw / 2;
-  const by = cue.y + cue.r + 12;
-  ctx.save();
-  ctx.fillStyle = 'rgba(0,0,0,0.45)';
-  ctx.beginPath();
-  ctx.roundRect(bx, by, bw, bh, 3);
-  ctx.fill();
-  ctx.fillStyle = col;
-  ctx.beginPath();
-  ctx.roundRect(bx, by, bw * pct, bh, 3);
-  ctx.fill();
-  ctx.fillStyle = 'rgba(255,255,255,0.88)';
-  ctx.font = '600 10px Inter, system-ui';
-  ctx.textAlign = 'center';
-  ctx.fillText('release to shoot', cue.x, by + bh + 12);
-  ctx.restore();
+  // SHOOT button — only once charged; its fill counts down to auto-fire
+  if (power > 0) {
+    const b = shootRect();
+    const idle = Math.min(1, (performance.now() - lastInteract) / FIRE_DELAY);
+    const r = b.h / 2;
+    ctx.save();
+    ctx.fillStyle = 'rgba(34,197,94,0.16)';
+    ctx.strokeStyle = '#22c55e';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.roundRect(b.x, b.y, b.w, b.h, r);
+    ctx.fill();
+    ctx.stroke();
+    // countdown fill (clipped to the pill)
+    ctx.save();
+    ctx.beginPath();
+    ctx.roundRect(b.x, b.y, b.w, b.h, r);
+    ctx.clip();
+    ctx.fillStyle = 'rgba(34,197,94,0.5)';
+    ctx.fillRect(b.x, b.y, b.w * idle, b.h);
+    ctx.restore();
+    ctx.fillStyle = '#eafff0';
+    ctx.font = '700 13px Inter, system-ui';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('SHOOT ▸', b.x + b.w / 2, b.y + b.h / 2 + 1);
+    ctx.restore();
+  }
 }
 
 function updateStick() {
@@ -548,9 +648,11 @@ function updateStick() {
     cue.pocketed;
   stick.style.opacity = hide ? '0' : '1';
   if (!hide) {
-    const gap = cue.r + 3 + pullBack;
-    const tx = cue.x + Math.cos(aimAngle) * gap;
-    const ty = cue.y + Math.sin(aimAngle) * gap;
+    // Behind the ball (opposite the launch), pulling back as it charges.
+    const back = aimAngle + Math.PI;
+    const gap = cue.r + 6 + power * 44;
+    const tx = cue.x + Math.cos(back) * gap;
+    const ty = cue.y + Math.sin(back) * gap;
     stick.style.left = tx + 'px';
     stick.style.top = ty - 4 + 'px';
     stick.style.transform = `rotate(${aimAngle}rad)`;
@@ -561,10 +663,14 @@ function updateStick() {
 function frame() {
   ctx.clearRect(0, 0, W, H);
   ctx.drawImage(tableCache, 0, 0); // static table + pockets, rendered once on resize
+  // Auto-fire once charged and the player has stopped clicking.
+  if (phase === 'aim' && power > 0 && performance.now() - lastInteract > FIRE_DELAY) shoot();
+
   drawAimGuide();
   balls.forEach(drawBall);
-  drawCueHint();
-  drawPower();
+  drawClockRing();
+  drawTutorial();
+  drawPowerHUD();
 
   if (flashAlpha > 0.01) {
     ctx.fillStyle = `rgba(220,38,38,${flashAlpha.toFixed(3)})`;

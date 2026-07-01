@@ -1,11 +1,17 @@
 ---
 import Base from '../../layouts/Base.astro';
-import { demoBySlug } from '../../consts';
-const demo = demoBySlug('pool');
+import { BUILD_ID } from '../../consts';
+// Retained as a standalone page but removed from the demo gallery, so its metadata
+// is inlined here rather than read from the DEMOS registry.
+const demo = {
+  title: 'Pool CAPTCHA',
+  description:
+    'A pool-table CAPTCHA: aim and shoot the cue ball into the highlighted pocket. The entire table is canvas 2D — the only DOM element is the cue stick div itself.',
+};
 ---
 
 <Base title={demo.title} description={demo.description}>
-  <link slot="head" rel="stylesheet" href="/css/demo.css" />
+  <link slot="head" rel="stylesheet" href={`/css/demo.css?v=${BUILD_ID}`} />
   <section class="demo-wrap container">
     <header class="demo-head">
       <a class="demo-back" href="/demos/">← All demos</a>
@@ -14,7 +20,7 @@ const demo = demoBySlug('pool');
     </header>
 
     <!-- The pool stage: canvas fills it; cue stick is the only DOM child element -->
-    <div class="stage stage-pool" id="pool-stage">
+    <div class="stage stage-pool" id="pool-stage" data-immersive>
       <canvas id="pool-canvas"></canvas>
 
       <!-- THE single DOM element on the table -->
@@ -29,8 +35,8 @@ const demo = demoBySlug('pool');
       </div>
 
       <div class="pool-hint">
-        Drag back from the cue ball &middot; release to shoot &middot; sink the red ball in the
-        glowing pocket
+        Click around the cue ball to aim &middot; click the ball to charge &middot; it fires when
+        you stop clicking (or press SHOOT) &mdash; sink the red ball into the glowing pocket
       </div>
       <div class="pool-hud">Attempt <span id="pool-attempts">0</span>&thinsp;/&thinsp;{5}</div>
     </div>
@@ -68,4 +74,5 @@ const demo = demoBySlug('pool');
 
 <script>
   import '../../demos/pool';
+  import '../../demos/immersive';
 </script>
