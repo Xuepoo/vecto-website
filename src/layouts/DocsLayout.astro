@@ -79,14 +79,6 @@ const nextPage = currentIdx < allPages.length - 1 ? allPages[currentIdx + 1] : n
   <div class="docs-layout" id="docs-layout">
     <!-- Left sidebar: full docs tree (also acts as mobile drawer) -->
     <aside class="docs-sidebar" id="docs-sidebar" aria-label="Documentation navigation">
-      <!-- Desktop collapse toggle (not shown on mobile) -->
-      <button
-        class="sidebar-collapse-btn"
-        id="sidebar-collapse-btn"
-        type="button"
-        aria-label="Collapse navigation sidebar"
-        title="Collapse sidebar">&#x276E;</button
-      >
       <nav class="sidebar-nav">
         <div class="sidebar-group">
           <span class="sidebar-group-label">Learn</span>
@@ -199,27 +191,66 @@ const nextPage = currentIdx < allPages.length - 1 ? allPages[currentIdx + 1] : n
     <aside class="docs-toc" aria-label="Table of contents">
       {
         tocHeadings.length > 0 && (
-          <nav class="toc-nav">
-            <span class="toc-label">On this page</span>
-            {tocHeadings.map((h) => (
-              <a href={`#${h.slug}`} class:list={['toc-link', `toc-depth-${h.depth}`]}>
-                {h.text}
-              </a>
-            ))}
-          </nav>
+          <Fragment>
+            <nav class="toc-nav">
+              <span class="toc-label">On this page</span>
+              {tocHeadings.map((h) => (
+                <a href={`#${h.slug}`} class:list={['toc-link', `toc-depth-${h.depth}`]}>
+                  {h.text}
+                </a>
+              ))}
+            </nav>
+          </Fragment>
         )
       }
     </aside>
   </div>
 
-  <!-- Sidebar expand button (visible only when sidebar is collapsed) -->
+  <!-- Sidebar collapse handle (Obsidian-style: rides the divider, always visible) -->
   <button
     class="sidebar-expand-btn"
     id="sidebar-expand-btn"
     type="button"
-    aria-label="Expand navigation sidebar"
-    title="Expand sidebar">&#x276F;</button
+    aria-label="Collapse navigation sidebar"
+    title="Toggle sidebar"
   >
+    <svg
+      class="collapse-icon"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2.2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      aria-hidden="true"
+    >
+      <polyline points="11 7 6 12 11 17"></polyline>
+      <polyline points="17 7 12 12 17 17"></polyline>
+    </svg>
+  </button>
+
+  <!-- TOC collapse handle (mirrors the sidebar) -->
+  <button
+    class="toc-expand-btn"
+    id="toc-expand-btn"
+    type="button"
+    aria-label="Collapse table of contents"
+    title="Toggle table of contents"
+  >
+    <svg
+      class="collapse-icon"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2.2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      aria-hidden="true"
+    >
+      <polyline points="11 7 6 12 11 17"></polyline>
+      <polyline points="17 7 12 12 17 17"></polyline>
+    </svg>
+  </button>
 
   <!-- Reading progress bar -->
   <div class="reading-progress-bar" id="reading-progress" aria-hidden="true"></div>
@@ -365,27 +396,48 @@ const nextPage = currentIdx < allPages.length - 1 ? allPages[currentIdx + 1] : n
   );
   backBtn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
 
-  // ── Sidebar collapse (desktop only) ───────────────────────────
+  // ── Sidebar + TOC collapse (desktop only) ─────────────────────
+  // One fixed tab per side toggles its panel. Both tabs share the same fixed top,
+  // so the arrows always line up — whether a panel is open or hidden.
   const docsLayout = document.getElementById('docs-layout') as HTMLElement;
-  const collapseBtn = document.getElementById('sidebar-collapse-btn') as HTMLButtonElement;
-  const expandBtn = document.getElementById('sidebar-expand-btn') as HTMLButtonElement;
+  const sidebarTab = document.getElementById('sidebar-expand-btn') as HTMLButtonElement | null;
+  const tocTab = document.getElementById('toc-expand-btn') as HTMLButtonElement | null;
 
-  function setSidebarCollapsed(collapsed: boolean): void {
+  const setSidebar = (collapsed: boolean): void => {
     docsLayout.classList.toggle('sidebar-collapsed', collapsed);
+    // Icon direction is CSS-driven off the collapsed class; keep the label in sync.
+    sidebarTab?.setAttribute(
+      'aria-label',
+      collapsed ? 'Expand navigation sidebar' : 'Collapse navigation sidebar',
+    );
     try {
       localStorage.setItem('sidebar-collapsed', collapsed ? '1' : '0');
     } catch {}
-  }
+  };
+  const setToc = (collapsed: boolean): void => {
+    docsLayout.classList.toggle('toc-collapsed', collapsed);
+    tocTab?.setAttribute(
+      'aria-label',
+      collapsed ? 'Expand table of contents' : 'Collapse table of contents',
+    );
+    try {
+      localStorage.setItem('toc-collapsed', collapsed ? '1' : '0');
+    } catch {}
+  };
 
-  // Restore persisted preference
+  let sidebarStart = false;
+  let tocStart = false;
   try {
-    if (localStorage.getItem('sidebar-collapsed') === '1') {
-      docsLayout.classList.add('sidebar-collapsed');
-    }
+    sidebarStart = localStorage.getItem('sidebar-collapsed') === '1';
+    tocStart = localStorage.getItem('toc-collapsed') === '1';
   } catch {}
+  setSidebar(sidebarStart);
+  setToc(tocStart);
 
-  collapseBtn?.addEventListener('click', () => setSidebarCollapsed(true));
-  expandBtn?.addEventListener('click', () => setSidebarCollapsed(false));
+  sidebarTab?.addEventListener('click', () =>
+    setSidebar(!docsLayout.classList.contains('sidebar-collapsed')),
+  );
+  tocTab?.addEventListener('click', () => setToc(!docsLayout.classList.contains('toc-collapsed')));
 </script>
 
 <script type="module" is:inline>

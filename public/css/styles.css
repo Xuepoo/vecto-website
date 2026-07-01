@@ -1,4 +1,4 @@
-/* VectoUI Site - Core Premium CSS */
+/* VectoJS Site - Core Premium CSS */
 
 :root {
   --bg-color: #0b0f19;
@@ -30,22 +30,20 @@ body {
   position: relative;
 }
 
-/* Background glow grid — homepage only */
-body::before {
+/* Background glow — homepage only. Other pages stay a clean, uniform dark so the
+   glow never ends mid-page and leaves a visible seam. */
+body.page-home::before {
   content: '';
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 800px;
-  background: radial-gradient(circle at 10% 20%, var(--primary-glow) 0%, transparent 50%),
+  background:
+    radial-gradient(circle at 10% 20%, var(--primary-glow) 0%, transparent 50%),
     radial-gradient(circle at 90% 80%, var(--accent-glow) 0%, transparent 50%);
   pointer-events: none;
   z-index: -2;
-}
-
-body.page-docs::before {
-  display: none;
 }
 
 .container {
@@ -60,9 +58,9 @@ body.page-docs::before {
   position: sticky;
   top: 0;
   width: 100%;
-  background: var(--glass-bg);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  /* Near-opaque instead of backdrop-filter: a sticky blur re-renders every scroll
+     frame and was the main cause of janky page scrolling. */
+  background: rgba(11, 15, 25, 0.95);
   border-bottom: 1px solid var(--border-color);
   z-index: 100;
   padding: 0.75rem 0;
@@ -411,7 +409,8 @@ body.page-docs::before {
   text-align: center;
   overflow: hidden;
   border-bottom: 1px solid var(--border-color);
-  background: radial-gradient(900px 520px at 78% 22%, rgba(59, 130, 246, 0.12), transparent 60%),
+  background:
+    radial-gradient(900px 520px at 78% 22%, rgba(59, 130, 246, 0.12), transparent 60%),
     radial-gradient(760px 520px at 16% 78%, rgba(99, 102, 241, 0.1), transparent 60%),
     radial-gradient(1200px 800px at 50% 50%, #070b16 0%, #05070f 70%);
 }
@@ -731,77 +730,163 @@ body.page-docs::before {
   --toc-w: 210px;
 }
 
-/* Main 3-column grid */
+/* Main 3-column grid. Children are pinned to explicit tracks (grid-column) rather
+   than relying on DOM-order auto-placement: on mobile .docs-sidebar becomes an
+   off-canvas `position: fixed` drawer, and an out-of-flow grid item is skipped by
+   the auto-placement algorithm — without explicit placement, .docs-content would
+   slide into track 1 and collapse to near-zero width. */
 .docs-layout {
   display: grid;
   grid-template-columns: var(--sidebar-w) 1fr var(--toc-w);
   grid-template-rows: 1fr;
   min-height: calc(100vh - var(--navbar-h));
-  max-width: 1440px;
+  max-width: 1760px;
   margin: 0 auto;
   transition: grid-template-columns 0.22s ease;
 }
-
-/* Sidebar collapsed state */
-.docs-layout.sidebar-collapsed {
-  grid-template-columns: 0px 1fr var(--toc-w);
+.docs-sidebar {
+  grid-column: 1;
 }
-.docs-layout.sidebar-collapsed .docs-sidebar {
-  overflow: hidden;
-  width: 0;
-  padding: 0;
-  border-right: none;
-  pointer-events: none;
+.docs-content {
+  grid-column: 2;
+}
+.docs-toc {
+  grid-column: 3;
 }
 
-/* Sidebar collapse toggle button (desktop only, inside sidebar) */
-.sidebar-collapse-btn {
-  display: block;
-  margin-left: auto;
-  margin-bottom: 1.25rem;
-  width: 28px;
-  height: 28px;
-  background: transparent;
-  border: 1px solid var(--border-color);
-  border-radius: 6px;
-  cursor: pointer;
-  color: var(--text-muted);
-  font-size: 10px;
-  line-height: 1;
-  transition: color 0.15s, border-color 0.15s;
-}
-.sidebar-collapse-btn:hover {
-  color: var(--accent);
-  border-color: rgba(59, 130, 246, 0.5);
+/* Sidebar collapsed state. Scoped to the width range where the collapse handle is
+   actually shown (min-width: 769px) — otherwise a state persisted in localStorage
+   from a desktop visit would reassert this 3-column template on mobile even though
+   the plain mobile override further down says single-column. */
+@media (min-width: 769px) {
+  .docs-layout.sidebar-collapsed {
+    grid-template-columns: 0px 1fr var(--toc-w);
+  }
+  .docs-layout.sidebar-collapsed .docs-sidebar {
+    overflow: hidden;
+    width: 0;
+    padding: 0;
+    border-right: none;
+    pointer-events: none;
+  }
 }
 
-/* Expand button: visible only when sidebar is collapsed */
+/* Obsidian-style collapse handle: a rounded tab that rides the sidebar's inner
+   divider when open and slides to the layout edge when collapsed. Always visible;
+   the double-chevron icon flips to point the way it will move the panel. */
 .sidebar-expand-btn {
-  display: none;
+  display: flex;
   position: fixed;
-  top: calc(var(--navbar-h) + 80px);
-  left: 0;
+  top: calc(var(--navbar-h) + 72px);
+  left: max(0px, calc((100vw - 1760px) / 2));
+  transform: translateX(var(--sidebar-w));
   z-index: 90;
-  width: 22px;
-  height: 48px;
-  background: var(--bg-card);
+  width: 24px;
+  height: 52px;
+  background: rgba(17, 24, 39, 0.9);
   border: 1px solid var(--border-color);
-  border-left: none;
-  border-radius: 0 8px 8px 0;
+  border-radius: 0 9px 9px 0;
   cursor: pointer;
   align-items: center;
   justify-content: center;
   color: var(--text-muted);
-  font-size: 10px;
-  transition: color 0.15s;
+  transition:
+    transform 0.22s ease,
+    color 0.15s ease,
+    background 0.15s ease,
+    border-color 0.15s ease;
 }
-.sidebar-expand-btn:hover { color: var(--accent); }
-.docs-layout.sidebar-collapsed ~ .sidebar-expand-btn { display: flex; }
+.sidebar-expand-btn:hover {
+  color: var(--accent);
+  background: rgba(56, 189, 248, 0.08);
+  border-color: rgba(56, 189, 248, 0.35);
+}
+.docs-layout.sidebar-collapsed ~ .sidebar-expand-btn {
+  transform: translateX(0);
+}
+.sidebar-expand-btn .collapse-icon {
+  width: 15px;
+  height: 15px;
+  transition: transform 0.2s ease;
+}
+.docs-layout.sidebar-collapsed ~ .sidebar-expand-btn .collapse-icon {
+  transform: rotate(180deg);
+}
 
-/* Suppress these controls on mobile (uses the existing mobile drawer instead) */
+/* Suppress the desktop collapse handle on mobile (the drawer is used instead) */
 @media (max-width: 768px) {
-  .sidebar-collapse-btn,
-  .sidebar-expand-btn { display: none !important; }
+  .sidebar-expand-btn {
+    display: none !important;
+  }
+}
+
+/* TOC collapsed state (mirrors the sidebar). Scoped to min-width: 1101px — the TOC
+   column doesn't exist at all below that (see the Responsiveness section), so a
+   persisted toc-collapsed=1 from a wide-viewport visit must not reassert a 3-column
+   template at narrower widths. */
+@media (min-width: 1101px) {
+  .docs-layout.toc-collapsed {
+    grid-template-columns: var(--sidebar-w) 1fr 0px;
+  }
+  .docs-layout.sidebar-collapsed.toc-collapsed {
+    grid-template-columns: 0px 1fr 0px;
+  }
+  .docs-layout.toc-collapsed .docs-toc {
+    overflow: hidden;
+    width: 0;
+    padding: 0;
+    border-left: none;
+    pointer-events: none;
+  }
+}
+
+/* Obsidian-style collapse handle for the TOC (mirrors the sidebar). Shares the
+   same fixed top so both handles always line up. */
+.toc-expand-btn {
+  display: flex;
+  position: fixed;
+  top: calc(var(--navbar-h) + 72px);
+  right: max(0px, calc((100vw - 1760px) / 2));
+  transform: translateX(calc(-1 * var(--toc-w)));
+  z-index: 90;
+  width: 24px;
+  height: 52px;
+  background: rgba(17, 24, 39, 0.9);
+  border: 1px solid var(--border-color);
+  border-radius: 9px 0 0 9px;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  transition:
+    transform 0.22s ease,
+    color 0.15s ease,
+    background 0.15s ease,
+    border-color 0.15s ease;
+}
+.toc-expand-btn:hover {
+  color: var(--accent);
+  background: rgba(56, 189, 248, 0.08);
+  border-color: rgba(56, 189, 248, 0.35);
+}
+.docs-layout.toc-collapsed ~ .toc-expand-btn {
+  transform: translateX(0);
+}
+.toc-expand-btn .collapse-icon {
+  width: 15px;
+  height: 15px;
+  transform: rotate(180deg);
+  transition: transform 0.2s ease;
+}
+.docs-layout.toc-collapsed ~ .toc-expand-btn .collapse-icon {
+  transform: rotate(0deg);
+}
+
+/* TOC only exists above 1100px — suppress its handle below that */
+@media (max-width: 1100px) {
+  .toc-expand-btn {
+    display: none !important;
+  }
 }
 
 /* ---- Left Sidebar ---- */
@@ -815,7 +900,9 @@ body.page-docs::before {
   border-right: 1px solid var(--border-color);
   scrollbar-width: thin;
   scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
-  transition: padding 0.22s ease, border-color 0.22s ease;
+  transition:
+    padding 0.22s ease,
+    border-color 0.22s ease;
   min-width: 0;
 }
 
@@ -865,11 +952,16 @@ body.page-docs::before {
   font-weight: 600;
 }
 
-/* ---- Main Article ---- */
+/* ---- Main Article ----
+   Centered within its grid track (like the Blog article column) rather than sitting
+   flush left against the sidebar, so Learn/Reference read with the same comfortable,
+   balanced margins as a Blog post while keeping both side panels. */
 .docs-content {
   min-width: 0; /* prevent grid blowout */
-  padding: 3rem 3.5rem;
-  max-width: 860px;
+  width: 100%;
+  max-width: 780px;
+  margin: 0 auto;
+  padding: 3rem 2rem 6rem;
 }
 
 /* ---- Right TOC ---- */
@@ -1048,7 +1140,10 @@ body.page-docs::before {
   border-radius: 6px;
   cursor: pointer;
   opacity: 0;
-  transition: opacity 0.15s, color 0.15s, border-color 0.15s;
+  transition:
+    opacity 0.15s,
+    color 0.15s,
+    border-color 0.15s;
   z-index: 2;
 }
 
@@ -1093,7 +1188,10 @@ body.page-docs::before {
   justify-content: center;
   z-index: 50;
   backdrop-filter: blur(8px);
-  transition: color 0.2s, border-color 0.2s, transform 0.2s;
+  transition:
+    color 0.2s,
+    border-color 0.2s,
+    transform 0.2s;
 }
 
 .back-to-top:hover {
@@ -1207,6 +1305,16 @@ html {
   display: block;
 }
 
+/* Diagrams rendered live by VectoJS (canvas in an iframe) rather than static SVG */
+.prose figure .diagram-frame {
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  background: #0a0e1a;
+  display: block;
+}
+
 .prose figure figcaption {
   margin-top: 0.6rem;
   font-size: 0.82rem;
@@ -1273,6 +1381,37 @@ html {
 
 .prose figure.sandbox {
   margin: 2rem 0;
+}
+
+/* CTA card that links out to a full demo page (used where an embedded iframe
+   would be too heavy, e.g. the WebGPU particle field → the Nexus demo). */
+.sandbox-cta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1.75rem;
+  border-radius: 12px;
+  border: 1px solid rgba(99, 102, 241, 0.35);
+  background:
+    radial-gradient(700px 240px at 50% -20%, rgba(99, 102, 241, 0.18), transparent 70%), #0a0e1a;
+  text-decoration: none;
+  transition:
+    border-color 0.2s ease,
+    transform 0.2s ease;
+}
+.sandbox-cta:hover {
+  border-color: rgba(99, 102, 241, 0.7);
+  transform: translateY(-2px);
+}
+.sandbox-cta-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #c7d2fe;
+}
+.sandbox-cta-sub {
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--text-muted);
 }
 
 .sandbox-frame {
@@ -1370,7 +1509,9 @@ html {
   background: rgba(15, 23, 42, 0.4);
   color: inherit;
   text-decoration: none;
-  transition: border-color 0.2s, background 0.2s;
+  transition:
+    border-color 0.2s,
+    background 0.2s;
   max-width: 46%;
 }
 
@@ -1623,29 +1764,42 @@ html {
   line-height: 1;
 }
 
-.prose .callout p:first-child { margin-top: 0; }
-.prose .callout p:last-child  { margin-bottom: 0; }
+.prose .callout p:first-child {
+  margin-top: 0;
+}
+.prose .callout p:last-child {
+  margin-bottom: 0;
+}
 
 .prose .callout-note {
   background: rgba(56, 189, 248, 0.07);
   border-color: rgba(56, 189, 248, 0.25);
   color: #bae6fd;
 }
-.prose .callout-note::before { content: 'ℹ'; color: #38bdf8; }
+.prose .callout-note::before {
+  content: 'ℹ';
+  color: #38bdf8;
+}
 
 .prose .callout-tip {
   background: rgba(16, 185, 129, 0.07);
   border-color: rgba(16, 185, 129, 0.25);
   color: #a7f3d0;
 }
-.prose .callout-tip::before { content: '✦'; color: #10b981; }
+.prose .callout-tip::before {
+  content: '✦';
+  color: #10b981;
+}
 
 .prose .callout-warning {
   background: rgba(245, 158, 11, 0.07);
   border-color: rgba(245, 158, 11, 0.25);
   color: #fde68a;
 }
-.prose .callout-warning::before { content: '⚠'; color: #f59e0b; }
+.prose .callout-warning::before {
+  content: '⚠';
+  color: #f59e0b;
+}
 
 .prose .callout-caution {
   background: rgba(239, 68, 68, 0.07);
@@ -1664,7 +1818,10 @@ html {
   border-color: rgba(139, 92, 246, 0.25);
   color: #ddd6fe;
 }
-.prose .callout-important::before { content: '★'; color: #8b5cf6; }
+.prose .callout-important::before {
+  content: '★';
+  color: #8b5cf6;
+}
 
 /* ── Reading progress bar ───────────────────────────────────── */
 .reading-progress-bar {
@@ -1727,7 +1884,10 @@ html {
   text-decoration: none;
   border: 1px solid var(--border-color);
   color: var(--text-muted);
-  transition: border-color 0.15s, color 0.15s, background 0.15s;
+  transition:
+    border-color 0.15s,
+    color 0.15s,
+    background 0.15s;
 }
 
 .feedback-yes:hover {
@@ -1784,7 +1944,7 @@ html {
     color: #666;
   }
 
-  .prose a[href^="#"]::after {
+  .prose a[href^='#']::after {
     content: '';
   }
 }
@@ -1898,7 +2058,9 @@ html {
   border-radius: 4px;
   transition: color 0.15s;
 }
-.shortcuts-close:hover { color: var(--text-color); }
+.shortcuts-close:hover {
+  color: var(--text-color);
+}
 
 .shortcuts-list {
   margin: 0;
@@ -1948,4 +2110,143 @@ html {
   color: var(--text-muted);
   margin: 0;
   text-align: right;
+}
+
+/* ============================================================
+   Blog — index list + single-post article
+   ============================================================ */
+.blog-section {
+  padding: 5rem 0 7rem;
+}
+
+.blog-lede {
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 1.1rem;
+  max-width: 60ch;
+  margin: -2.5rem auto 3.5rem;
+  line-height: 1.6;
+}
+
+.blog-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 1.5rem;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.blog-card {
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  padding: 1.75rem;
+  text-decoration: none;
+  transition:
+    transform 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+.blog-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(91, 156, 255, 0.45);
+  box-shadow: 0 12px 36px rgba(37, 99, 235, 0.12);
+}
+
+.blog-card-meta,
+.blog-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  margin: 0 0 0.6rem;
+}
+
+.blog-dot {
+  opacity: 0.5;
+}
+
+.blog-card h3 {
+  font-family: var(--font-title);
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #fff;
+  margin: 0 0 0.6rem;
+  line-height: 1.25;
+}
+
+.blog-card-desc {
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  line-height: 1.6;
+  margin: 0 0 1rem;
+  flex: 1;
+}
+
+.blog-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: 0 0 1rem;
+}
+
+.blog-tag {
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: #9db8ff;
+  background: rgba(91, 156, 255, 0.1);
+  border: 1px solid rgba(91, 156, 255, 0.2);
+  border-radius: 999px;
+  padding: 0.2rem 0.7rem;
+}
+
+.blog-go {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--accent);
+  margin-top: auto;
+}
+
+/* Single post */
+.blog-article {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 3.5rem 1.5rem 6rem;
+}
+
+.blog-back {
+  display: inline-block;
+  color: var(--text-muted);
+  text-decoration: none;
+  font-size: 0.9rem;
+  margin-bottom: 1.75rem;
+  transition: color 0.2s ease;
+}
+
+.blog-back:hover {
+  color: var(--accent);
+}
+
+.blog-title {
+  font-family: var(--font-title);
+  font-size: clamp(2rem, 5vw, 3rem);
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.5px;
+  color: #fff;
+  margin: 0 0 1rem;
+}
+
+.blog-article .blog-meta {
+  margin-bottom: 0.75rem;
+}
+
+.blog-article > .blog-tags {
+  margin-bottom: 2.5rem;
 }
