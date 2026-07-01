@@ -1,5 +1,5 @@
 ---
-import { SITE } from '../consts';
+import { SITE, BUILD_ID } from '../consts';
 
 interface Props {
   title?: string;
@@ -51,7 +51,7 @@ const isHome = pathname === '/';
     <meta property="og:title" content={fullTitle} />
     <meta property="og:description" content={description} />
     <meta property="og:type" content="website" />
-    <meta property="og:site_name" content="VectoUI" />
+    <meta property="og:site_name" content="VectoJS" />
     <meta name="twitter:card" content="summary" />
     <meta name="twitter:title" content={fullTitle} />
     <meta name="twitter:description" content={description} />
@@ -71,7 +71,7 @@ const isHome = pathname === '/';
       rel="stylesheet"
     />
 
-    <link rel="stylesheet" href="/css/styles.css" />
+    <link rel="stylesheet" href={`/css/styles.css?v=${BUILD_ID}`} />
     <slot name="head" />
   </head>
   <body class:list={[{ 'page-docs': isLearn || isReference, 'page-home': isHome }]}>
@@ -280,7 +280,7 @@ const isHome = pathname === '/';
 
     <footer class="footer">
       <div class="container footer-container">
-        <p>&copy; 2026 VectoUI. Built with Astro and VectoUI.</p>
+        <p>&copy; 2026 VectoJS. Built with Astro and VectoJS.</p>
         <div class="footer-links">
           <a href={SITE.github}>GitHub</a>
           <a href="https://astro.build">Astro</a>

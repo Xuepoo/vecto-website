@@ -1,11 +1,11 @@
 ---
 import Base from '../../layouts/Base.astro';
-import { demoBySlug } from '../../consts';
+import { demoBySlug, BUILD_ID } from '../../consts';
 const demo = demoBySlug('danmaku');
 ---
 
 <Base title={demo.title} description={demo.description}>
-  <link slot="head" rel="stylesheet" href="/css/demo.css" />
+  <link slot="head" rel="stylesheet" href={`/css/demo.css?v=${BUILD_ID}`} />
   <section class="demo-wrap container">
     <header class="demo-head">
       <a class="demo-back" href="/demos/">← All demos</a>
@@ -13,7 +13,7 @@ const demo = demoBySlug('danmaku');
       <p class="demo-lede">{demo.description}</p>
     </header>
 
-    <div class="stage" id="stage">
+    <div class="stage" id="stage" data-immersive>
       <video id="stage-video" src="/demos/sample.mp4" loop muted playsinline preload="auto"></video>
       <canvas id="danmaku-canvas"></canvas>
       <div class="hud">
@@ -177,7 +177,7 @@ const demo = demoBySlug('danmaku');
           </p>
         </div>
         <div class="explain-card explain-win">
-          <h4>VectoUI</h4>
+          <h4>VectoJS</h4>
           <p>
             Thousands of real entities: smooth like canvas, yet each is hit-tested — and any one can
             project a real ARIA node an agent can drive.
@@ -190,4 +190,5 @@ const demo = demoBySlug('danmaku');
 
 <script>
   import '../../demos/danmaku';
+  import '../../demos/immersive';
 </script>

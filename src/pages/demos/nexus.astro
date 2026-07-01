@@ -1,11 +1,11 @@
 ---
 import Base from '../../layouts/Base.astro';
-import { demoBySlug } from '../../consts';
+import { demoBySlug, BUILD_ID } from '../../consts';
 const demo = demoBySlug('nexus');
 ---
 
 <Base title={demo.title} description={demo.description}>
-  <link slot="head" rel="stylesheet" href="/css/demo.css" />
+  <link slot="head" rel="stylesheet" href={`/css/demo.css?v=${BUILD_ID}`} />
   <section class="demo-wrap container">
     <header class="demo-head">
       <a class="demo-back" href="/demos/">← All demos</a>
@@ -13,7 +13,7 @@ const demo = demoBySlug('nexus');
       <p class="demo-lede">{demo.description}</p>
     </header>
 
-    <div class="stage stage-nexus" id="stage">
+    <div class="stage stage-nexus" id="stage" data-immersive>
       <canvas id="nexus-canvas"></canvas>
       <div class="hud">
         <span>Particles <b id="hud-particles">0</b></span>
@@ -63,7 +63,7 @@ const demo = demoBySlug('nexus');
       </label>
       <div class="ctl-actions">
         <label class="ctl-check"
-          ><input id="ctl-shape" type="checkbox" checked /> Form “VectoUI”</label
+          ><input id="ctl-shape" type="checkbox" checked /> Form “VectoJS”</label
         >
         <label class="ctl-inline"
           >Frame cap
@@ -110,7 +110,7 @@ const demo = demoBySlug('nexus');
         <div class="explain-card">
           <h4>Springs to shape</h4>
           <p>
-            Each particle's origin is sampled from the pixels of the word “VectoUI”, and a spring
+            Each particle's origin is sampled from the pixels of the word “VectoJS”, and a spring
             holds it there — push through with your cursor and it flows back into the letters.
           </p>
         </div>
@@ -121,4 +121,5 @@ const demo = demoBySlug('nexus');
 
 <script>
   import '../../demos/nexus';
+  import '../../demos/immersive';
 </script>
