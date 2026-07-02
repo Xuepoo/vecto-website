@@ -24,8 +24,12 @@ function initImmersive(): void {
       document.body.classList.toggle('immersive-lock', open);
       btn.innerHTML = open ? CLOSE_ICON : EXPAND_ICON;
       btn.title = open ? 'Exit immersive view (Esc)' : 'Immersive view — Esc to exit';
-      // Let the new layout settle, then let the demo refit to the new size.
+      // Let the new layout settle, then let the demo refit to the new size. We fire
+      // twice — once on the next frame, once after a short delay — so a demo that
+      // reads its size mid-settle (slow first paint, fractional browser zoom) still
+      // gets a correct second measurement and fills the viewport.
       requestAnimationFrame(() => window.dispatchEvent(new Event('resize')));
+      setTimeout(() => window.dispatchEvent(new Event('resize')), 220);
     };
 
     btn.addEventListener('click', () => setOpen(!target.classList.contains('is-immersive')));
