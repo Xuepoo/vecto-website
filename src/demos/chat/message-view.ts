@@ -1,6 +1,7 @@
 import { Entity } from '@vectojs/core';
 import { Markdown, Stack, type MarkdownTheme } from '@vectojs/ui';
 import { segmentMarkdown, type SpecialType } from './segment';
+import { renderInlineMath } from './math-inline';
 
 export type RenderSpecial = (
   type: SpecialType,
@@ -42,7 +43,12 @@ export class MessageView {
   }
 
   update(raw: string): void {
-    const segs = segmentMarkdown(raw);
+    // Block $$…$$ is split out by segmentMarkdown (→ KaTeX SVG); inline $…$ inside
+    // the remaining prose is converted to readable Unicode here, since it can't be
+    // dropped as an SVG mid-paragraph.
+    const segs = segmentMarkdown(raw).map((s) =>
+      s.type === 'markdown' ? { ...s, text: renderInlineMath(s.text) } : s,
+    );
     let structureChanged = segs.length !== this.slots.length;
 
     for (let i = 0; i < segs.length; i++) {

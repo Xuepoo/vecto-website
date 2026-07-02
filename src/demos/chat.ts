@@ -13,6 +13,7 @@
 import { Scene } from '@vectojs/core';
 import { Markdown, ScrollView, Stack, type MarkdownTheme } from '@vectojs/ui';
 import { MessageView } from './chat/message-view';
+import { renderSpecial } from './chat/render-special';
 import { pacedTokens } from './chat/stream';
 import { SAMPLES } from './chat/corpus';
 
@@ -28,7 +29,11 @@ const THEME: MarkdownTheme = {
   quoteTextColor: '#9fb0cc',
   hrColor: 'rgba(255,255,255,0.12)',
   bodyFont: 'Inter, system-ui, sans-serif',
-  codeFont: 'ui-monospace, "Cascadia Code", monospace',
+  // A broad, concrete monospace stack. `ui-monospace` resolves inconsistently on
+  // Linux, so we name widely-installed fixed-width fonts before the generic
+  // fallback for more predictable glyph metrics across platforms.
+  codeFont:
+    'ui-monospace, "JetBrains Mono", "Fira Code", "Cascadia Code", "DejaVu Sans Mono", "Liberation Mono", Menlo, Consolas, monospace',
   fontSize: 15,
 };
 
@@ -235,9 +240,9 @@ function initChat(): void {
     transcript.layout();
     realignBlocks();
     scroll.updateContentSize();
-    scroll.scrollToBottom(); // public API (0.9.2) — clamps internally, no spring blow-up
+    scroll.scrollToBottom(); // public API (0.1.0) — clamps internally, no spring blow-up
     // Wake the render loop on every content change; when streaming stops and the
-    // transcript is idle, the engine's auto-throttle (0.9.2) lets it drop to ~2 FPS.
+    // transcript is idle, the engine's auto-throttle (0.1.0) lets it drop to ~2 FPS.
     scene.markDirty();
   };
 
@@ -270,7 +275,7 @@ function initChat(): void {
   // saved transcript on load.
   const renderAssistant = (text: string): void => {
     const block = addBlock('VectoJS');
-    const mv = new MessageView(contentWidth, THEME, undefined, () => reflow(block));
+    const mv = new MessageView(contentWidth, THEME, renderSpecial, () => reflow(block));
     block.add(mv.stack);
     mv.update(text);
     reflow(block);
@@ -282,7 +287,7 @@ function initChat(): void {
     abort = new AbortController();
     const signal = abort.signal;
     const block = addBlock('VectoJS');
-    const mv = new MessageView(contentWidth, THEME, undefined, () => reflow(block));
+    const mv = new MessageView(contentWidth, THEME, renderSpecial, () => reflow(block));
     block.add(mv.stack);
     reflow(block);
 
@@ -416,6 +421,7 @@ function initChat(): void {
       __Stack: Stack,
       __transcript: transcript,
       __scroll: scroll,
+      __renderAssistant: renderAssistant,
     });
   }
 
