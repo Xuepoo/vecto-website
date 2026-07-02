@@ -366,7 +366,7 @@ function initDanmaku(): void {
   // Seed a few immediately so the stage isn't empty on first paint.
   for (let i = 0; i < 12; i++) engine.spawn(rollComment());
   scene.start();
-  // Comments scroll every frame; keep the scene live so the 0.9.2 idle throttle
+  // Comments scroll every frame; keep the scene live so the 0.1.0 idle throttle
   // doesn't drop it to ~2 FPS. While paused we let it throttle to save resources.
   keepSceneLive(scene, () => !engine.paused);
 }

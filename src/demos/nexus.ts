@@ -22,7 +22,7 @@ function initNexus(): void {
   const stage = $('stage');
   if (!canvas || !stage) return;
 
-  // WebGPU compute drives the particles when available (core@0.9.2 fixed the
+  // WebGPU compute drives the particles when available (core@0.1.0 fixed the
   // vertex storage-binding bug that used to blank the field); pointBackend 'webgl'
   // gives the CPU fallback a fast GPU-instanced point draw rather than per-particle
   // fillCircle. The HUD reports which compute backend actually ran.
@@ -30,7 +30,7 @@ function initNexus(): void {
 
   const meter = new FrameMeter();
   scene.add(meter);
-  // The field animates every frame, so keep it live (defeats the 0.9.2 idle throttle).
+  // The field animates every frame, so keep it live (defeats the 0.1.0 idle throttle).
   keepSceneLive(scene);
 
   let particles: ComputeParticleEntity | null = null;

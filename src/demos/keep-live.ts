@@ -2,7 +2,7 @@ import type { Scene } from '@vectojs/core';
 
 /**
  * Keep a continuously-animated scene rendering at full rate despite the idle
- * auto-throttle added in core@0.9.2 (a "static" scene — no dirty flag, no pending
+ * auto-throttle added in core@0.1.0 (a "static" scene — no dirty flag, no pending
  * tween — drops to ~2 FPS). Demos that move entities by hand in `update()` aren't
  * seen as animating, and marking dirty *inside* `update()` is futile: the loop
  * resets `dirty` right after rendering. So we mark dirty from a standalone rAF

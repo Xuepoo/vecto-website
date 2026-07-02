@@ -498,7 +498,7 @@ function initHero(): void {
   fit();
   scene.start();
 
-  // The starfield drifts every frame; keep the scene live so 0.9.2's idle
+  // The starfield drifts every frame; keep the scene live so 0.1.0's idle
   // auto-throttle doesn't drop it (and the on-canvas FPS readout) to ~2 —
   // BUT only while the hero is on screen and the tab is visible. Once it scrolls
   // away, let it throttle so the continuous loop stops stuttering page scroll.
