@@ -40,11 +40,17 @@ export interface GraphLayout {
   clusters: ClusterDef[];
 }
 
+// A single, unified hue for every cluster. Earlier the four clusters each had
+// their own color (cyan / purple / green / amber), but that read as a confusing
+// rainbow rather than meaningful structure — which package a node belongs to is
+// already conveyed by its position around a labeled hub and by the hover label.
+// Depth now comes from particle size/opacity variation, not from hue.
+const NODE_HUE = '#38bdf8';
 export const CLUSTERS: ClusterDef[] = [
-  { key: 'core', label: '@vectojs/core', color: '#38bdf8' },
-  { key: 'ui', label: '@vectojs/ui', color: '#a78bfa' },
-  { key: 'three', label: '@vectojs/three', color: '#4ade80' },
-  { key: 'vectomancy', label: 'Vectomancy', color: '#f59e0b' },
+  { key: 'core', label: '@vectojs/core', color: NODE_HUE },
+  { key: 'ui', label: '@vectojs/ui', color: NODE_HUE },
+  { key: 'three', label: '@vectojs/three', color: NODE_HUE },
+  { key: 'vectomancy', label: 'Vectomancy', color: NODE_HUE },
 ];
 
 const CONCEPTS: ConceptDef[] = [

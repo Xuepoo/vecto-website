@@ -11,8 +11,8 @@
 export const BUILD_ID = Date.now().toString(36);
 
 export const VERSIONS = {
-  core: '0.9.2',
-  ui: '0.4.2',
+  core: '0.1.0',
+  ui: '0.1.0',
 } as const;
 
 export const SITE = {
@@ -61,7 +61,7 @@ export const DEMOS: DemoMeta[] = [
     slug: 'graph',
     title: 'Knowledge Graph',
     description:
-      'An infinite pan/zoom canvas mapping the VectoJS ecosystem — real packages and concepts as a labeled backbone, surrounded by thousands of colored satellite nodes. Static layout, WebGL-batched, where DOM/SVG graph libraries choke past a couple thousand nodes.',
+      'An infinite pan/zoom canvas mapping the VectoJS ecosystem — real packages and concepts as a labeled backbone, surrounded by thousands of satellite nodes. Static layout, WebGL-batched, where DOM/SVG graph libraries choke past a couple thousand nodes.',
     tag: 'Infinite canvas · Scale · Graph',
   },
 ];

@@ -1,12 +1,13 @@
 /**
  * Knowledge Graph — an infinite pan/zoom canvas rendering the VectoJS ecosystem as a
  * hub-and-cluster graph: a real, labeled backbone (root -> 4 packages -> ~20 concepts)
- * surrounded by thousands of synthetic satellite nodes, colored per cluster. The
- * satellites are rendered by several `ComputeParticleEntity` instances (the SAME
- * WebGL-batched engine primitive that renders 150k points in the Nexus demo) — one
- * per cluster color, since particle color is a per-system, not per-particle,
- * property. The backbone (a few dozen nodes) is drawn directly with plain
- * fillCircle/fillText calls; that's cheap enough it doesn't need batching.
+ * surrounded by thousands of synthetic satellite nodes. The satellites are rendered
+ * by several `ComputeParticleEntity` instances (the SAME WebGL-batched engine
+ * primitive that renders 150k points in the Nexus demo) — one per cluster, kept as
+ * separate systems so each cluster can be seeded/grown independently (they now all
+ * share one hue, so this is no longer a per-color split). The backbone (a few dozen
+ * nodes) is drawn directly with plain fillCircle/fillText calls; that's cheap
+ * enough it doesn't need batching.
  *
  * Hit-testing for hover does NOT walk the particle buffers — it queries a spatial
  * hash built over a flat position array that this module owns as the single source
@@ -156,8 +157,9 @@ function initGraph(): void {
   const backbone = new GraphBackbone(layout);
   scene.add(backbone);
 
-  // One ComputeParticleEntity per cluster color (particle color is a whole-system
-  // property, not per-particle, so a multi-color cloud needs one system per color).
+  // One ComputeParticleEntity per cluster. All clusters now share a single hue, so
+  // this split is no longer about color — it keeps each cluster an independently
+  // seeded/positioned system (particle color is a whole-system property anyway).
   let particleLayers: ComputeParticleEntity[] = [];
 
   const buildParticleLayers = (): void => {
@@ -297,6 +299,9 @@ function initGraph(): void {
       lastLabelIdx = idx;
       updateHoverLabel(idx);
     }
+    // Keep the label riding just off the cursor (not pinned to a corner), so it
+    // reads as "this node" and never collides with the immersive/close button.
+    if (idx !== null) positionHoverLabel(sx, sy, stage.clientWidth, stage.clientHeight);
   });
   canvas.addEventListener('pointerup', () => {
     dragging = false;
@@ -323,6 +328,24 @@ function initGraph(): void {
       el.textContent = n.label ?? n.kind;
     }
     el.hidden = false;
+  }
+
+  // Place the label just off the cursor, flipping to the other side near an edge
+  // so it never spills outside the stage. Positions are stage-relative (the label
+  // is absolutely positioned inside the position:relative stage). Stage dims are
+  // passed in from the call site, where `stage` is already null-narrowed.
+  function positionHoverLabel(sx: number, sy: number, sw: number, sh: number): void {
+    const el = $('graph-hover-label');
+    if (!el || el.hidden) return;
+    const gap = 16;
+    const w = el.offsetWidth;
+    const h = el.offsetHeight;
+    let x = sx + gap;
+    let y = sy + gap;
+    if (x + w + 8 > sw) x = sx - w - gap; // flip left near the right edge
+    if (y + h + 8 > sh) y = sy - h - gap; // flip up near the bottom edge
+    el.style.left = `${Math.max(8, x)}px`;
+    el.style.top = `${Math.max(8, y)}px`;
   }
 
   window.addEventListener('resize', () => {

@@ -1023,8 +1023,10 @@ body.immersive-lock {
 
 .graph-hover-label {
   position: absolute;
+  /* left/top are set per-frame in graph.ts so the label rides the cursor; these
+     are just a safe pre-position fallback before the first pointermove. */
   top: 14px;
-  right: 14px;
+  left: 14px;
   padding: 7px 13px;
   border-radius: 10px;
   background: rgba(7, 10, 19, 0.7);
@@ -1035,7 +1037,7 @@ body.immersive-lock {
   font-weight: 600;
   color: #e2e8f0;
   pointer-events: none;
-  max-width: 60%;
+  max-width: 240px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
