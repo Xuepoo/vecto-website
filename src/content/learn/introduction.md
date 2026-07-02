@@ -34,6 +34,43 @@ Most canvas libraries give you a drawing API and leave layout, hit-testing, and 
 | **Animation**     | Queued tweens, spring physics                          | External library    |
 | **Components**    | Button, Input, Toggle, Dropdown, ScrollView, Markdown… | Not provided        |
 
+## Core Engine Concepts
+
+VectoJS is built upon eight fundamental mathematical and architectural pillars. For developers moving from a traditional DOM or standard game loop mindset, these concepts establish the foundational "UI as an algebraic equation" mental model:
+
+### 1. The Virtual Math Tree (VMT)
+
+The core tree architecture replacing the traditional browser DOM. It is a pure in-memory, algebraic scene graph of positioned localized coordinate systems. In the VMT, UI hierarchy, transform cascades, and drawing states are entirely resolved as contiguous data models in memory, resulting in Zero-GC pressure and constant-time layout traversal even with over 100,000 active nodes.
+
+### 2. Semantic Shadow DOM (a11yRoot)
+
+Our protective "escape hatch" for Canvas accessibility and testing limitations. To bridge the canvas "black box" deficiency, VectoJS dynamically projects a transparent layer of semantic HTML tags (`<button>`, `<input>`, `<a>`, etc.) absolutely positioned directly above the canvas coordinates. This makes standard Playwright testing selectors (e.g., `getByRole`), screen readers, and native CJK Input Method Editor (IME) compositions work perfectly out of the box.
+
+### 3. Affine Transformations & $SE(2)$ Lie Group
+
+VectoJS rejects CSS layout properties like `absolute` or `flex` positioning. Instead, all translation, scaling, and rotation vectors are compressed into a homogeneous $3 \times 3$ affine transform matrix. Spatial nesting accumulates via matrix multiplications during DFS traversal. Global click events are solved backwards through analytic inversion in $O(1)$ time complexity using **Cramer's Rule**.
+
+### 4. Cold/Hot Split Layout Engine
+
+A typographic architecture that overcomes the browser’s single-threaded reflow layout bottleneck. VectoJS isolates expensive dictionary segmentation and character measurement into the **Cold Pass** (executed only on content change). The responsive bounds wrapping and refitting run in the **Hot Pass** using cached width tables in pure mathematical time, capping LLM text appending complexity to $O(\text{New Tokens})$.
+
+### 5. Set-Difference Algebra for Text Flows
+
+To wrap text around arbitrary shapes and callouts, VectoJS bypasses empirical trial-and-error wrapping. It models text wrapping as **Interval Subtraction Set Theory**. The line width represents a closed interval $I_0 = [0, \text{maxWidth}]$ and obstacles represent subtraction intervals $E_k$, solving the allowed writing space deterministically:
+$$I_{\text{allowed}} = I_0 \setminus \bigcup E_k$$
+
+### 6. Analytical Spline Hit-Testing
+
+Traditional canvas systems click-test curves using pixel color reads or inaccurate rectangular bounding boxes (AABBs). VectoJS introduces computational geometry, formulating click distance as finding roots of a **5th-degree polynomial derivative (Quintic Equation)**. It combines Bézier subdivision and **Newton-Raphson iterations** to converge to float-precision pixel-perfect detection in 3–5 cycles.
+
+### 7. Semi-Implicit Euler ODE Dynamics
+
+CSS easing timers break and jump visually when state transitions are interrupted. VectoJS handles transitions as simulated physical mass-spring-damper systems governed by second-order **Ordinary Differential Equations (ODEs)**. Integrated at runtime via a stable **Semi-Implicit Euler solver**, animated components conserve physical momentum and smoothly adapt to dynamic target changes.
+
+### 8. Spatial Hashing Grid Culling
+
+To prevent $O(N)$ traversal overhead in dense interactive scenes, VectoJS discretization maps the 2D infinite plane to a grid, using prime numbers to construct a 1D spatial hash table. Mouse hover searches and viewport culling query only the target cells and their immediate 8 neighbors, dropping culling and picking complexity to a constant average of **$O(1)$**.
+
 ## Architecture overview
 
 <img src="/images/vmt-architecture.svg" alt="Architecture overview: Scene drives an Entity tree through the rAF loop, physics, and IRenderer backends (Canvas2D, WebGL, WebGPU), projecting an A11y shadow DOM layer and consuming @vectojs/ui components" class="diagram" />

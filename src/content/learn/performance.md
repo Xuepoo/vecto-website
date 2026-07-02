@@ -229,6 +229,56 @@ function renderRow(text: string) {
 
 The buffer path produces zero heap allocations per frame. Constraints: single-column only (no BiDi visual reordering, no exclusion rects). Use `layoutPrepared()` when you need those features.
 
+## CPU Calculation vs. Rendering Bottlenecks
+
+In a traditional browser DOM framework, performance bottlenecks almost always lie in the browser’s **rendering and reflow layout pipeline** (DOM manipulations, style recalculation, and painting). However, because VectoJS bypasses the DOM entirely and processes layout, culling, and interactions mathematically in memory, the performance bottleneck shifts from the GPU/rendering layer directly to **JavaScript single-threaded CPU computation**.
+
+When rendering tens of thousands or hundreds of thousands of active nodes, CPU-side mathematical operations can easily exceed the frame budget of $16.67\text{ ms}$ (required for 60 FPS), while the underlying Canvas2D or WebGL graphics rasterizer remains idling.
+
+VectoJS addresses these computation bottlenecks from first principles by providing dedicated **"Escape Hatches"** to bypass CPU single-thread limitations.
+
+---
+
+### 1. High-Density Physics & Particle Simulations ($N$-Body Computation)
+
+**The Bottleneck**: Simulating spring physics, mouse gravity attraction, or inter-particle collision queries for thousands of entities inside Javascript's main thread is computationally prohibitive. At $N = 10,000$ particles, the naive $O(N^2)$ distance query or even standard $O(N)$ integrations will saturate a single CPU thread, causing frame rates to collapse well below 60 FPS.
+
+**The Escape Hatch: WebGPU Compute Shaders (`ComputeParticleEntity`)**
+To bypass CPU execution entirely, VectoJS provides `ComputeParticleEntity`. Under the hood:
+
+- The physics equations (Euler integration, spring tension, and field attraction forces) are compiled into **WGSL (WebGPU Shading Language) Compute Shaders**.
+- At runtime, the data remains resident on GPU VRAM, allowing the WebGPU compute pass to parallelize the simulation across thousands of GPU cores.
+- This architecture offloads CPU calculation entirely to the GPU, enabling smooth 60 FPS simulations of **100,000 to 1,000,000 physical particles** concurrently.
+
+---
+
+### 2. High-Density Text Measuring and Typographical Reflow
+
+**The Bottleneck**: Dynamic text layout is one of the most expensive CPU tasks in frontend engineering. It requires dictionary-based word tokenization (`Intl.Segmenter`), BiDi sorting, and browser-level font width measurements (calling the canvas `measureText` API). Attempting to calculate text layouts for tens of thousands of glyphs in a single frame (such as in financial terminals, active log streams, or data grids) will freeze the JS main thread on the "Cold Pass" measurement pipeline.
+
+**The Escape Hatch: Multi-Threaded Workers, Split Layouts & Zero-GC Memory**
+VectoJS provides three levels of text optimization:
+
+- **Off-Thread Layouts (`LayoutWorkerManager`)**: Extremely expensive multi-line typographical layouts can be fully delegated to a pool of background Web Workers. The worker performs segmentation and glyph measurement on background threads, returning a serialized transform coordinate buffer to the main thread, keeping the main UI thread completely responsive.
+- **Cold/Hot Separation**: VectoJS separates layouts into "Cold" (text parsing & glyph width measurement) and "Hot" (wrapping computations). When text wraps due to resize, the cold results are reused, avoiding all browser measurement APIs and bringing resize layout complexity to pure $O(\text{word count})$.
+- **Zero-GC TypedArray Buffers (`LayoutResultBuffer`)**: To prevent garbage collection (GC) pauses caused by allocating thousands of temporary layout node objects, developers can use the `LayoutResultBuffer` API. This writes layout coordinates directly into pre-allocated, flat TypedArrays, achieving zero heap allocations per frame.
+
+---
+
+### 3. Sea of Entities Interaction ($O(N^2)$ Complexity Catastrophe)
+
+**The Bottleneck**: When you have $100,000$ active nodes, calculating mouse hover selection or entity-to-entity collisions naively requires nested loops. Testing every element against every other element represents a classic $O(N^2)$ complexity catastrophe. For $100,000$ nodes, $O(N^2)$ means **10 billion operations per frame**—instantly crashing the browser tab.
+
+**The Escape Hatch: Spatial Hashing Grid (`SpatialHashGrid`)**
+To solve this, VectoJS indexes all entities using an ultra-fast **Spatial Hashing Grid**:
+
+- The 2D coordinate space is discretized into a dynamic hash table indexed by large primes.
+- For click detection, the engine only queries the single cell containing the pointer coordinates and its 8 immediate neighboring cells.
+- For local entity-to-entity interactions, elements only query their localized hash grid cells.
+- This algorithms-based optimization reduces culling, picking, and local physics complexity from **$O(N)$ or $O(N^2)$ to an average of $O(1)$**, maintaining constant-time operations regardless of total scene density.
+
+---
+
 ## Measuring real performance
 
 > [!WARNING]
@@ -272,3 +322,6 @@ class BenchEntity extends Entity {
 | Text reflow on resize is slow           | Use `setMaxWidth()` instead of `setText()`                             |
 | 10k+ text glyphs cause GC pauses        | Use `LayoutResultBuffer` + `layoutPreparedIntoBuffer()`                |
 | FPS looks wrong in CI                   | Measure on real GPU hardware — headless is a floor                     |
+| 10k+ dynamic particles freeze CPU       | Use `ComputeParticleEntity` to offload physics simulation to WebGPU    |
+| Multi-line text reflow freezes thread   | Delegate layouts off-thread using `LayoutWorkerManager`                |
+| Sea of entities interaction is $O(N^2)$ | Implement a `SpatialHashGrid` to reduce complexity to average $O(1)$   |
